@@ -20,21 +20,20 @@ def getuser(user=None):
 
 def getuserslist():
 	p1 = Popen(["cat", "/etc/passwd"], stdout=PIPE)
-	p2 = Popen(["cut", "-d:", "-f4-", "--complement"], stdin=p1.stdout, stdout=PIPE)
+	p2 = Popen(["cut", "-d:", "-f4-", "--complement"], stdin=p1.stdout, stdout=PIPE, universal_newlines=True).communicate()[0]
 	p1.stdout.close()
 	#universal newlines serve a restutuire l'output come stringa e non come bytes
-	p3 = Popen(["sed", "s/:.:/:/g"], stdin=p2.stdout, stdout=PIPE, universal_newlines=True).communicate()[0] #, stdout=outputfile)
-	p2.stdout.close()
+	#p3 = Popen(["sed", "s/:.:/:/g"], stdin=p2.stdout, stdout=PIPE, universal_newlines=True).communicate()[0] #, stdout=outputfile)
+	#p2.stdout.close()
 
-	output = p3.splitlines()
+	output = p2.splitlines()
 
 	users = list()
-
 	for i in output:
 		actual = i.split(':')
 		users.append({
 			'uname': actual[0],
-			'uid': actual[1]
+			'uid': actual[2]
 	})
 
 	return users

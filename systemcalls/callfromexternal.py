@@ -1,7 +1,7 @@
 from user import getuserslist, getuser
 
 #users = getuserslist()
-users = getuser('giuseppe')
+users = getuserslist()
 
 for i in users:
 	print(i)
