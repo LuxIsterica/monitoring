@@ -1,0 +1,67 @@
+.row {
+    width: 100%;
+	margin-left: 1px;
+}
+
+#sidebar-wrapper {
+    width: 17%;
+    background: #394486;
+    position: fixed;
+    height: 100%;
+}
+
+.profile_info {
+	color: white;
+	margin-left: 12%;
+	margin-top: 5%;
+	margin-bottom: 10%;
+}
+
+.sidebar-nav li{
+	/*border-top: 1px solid #373737;
+    border-bottom: 1px solid #373737 
+	*/
+	/* aggiunto tag color solo per menu, perchè menu non deve avere tag a */
+	color: white;
+	display: block;
+	position: relative;
+	font-size: 15px;
+	margin: 0 0 0 -40px;
+	padding: 14px 2px 14px 56px;
+}
+
+/*prova se il terzo li si abilita il bordo verde*/
+.sidebar-nav li li>li.active{
+	border-right: 5px solid #1ABB9C;
+}
+
+.sidebar-nav li a{
+	color: white;
+}
+
+#main_icon::before, i{
+	margin-right: 10px;
+}
+
+span::before {
+	margin-left: 2px;
+	font-size: 0.6em;
+}
+
+.page-content.inset{
+	width: 83.1%;
+    float: right;
+}
+
+#div1page div img{
+	right: 3px;
+}
+
+#div2page {
+	border: 5px solid red;
+	border-style: groove;
+}
+
+p {
+	margin-left: 80px;
+}
