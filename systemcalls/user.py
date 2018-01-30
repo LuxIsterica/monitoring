@@ -61,13 +61,6 @@ def getusers():
 	#
 	#p2.stdout.close()
 
-def addusertogroup(user):
-	pass
-
-def removeuserfromgroup(user):
-	pass
-
-
 
 def getgroups():
 	p1 = Popen(["cat", "/etc/group"], stdout=PIPE, universal_newlines=True).communicate()[0]
@@ -84,3 +77,9 @@ def getgroups():
 		})
 
 	return groups
+
+def addusertogroup(user, group):
+	pass
+
+def removeuserfromgroup(user, group):
+	pass
