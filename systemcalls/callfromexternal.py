@@ -2,7 +2,7 @@ from user import getusers, getuser, getgroups, addusertogroup, removeuserfromgro
 import re
 
 
-removeuserfromgroup('giuseppe', 'adm')
+output = getusers('namesonly')
 
-#for i in users:
-#	print(i)
+for i in output:
+	print(i)

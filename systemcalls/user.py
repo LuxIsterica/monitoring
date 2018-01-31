@@ -1,9 +1,31 @@
 from subprocess import Popen, PIPE, check_output, CalledProcessError
+from pymongo import MongoClient
 import re
+import datetime
+import pprint
+import urllib.parse
 
-#getuser(user)
-#getusers()
-#getgroups()
+
+#Mongo Authenticationn
+uri = "mongodb://root:test@localhost/admin?authMechanism=SCRAM-SHA-1"
+client = MongoClient(uri)
+db = client['nomodo']
+
+
+#post = {"author": "Mike",
+#        "text": "My first blog post!",
+#	"tags": ["mongodb","python","pymongo"],
+#	"date": datetime.datetime.utcnow()}
+#
+#	#post_id = db.posts.insert_one(post).inserted_id
+#	#print(post_id)
+#
+#	#show collections
+#	print(db.collection_names(include_system_collections=False))
+#
+#	pprint.pprint(db.posts.find_one({"author":"Mike"}))
+
+
 
 def getuser(user=None):
 	p1 = Popen(['getent', 'passwd',  user], stdout=PIPE, universal_newlines=True).communicate()[0]
@@ -33,6 +55,7 @@ def getuser(user=None):
 	return users
 
 def getusers():
+
 	p1 = Popen(["cat", "/etc/passwd"], stdout=PIPE)
 	p2 = Popen(["cut", "-d:", "-f4-", "--complement"], stdin=p1.stdout, stdout=PIPE, universal_newlines=True).communicate()[0]
 	p1.stdout.close()
@@ -77,6 +100,7 @@ def getgroups():
 		})
 
 	return groups
+
 
 def addusertogroup(user, group):
 
