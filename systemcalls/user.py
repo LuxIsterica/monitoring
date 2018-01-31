@@ -83,7 +83,11 @@ def addusertogroup(user, group):
 	try:
 		check_output(['adduser', user, group])
 	except CalledProcessError:
-		print('Errore nell\'aggiunta dell\'utente al gruppo')
+		print( 'Errore nell\'aggiunta dell\'utente %s al gruppo %s' % (user, group) )
 
 def removeuserfromgroup(user, group):
-	pass
+	
+	try:
+		check_output(['gpasswd', '-d', user, group])
+	except CalledProcessError:
+		print( 'Errore nella rimozione dell\'utente %s dal gruppo %s' % (user, group) )
