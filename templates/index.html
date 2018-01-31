@@ -2,10 +2,9 @@
 <html>
 
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
 	<title> [ Nomodo ] </title>
 
@@ -18,85 +17,79 @@
 
 <body>
 	<!-- start sidebar -->
-	<div class="row">
-		<div class="col-md-4 collapse in width" id="collapseSidebar">
-			<ul class="nav nav-pills nav-stacked"> 
-				<li>
-					<div class="profile_info">
-						<span>Benvenuto,</span>
-						<h4>Utente loggato</h4>
-					</div>
-				</li>
-				<li>
-					<a href="#collapseSidebar" id="hamburger" role="button" data-toggle="collapse" aria-expanded="false" aria-controls="collapseSidebar">Menu<span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon glyphicon-menu-hamburger"></span></a>
-				</li>
-				<li>
-					<a href="#">Network<span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon glyphicon-signal"></span></a>
-				</li>
-				<li class="dropdown">
-					<a href="#" class="dropdown-toggle" data-toggle="dropdown">System <span class="caret"></span><span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon glyphicon-menu-down"></span></a>
-					<ul class="dropdown-menu forAnimate" role="menu">
-						<li>
-							<a href="#">Monitoring</a>
-						</li>
-						<li>
-							<a href="#">Management</a>
-						</li>	
-					</ul>
-				</li>
-				<li>
-					<a href="#">WebServer<span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon glyphicon-globe"></span></a>
-				</li>
-				<li>
-					<a href="#">Dashboard<span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon glyphicon-briefcase"></span></a>
-				</li>
-				<li>
-					<a href="#">Other<span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon glyphicon-triangle-right"></span></a>
-				</li>
-				<li>
-					<a href="#">Logout<span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon glyphicon-off"></span></a>
-				</li>
-			</ul>
-		</div>
-		<div class="col-md-8" id="page-content">
-		<!-- Page content -->
-			<div class="row" id="div1page">
-				<div class="col-md-4 col-md-offset-5">
-					<img src="image/nomodo_logo.png" alt="Logo Nomodo">
-				</div>
-			</div>
-			<div class="row" id="div2page">
-				<div class="col-md-4 col-md-offset-5">
-					<p>hello</p>
-				</div>
-			</div>
-		</div>
-		
-	</div>
-	
-	<!-- Page content -->
-		<!-- <div class="page-content inset"> -->
-		<!-- <div class="container"> -->
-			<!-- <div class="row" id="div1page"> -->
-				<!-- <div class="col-md-12 col-md-offset-5"> -->
-					<!-- <img src="image/nomodo_logo.png" alt="Logo Nomodo"> -->
-				<!-- </div> -->
-			<!-- </div> -->
-			<!-- <div class="row" id="div2page"> -->
-				<!-- <div class="col-md-12"> -->
-					<!-- <p>hello</p> -->
-				<!-- </div> -->
-			<!-- </div> -->
-		<!-- </div> --> 
-		<!-- </div> -->
-	<!-- </div> -->
-	<!-- end -->
+	<div class="wrapper">
+		<nav id="sidebar">
+                <div class="sidebar-header">
+                    <h3>Nome Utente</h3>
+                    <strong>NU</strong>
+                </div>
+				<ul class="list-unstyled components">
+                	<li>
+                        <a type="button" id="sidebarCollapse" class="btn btn-info navbar-btn">
+                            <i class="glyphicon glyphicon-menu-hamburger"></i>
+							Menu
+                        </a>
+                	</li>
+					<li>
+                        <a href="#">
+                            <i class="glyphicon glyphicon-signal"></i>
+                            Network
+                        </a>
+                        <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false">
+                            <i class="glyphicon glyphicon-eye-open"></i>
+                            System
+                        </a>
+                        <ul class="collapse list-unstyled" id="pageSubmenu">
+                            <li><a href="#">Monitoring</a></li>
+                            <li><a href="#">Management</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="glyphicon glyphicon-globe"></i>
+                            WebServer
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="glyphicon glyphicon-briefcase"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="glyphicon glyphicon-triangle-right"></i>
+                            Other
+                        </a>
+                    </li>
+					<li>
+                        <a href="#">
+                            <i class="glyphicon glyphicon-off"></i>
+                            Logout
+                        </a>
+                    </li>
+                </ul>	
+		</nav>
 
-	<!-- <script src="js/index.js"></script> -->
+		<!-- Page content -->
+			<div id="content">
+                <!--<h2>Lorem Ipsum Dolor</h2>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>-->
+				<div class="container">
+					<img src="image/nomodo_logo.png" alt="Nomodo"  width="300" height="300">
+				</div>
+				<div class="line"></div>
+				<!--<h2>Lorem Ipsum Dolor</h2>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>-->
+			</div>
+         <!-- end -->
+	</div>
+	<!-- end sidebar -->
+
 	<!-- obbligatorio per bootstrap.js -->
 	<script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
 	<!-- obbligatorio per il menù laterale con dropdown -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/script.js"></script> 
 </body>
-
 </html>
