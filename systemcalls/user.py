@@ -1,4 +1,4 @@
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, check_output, CalledProcessError
 import re
 
 #getuser(user)
@@ -79,7 +79,11 @@ def getgroups():
 	return groups
 
 def addusertogroup(user, group):
-	pass
+
+	try:
+		check_output(['adduser', user, group])
+	except CalledProcessError:
+		print('Errore nell\'aggiunta dell\'utente al gruppo')
 
 def removeuserfromgroup(user, group):
 	pass

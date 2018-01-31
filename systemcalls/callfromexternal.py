@@ -1,7 +1,8 @@
-from user import getusers, getuser, getgroups
+from user import getusers, getuser, getgroups, addusertogroup
 import re
 
-users = getgroups()
 
-for i in users:
-	print(i)
+addusertogroup('giuseppe', 'adm')
+
+#for i in users:
+#	print(i)
