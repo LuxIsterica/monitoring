@@ -1,5 +1,3 @@
-from user import getusers, getuser, getgroups, addusertogroups, removeuserfromgroups, adduser, removeuser
-import re
+from user import getusers, getuser, getgroups, addusertogroups, removeuserfromgroups, adduser, removeuser, updateuserpass, updateusershell
 
-
-adduser('temp', 'test', '')
+updateuserpass('temp', 'ciao')

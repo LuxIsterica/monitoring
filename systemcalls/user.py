@@ -1,3 +1,4 @@
+# coding=utf-8
 from subprocess import Popen, PIPE, check_output, CalledProcessError
 from pymongo import MongoClient
 import re
@@ -124,13 +125,21 @@ def removeuserfromgroups(user, *groups):
 	return logid
 
 
-def updateuserpass():
-	pass
+def updateuserpass(user, password):
+
+	p1 = Popen(['echo', user + ':' + password], stdout=PIPE)
+	p2 = Popen(['/usr/bin/chpasswd'], stdin=p1.stdout)
+	p1.stdout.close()
+
+
+
 
 def updateusershell(user, shell):
 	
 	logid = log( locals() )
 
+	if not shell:
+		raise SyntaxError("La stringa contenente il nome della shell non può essere vuota")
 
 	try:
 		check_output(['chsh', user, '-s', shell])
@@ -148,7 +157,7 @@ def adduser(user, password, shell="/bin/bash"):
 	logid = log( locals() )
 
 	if not shell:
-		raise BadArgumentError("La stringa contenente il nome della shell non può essere vuota")
+		raise SyntaxError("La stringa contenente il nome della shell non può essere vuota")
 
 	try:
 		check_output(['useradd', '-m', '-p', password, '-s', shell, user])
