@@ -120,6 +120,22 @@ def removeuserfromgroup(user, group):
 	return logid
 
 
+def adduser():
+	pass
+
+
+def removeuser(user, removehometoo):
+	
+	userhome = getuser(user)['home']
+
+	try:
+		check_output(['deluser', user])
+		if removehometoo:
+			check_output(['rm', '-r', userhome])	
+	except CalledProcessError:
+		print('Errore durante la rimozione dell\'utente o della sua cartella home')
+
+
 #Logs operation to mongodb in the 'log' collection
 #Should be called with locals() as first parameter
 def log(params, *args):
