@@ -2,9 +2,10 @@ from user import getusers, getuser, getgroups, addusertogroup, removeuserfromgro
 import re
 
 
-
-logid = removeuserfromgroup('giuseppe', 'dip')
+print('addusertogroup')
+logid = addusertogroup('giuseppe', 'dip')
 print(logid)
 
-#for i in output:
-#	print(i)
+print('removeuserfromgroup')
+logid = removeuserfromgroup('giuseppe', 'dip')
+print(logid)

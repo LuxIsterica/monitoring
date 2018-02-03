@@ -90,44 +90,54 @@ def getgroups():
 
 def addusertogroup(user, group):
 
+	#Logging operation to mongo first
+	logid = log( locals(), getuser(user) )
+
+
 	try:
 		check_output(['adduser', user, group])
 	except CalledProcessError:
 		print( 'Errore nell\'aggiunta dell\'utente %s al gruppo %s' % (user, group) )
 
 
+	#ObjectID of mongo
+	return logid
+
+
 def removeuserfromgroup(user, group):
 
-	dblog = dict({
-		'date': datetime.datetime.utcnow(),	#Operation date
-		'funname': inspect.stack()[0][3],	#Function name
-		'parameters': locals(),			#locals()=All arguments
-	})
-	dblog.update( getuser(user) )			#Appending user information
-
-
-	#inserting operaton log into mongo before executing any operation
-	logid = db.log.insert_one( dblog )
-
-
-	#post = {"author": "Mike",
-	#        "text": "My first blog post!",
-	#       "tags": ["mongodb","python","pymongo"],
-	#       "date": datetime.datetime.utcnow()}
-	#
-	#       #post_id = db.posts.insert_one(post).inserted_id
-	#       #print(post_id)
-	#
-	#       #show collections
-	#       print(db.collection_names(include_system_collections=False))
-	#
-	#       pprint.pprint(db.posts.find_one({"author":"Mike"}))
-
+	#Logging operation to mongo first
+	logid = log( locals(), getuser(user) )
+	
 	
 	try:
 		check_output(['gpasswd', '-d', user, group])
 	except CalledProcessError:
 		print( 'Errore nella rimozione dell\'utente %s dal gruppo %s' % (user, group) )
 
-	#Object ID of mongo
+
+	#ObjectID of mongo
 	return logid
+
+
+#Logs operation to mongodb in the 'log' collection
+#Should be called with locals() as first parameter
+def log(params, *args):
+
+	dblog = dict({
+		'date': datetime.datetime.utcnow(),     #Operation date
+		'funname': inspect.stack()[1][3],       #Function name
+		'parameters': params
+	})
+
+	for arg in args:
+		dblog.update( arg )
+
+	#ObjectID in mongodb
+	return db.log.insert_one( dblog )
+
+
+	#       #show collections
+	#       print(db.collection_names(include_system_collections=False))
+	#
+	#       pprint.pprint(db.posts.find_one({"author":"Mike"}))
