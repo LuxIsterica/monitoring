@@ -2,7 +2,7 @@ from user import getusers, getuser, getgroups, addusertogroup, removeuserfromgro
 import re
 
 
-print( removeuser('temp', 'removehometoo') )
+print( removeuser('temp') )
 
 #print('addusertogroup')
 #logid = addusertogroup('giuseppe', 'dip')

@@ -16,7 +16,7 @@ db = client['nomodo']
 
 def getuser(user=None):
 	p1 = Popen(['getent', 'passwd',  user], stdout=PIPE, universal_newlines=True).communicate()[0]
-	p2 = Popen(['groups',  'giuseppe'], stdout=PIPE, universal_newlines=True).communicate()[0]
+	p2 = Popen(['groups', user], stdout=PIPE, universal_newlines=True).communicate()[0]
 	
 	userinfo = p1.splitlines()
 	userinfo = userinfo[0].split(':')
@@ -124,8 +124,10 @@ def adduser():
 	pass
 
 
-def removeuser(user, removehometoo):
+def removeuser(user, removehometoo=None):
 	
+	log( locals(), getuser(user) )
+
 	userhome = getuser(user)['home']
 
 	try:
