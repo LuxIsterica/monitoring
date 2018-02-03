@@ -123,11 +123,32 @@ def removeuserfromgroups(user, *groups):
 	#ObjectID of mongo
 	return logid
 
+
+def updateuserpass():
+	pass
+
+def updateusershell(user, shell):
+	
+	logid = log( locals() )
+
+
+	try:
+		check_output(['chsh', user, '-s', shell])
+	
+	except CalledProcessError:
+		print('Errore durante lal creazione dell\'utente')
+
+	return logid
+
+
+
 #Inserire la shell di default nel form (a Lucia)
 def adduser(user, password, shell="/bin/bash"):
 	
 	logid = log( locals() )
 
+	if not shell:
+		raise BadArgumentError("La stringa contenente il nome della shell non può essere vuota")
 
 	try:
 		check_output(['useradd', '-m', '-p', password, '-s', shell, user])
@@ -144,8 +165,7 @@ def removeuser(user, removehometoo=None):
 	logid = log( locals(), getuser(user) )
 
 	command = ['deluser', user]
-	if removehometoo:
-		command.append('--remove-home')
+	if removehometoo: command.append('--remove-home')
 
 	try:
 		check_output( command )

@@ -2,5 +2,4 @@ from user import getusers, getuser, getgroups, addusertogroups, removeuserfromgr
 import re
 
 
-print( removeuser('temp', 'removehome') )
-
+adduser('temp', 'test', '')
