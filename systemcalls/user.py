@@ -88,14 +88,16 @@ def getgroups():
 	return groups
 
 
-def addusertogroup(user, group):
+def addusertogroups(user, *groups):
 
 	#Logging operation to mongo first
 	logid = log( locals(), getuser(user) )
 
 
 	try:
-		check_output(['adduser', user, group])
+		for group in groups:
+			check_output(['adduser', user, group])
+
 	except CalledProcessError:
 		print( 'Errore nell\'aggiunta dell\'utente %s al gruppo %s' % (user, group) )
 
@@ -104,14 +106,16 @@ def addusertogroup(user, group):
 	return logid
 
 
-def removeuserfromgroup(user, group):
+def removeuserfromgroups(user, *groups):
 
 	#Logging operation to mongo first
 	logid = log( locals(), getuser(user) )
 	
 	
 	try:
-		check_output(['gpasswd', '-d', user, group])
+		for group in groups:
+			check_output(['gpasswd', '-d', user, group])
+
 	except CalledProcessError:
 		print( 'Errore nella rimozione dell\'utente %s dal gruppo %s' % (user, group) )
 
@@ -119,27 +123,43 @@ def removeuserfromgroup(user, group):
 	#ObjectID of mongo
 	return logid
 
+#Inserire la shell di default nel form (a Lucia)
+def adduser(user, password, shell="/bin/bash"):
+	
+	logid = log( locals() )
 
-def adduser():
-	pass
+
+	try:
+		check_output(['useradd', '-m', '-p', password, '-s', shell, user])
+
+	except CalledProcessError:
+		print('Errore durante la creazione dell\'utente')
+
+
+	return logid
 
 
 def removeuser(user, removehometoo=None):
 	
-	log( locals(), getuser(user) )
+	logid = log( locals(), getuser(user) )
 
-	userhome = getuser(user)['home']
+	command = ['deluser', user]
+	if removehometoo:
+		command.append('--remove-home')
 
 	try:
-		check_output(['deluser', user])
-		if removehometoo:
-			check_output(['rm', '-r', userhome])	
+		check_output( command )
 	except CalledProcessError:
 		print('Errore durante la rimozione dell\'utente o della sua cartella home')
 
 
+	return logid
+
+
+
 #Logs operation to mongodb in the 'log' collection
 #Should be called with locals() as first parameter
+#args shuld be dict()
 def log(params, *args):
 
 	dblog = dict({

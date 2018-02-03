@@ -1,13 +1,6 @@
-from user import getusers, getuser, getgroups, addusertogroup, removeuserfromgroup, adduser, removeuser
+from user import getusers, getuser, getgroups, addusertogroups, removeuserfromgroups, adduser, removeuser
 import re
 
 
-print( removeuser('temp') )
+print( removeuser('temp', 'removehome') )
 
-#print('addusertogroup')
-#logid = addusertogroup('giuseppe', 'dip')
-#print(logid)
-#
-#print('removeuserfromgroup')
-#logid = removeuserfromgroup('giuseppe', 'dip')
-#print(logid)
