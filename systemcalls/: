@@ -1,11 +1,13 @@
 # coding=utf-8
 from subprocess import Popen, PIPE, check_output, CalledProcessError
-from mongolog import log
+from pymongo import MongoClient
 import re
 import datetime
 import pprint
 import inspect
 #import urllib.parse
+
+import ast
 
 
 #Se icludesummary è True allora aggiunge alla lista restituita anche le informazioni sull'applicazione
@@ -52,41 +54,20 @@ def aptsearch( pkgname, namesonly=True ):
 
     return pkgs
 
+def aptshow(pkgname):
+    
+    command = ['apt-cache', 'show', pkgname]
+    p1 = Popen(command, stdout=PIPE, universal_newlines=True).communicate()[0]
 
-#A Lucia: verrà richiamato dopo aver fatto un search sui pacchetti installati o disponibili
-#Mostra le informazioni sul pacchetto
-#Returns: List
-def aptshow(pkgname, onlydependences=False):
-    
-    mode = 'depends' if onlydependences else 'show'
-    command = ['apt-cache', mode, pkgname]
+    output = p1.split('\n\n')[0]
 
-    output = Popen(command, stdout=PIPE, universal_newlines=True).communicate()[0]
-    
-    #Se vengono restituiti più pacchetti (diverse versioni) prende solo il primo di questi
-    if onlydependences:
-        output = output.splitlines()
-        output.pop(0) #Rimuove l'header
-        output = [item.strip(' ') for item in output] #Rimuove gli spazi bianchi ad inizio e fine stringa
-    else:
-        output = output.split('\n\n')[0]
-    
     return output
     
 
 
-#A Lucia: Stampare messaggio che i pacchetti vengono installati non interattivamente
-def aptinstall(pkgname):
-    
-    logid = log( locals(), {'dependencies' : aptshow(pkgname,onlydependences=True)} )
+def aptinstall(appname):
+    pass
 
-    try:
-        check_output(['apt-get', 'install', '-y', pkgname], env={'DEBIAN_FRONTEND': 'noninteractive'})
-    except CalledProcessError:
-        print('Errore durante l\'installazione del pacchetto')
-
-    return logid
-
-def aptremove(pkgname):
+def aptremove(appname):
     pass
 
