@@ -127,10 +127,19 @@ def removeuserfromgroups(user, *groups):
 
 def updateuserpass(user, password):
 
-	p1 = Popen(['echo', user + ':' + password], stdout=PIPE)
-	p2 = Popen(['/usr/bin/chpasswd'], stdin=p1.stdout)
-	p1.stdout.close()
+	#TODO: In questo modo la password viene memorizzata in mongo
+	logid = ( locals() )
 
+	try:
+		p1 = Popen(['echo', user + ':' + password], stdout=PIPE)
+		p2 = Popen(['/usr/sbin/chpasswd'], stdin=p1.stdout)
+		p1.stdout.close()
+
+	except CalledProcessError:
+		print('Errore durante l\'aggiornamento della password dell\'utente %s' % (user))
+
+	
+	return logid
 
 
 
@@ -151,7 +160,7 @@ def updateusershell(user, shell):
 
 
 
-#Inserire la shell di default nel form (a Lucia)
+#TODO: Inserire la shell di default nel form (a Lucia)
 def adduser(user, password, shell="/bin/bash"):
 	
 	logid = log( locals() )
