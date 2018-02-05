@@ -1,6 +1,7 @@
 # coding=utf-8
-from subprocess import Popen, PIPE, check_output, CalledProcessError
+from subprocess import Popen, PIPE, STDOUT, check_output, check_call, CalledProcessError
 from mongolog import log
+import os
 import re
 import datetime
 import pprint
@@ -80,13 +81,26 @@ def aptinstall(pkgname):
     
     logid = log( locals(), {'dependencies' : aptshow(pkgname,onlydependences=True)} )
 
+    command = ['apt-get', 'install', '-y', pkgname]
+    environ = {'DEBIAN_FRONTEND': 'noninteractive', 'PATH': os.environ.get('PATH')}
+
     try:
-        check_output(['apt-get', 'install', '-y', pkgname], env={'DEBIAN_FRONTEND': 'noninteractive'})
+        check_call( command, env=environ )  #, stdout=open(os.devnull, 'wb'), stderr=STDOUT)
     except CalledProcessError:
-        print('Errore durante l\'installazione del pacchetto')
+        print( 'Errore durante l\'installazione del pacchetto "%s"' % (pkgname) )
 
     return logid
 
-def aptremove(pkgname):
-    pass
 
+#A Lucia: checkbox "cancella tutto (purge)"
+def aptremove(pkgname, purge=False):
+
+    logid = log( locals(), {'dependencies' : aptshow(pkgname,onlydependences=True)} )
+
+    command = ['apt-get', 'purge' if purge else 'remove', '-y', pkgname]
+    environ = {'DEBIAN_FRONTEND': 'noninteractive', 'PATH': os.environ.get('PATH')}
+
+    try:
+        check_call( command, env=environ ) #stdout=open(os.devnull, 'wb'), stderr=STDOUT)
+    except CalledProcessError:
+        print( 'Errore durante la rimozione del pacchetto "%s"' % (pkgname) )

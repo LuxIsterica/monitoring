@@ -1,7 +1,9 @@
 from user import getusers, getuser, getgroups, addusertogroups, removeuserfromgroups, adduser, removeuser, updateuserpass, updateusershell
-from apps import listinstalled, aptsearch, aptshow, aptinstall
+from apps import listinstalled, aptsearch, aptshow, aptinstall, aptremove
+import os
 
 
+#aptremove('htop')
 aptinstall('htop')
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments
