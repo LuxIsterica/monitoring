@@ -1,5 +1,5 @@
 # coding=utf-8
-from subprocess import Popen, PIPE, check_output, CalledProcessError
+from subprocess import Popen, PIPE, check_output, CalledProcessError, call, STDOUT
 from mongolog import log
 import re
 #import urllib.parse
@@ -153,7 +153,7 @@ def updateusershell(user, shell):
 
 
 
-#TODO: Inserire la shell di default nel form (a Lucia)
+#A Lucia: Inserire la shell di default nel form (a Lucia)
 def adduser(user, password, shell="/bin/bash"):
 	
     logid = log( locals() )
@@ -171,6 +171,7 @@ def adduser(user, password, shell="/bin/bash"):
     return logid
 
 
+
 def removeuser(user, removehome=None):
 	
     logid = log( locals(), getuser(user) )
@@ -185,3 +186,16 @@ def removeuser(user, removehome=None):
     
     
     return logid
+
+
+
+
+def test(user, *groups):
+
+    try:
+    	for group in groups:
+    		output = check_output(['adduser', user, group], stderr=PIPE, universal_newlines=True)
+                #TODO: Mettere questa funzione da tutte le parti
+    
+    except CalledProcessError as e:
+        print( 'Returncode %s: %s' % (e.returncode, e.stderr))

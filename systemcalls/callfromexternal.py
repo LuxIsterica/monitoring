@@ -1,10 +1,9 @@
-from user import getusers, getuser, getgroups, addusertogroups, removeuserfromgroups, adduser, removeuser, updateuserpass, updateusershell
+from user import getusers, getuser, getgroups, addusertogroups, removeuserfromgroups, adduser, removeuser, updateuserpass, updateusershell, test
 from apps import listinstalled, aptsearch, aptshow, aptinstall, aptremove
 import os
 
 
-#aptremove('htop')
-aptinstall('htop')
+test('tempa', 'dip')
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments
 exit()

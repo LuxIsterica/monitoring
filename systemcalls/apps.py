@@ -9,6 +9,10 @@ import inspect
 #import urllib.parse
 
 
+
+def aptupdate():
+    pass
+
 #Se icludesummary è True allora aggiunge alla lista restituita anche le informazioni sull'applicazione
 def listinstalled( summary=False ):
 
