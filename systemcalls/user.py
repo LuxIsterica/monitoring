@@ -10,10 +10,10 @@ def getuser(user=None):
 
     try:
         command = ['getent', 'passwd',  user]
-        p1 = check_output(command, stderr=PIPE, universal_newlines=True)
+        userinfo = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
 
         command = ['groups', user]
-        p2 = check_output(command, stderr=PIPE, universal_newlines=True)
+        usergroups = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
 
     except CalledProcessError as e:
         return command_error(e, command)
@@ -21,11 +21,9 @@ def getuser(user=None):
     
 
     #Info sull'utente dal file /etc/passwd
-    userinfo = p1.splitlines()
     userinfo = userinfo[0].split(':')
     
     #Gruppi a cui l'utente appartiene
-    usergroups = p2.splitlines()
     usergroups = re.sub('^.*: ', '', usergroups[0])
     usergroups = usergroups.split(' ')
     
@@ -47,13 +45,11 @@ def getuser(user=None):
 def getusers():
 
     p1 = Popen(["cat", "/etc/passwd"], stdout=PIPE)
-    p2 = Popen(["cut", "-d:", "-f4-", "--complement"], stdin=p1.stdout, stdout=PIPE, universal_newlines=True).communicate()[0]
+    output = Popen(["cut", "-d:", "-f4-", "--complement"], stdin=p1.stdout, stdout=PIPE, universal_newlines=True).communicate()[0].splitlines()
     p1.stdout.close()
     #universal newlines serve a restutuire l'output come stringa e non come bytes
     #p3 = Popen(["sed", "s/:.:/:/g"], stdin=p2.stdout, stdout=PIPE, universal_newlines=True).communicate()[0] #, stdout=outputfile)
     #p2.stdout.close()
-    
-    output = p2.splitlines()
     
     users = list()
     for i in output:
@@ -79,13 +75,11 @@ def getgroups():
 
     try:
         command = ['cat', '/etc/group']
-        p1 = check_output(command, stderr=PIPE, universal_newlines=True)
+        output = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
     except CalledProcessError as e:
         return command_error(e, command)
 
 
-    output = p1.splitlines()
-    
     groups = list()
     for i in output:
         actual = i.split(':')

@@ -19,8 +19,7 @@ def listinstalled( summary=False ):
     options = '-f=${binary:Package};${Version};${Architecture}' + ( ';${binary:Summary}\n' if summary else '\n' )
     command = ['dpkg-query', options, '-W']
 
-    p1 = Popen(command, stdout=PIPE, universal_newlines=True).communicate()[0]
-    output = p1.splitlines()
+    output = Popen(command, stdout=PIPE, universal_newlines=True).communicate()[0].splitlines()
 
 
     #Lista di chiavi per le informazioni sull'app
@@ -45,8 +44,7 @@ def aptsearch( pkgname, namesonly=True ):
     command = ['apt-cache', 'search', pkgname]
     if namesonly: command.append('--names-only')
 
-    p1 = Popen(command, stdout=PIPE, universal_newlines=True).communicate()[0]
-    output = p1.splitlines()
+    output = Popen(command, stdout=PIPE, universal_newlines=True).communicate()[0].splitlines()
 
     keys = ['name', 'desc']
     pkgs = list()
