@@ -1,6 +1,6 @@
 # coding=utf-8
 from subprocess import Popen, PIPE, STDOUT, check_output, check_call, CalledProcessError
-from mongolog import log
+from utilities import mongolog, command_error
 import os
 import re
 import datetime
@@ -83,7 +83,7 @@ def aptshow(pkgname, onlydependences=False):
 #A Lucia: Stampare messaggio che i pacchetti vengono installati non interattivamente
 def aptinstall(pkgname):
     
-    logid = log( locals(), {'dependencies' : aptshow(pkgname,onlydependences=True)} )
+    logid = mongolog( locals(), {'dependencies' : aptshow(pkgname,onlydependences=True)} )
 
     command = ['apt-get', 'install', '-y', pkgname]
     environ = {'DEBIAN_FRONTEND': 'noninteractive', 'PATH': os.environ.get('PATH')}
@@ -99,7 +99,7 @@ def aptinstall(pkgname):
 #A Lucia: checkbox "cancella tutto (purge)"
 def aptremove(pkgname, purge=False):
 
-    logid = log( locals(), {'dependencies' : aptshow(pkgname,onlydependences=True)} )
+    logid = mongolog( locals(), {'dependencies' : aptshow(pkgname,onlydependences=True)} )
 
     command = ['apt-get', 'purge' if purge else 'remove', '-y', pkgname]
     environ = {'DEBIAN_FRONTEND': 'noninteractive', 'PATH': os.environ.get('PATH')}

@@ -1,9 +1,9 @@
-from user import getusers, getuser, getgroups, addusertogroups, removeuserfromgroups, adduser, removeuser, updateuserpass, updateusershell, test
+from user import getusers, getuser, getgroups, addusertogroups, removeuserfromgroups, adduser, removeuser, updateuserpass, updateusershell
 from apps import listinstalled, aptsearch, aptshow, aptinstall, aptremove
 import os
 
 
-test('tempa', 'dip')
+print( removeuser('tempa') )
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments
 exit()

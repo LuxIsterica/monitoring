@@ -1,15 +1,25 @@
 # coding=utf-8
 from subprocess import Popen, PIPE, check_output, CalledProcessError, call, STDOUT
-from mongolog import log
+from utilities import mongolog, command_error
 import re
 #import urllib.parse
 
 
 
 def getuser(user=None):
-    p1 = Popen(['getent', 'passwd',  user], stdout=PIPE, universal_newlines=True).communicate()[0]
-    p2 = Popen(['groups', user], stdout=PIPE, universal_newlines=True).communicate()[0]
+
+    try:
+        command = ['getent', 'passwd',  user]
+        p1 = check_output(command, stderr=PIPE, universal_newlines=True)
+
+        command = ['groups', user]
+        p2 = check_output(command, stderr=PIPE, universal_newlines=True)
+
+    except CalledProcessError as e:
+        return command_error(e, command)
     
+    
+
     #Info sull'utente dal file /etc/passwd
     userinfo = p1.splitlines()
     userinfo = userinfo[0].split(':')
@@ -31,7 +41,7 @@ def getuser(user=None):
     	'group': usergroups.pop(0),
     	'groups': usergroups
     })
-	
+
 
 
 def getusers():
@@ -66,8 +76,14 @@ def getusers():
 
 
 def getgroups():
-    p1 = Popen(["cat", "/etc/group"], stdout=PIPE, universal_newlines=True).communicate()[0]
-    
+
+    try:
+        command = ['cat', '/etc/group']
+        p1 = check_output(command, stderr=PIPE, universal_newlines=True)
+    except CalledProcessError as e:
+        return command_error(e, command)
+
+
     output = p1.splitlines()
     
     groups = list()
@@ -85,15 +101,14 @@ def getgroups():
 def addusertogroups(user, *groups):
 
     #Logging operation to mongo first
-    logid = log( locals(), getuser(user) )
-    
+    logid = mongolog( locals(), getuser(user) )
     
     try:
     	for group in groups:
-    		check_output(['adduser', user, group])
-    
-    except CalledProcessError:
-    	print( 'Errore nell\'aggiunta dell\'utente %s al gruppo %s' % (user, group) )
+            command = ['adduser', user, group],
+            check_output(command, stderr=PIPE, universal_newlines=True)
+    except CalledProcessError as e:
+        return command_error(e, command)
     
     
     #ObjectID of mongo
@@ -103,15 +118,15 @@ def addusertogroups(user, *groups):
 def removeuserfromgroups(user, *groups):
 
     #Logging operation to mongo first
-    logid = log( locals(), getuser(user) )
+    logid = mongolog( locals(), getuser(user) )
     
     
     try:
     	for group in groups:
-    		check_output(['gpasswd', '-d', user, group])
-    
-    except CalledProcessError:
-    	print( 'Errore nella rimozione dell\'utente %s dal gruppo %s' % (user, group) )
+                command = ['gpasswd', '-d', user, group]
+                check_output(command, stderr=PIPE, universal_newlines=True)
+    except CalledProcessError as e:
+        return command_error(e, command)
     
     
     #ObjectID of mongo
@@ -138,16 +153,17 @@ def updateuserpass(user, password):
 
 def updateusershell(user, shell):
 	
-    logid = log( locals() )
+    logid = mongolog( locals() )
     
     if not shell:
     	raise SyntaxError("La stringa contenente il nome della shell non può essere vuota")
     
     try:
-    	check_output(['chsh', user, '-s', shell])
-    
-    except CalledProcessError:
-    	print('Errore durante lal creazione dell\'utente')
+        command = ['chsh', user, '-s', shell]
+        check_output(command, stderr=PIPE, universal_newlines=True)
+    except CalledProcessError as e:
+        return command_error(e, command)
+
     
     return logid
 
@@ -156,46 +172,35 @@ def updateusershell(user, shell):
 #A Lucia: Inserire la shell di default nel form (a Lucia)
 def adduser(user, password, shell="/bin/bash"):
 	
-    logid = log( locals() )
+    logid = mongolog( locals() )
     
+
     if not shell:
     	raise SyntaxError("La stringa contenente il nome della shell non può essere vuota")
     
     try:
-    	check_output(['useradd', '-m', '-p', password, '-s', shell, user])
+        command = ['useradd', '-m', '-p', password, '-s', shell, user]
+        check_output(command, stderr=PIPE, universal_newlines=True)
+    except CalledProcessError as e:
+        return command_error(e, command)
     
-    except CalledProcessError:
-    	print('Errore durante la creazione dell\'utente')
-    
-    
+
     return logid
 
 
 
 def removeuser(user, removehome=None):
 	
-    logid = log( locals(), getuser(user) )
+    logid = mongolog( locals(), getuser(user) )
     
-    command = ['deluser', user]
-    if removehome: command.append('--remove-home')
-    
+
     try:
-    	check_output( command )
-    except CalledProcessError:
-    	print('Errore durante la rimozione dell\'utente o della sua cartella home')
+        command = ['deluser', user]
+        if removehome: command.append('--remove-home') 
+
+        check_output( command, stderr=PIPE, universal_newlines=True )
+    except CalledProcessError as e:
+        return command_error(e, command)
     
     
     return logid
-
-
-
-
-def test(user, *groups):
-
-    try:
-    	for group in groups:
-    		output = check_output(['adduser', user, group], stderr=PIPE, universal_newlines=True)
-                #TODO: Mettere questa funzione da tutte le parti
-    
-    except CalledProcessError as e:
-        print( 'Returncode %s: %s' % (e.returncode, e.stderr))
