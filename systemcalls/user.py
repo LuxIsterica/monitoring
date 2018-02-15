@@ -44,22 +44,40 @@ def getuser(user=None):
 
 def getusers():
 
-    p1 = Popen(["cat", "/etc/passwd"], stdout=PIPE)
-    output = Popen(["cut", "-d:", "-f4-", "--complement"], stdin=p1.stdout, stdout=PIPE, universal_newlines=True).communicate()[0].splitlines()
-    p1.stdout.close()
-    #universal newlines serve a restutuire l'output come stringa e non come bytes
-    #p3 = Popen(["sed", "s/:.:/:/g"], stdin=p2.stdout, stdout=PIPE, universal_newlines=True).communicate()[0] #, stdout=outputfile)
-    #p2.stdout.close()
-    
+    try:
+        command = ["cat", "/etc/passwd"]
+        output = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
+    except CalledProcessError as e:
+        return command_error(e, command)
+
+
     users = list()
     for i in output:
-    	actual = i.split(':')
-    	users.append({
-    		'uname': actual[0],
-    		'uid': actual[2]
-    })
-    
+        i = i.split(':', 3)
+        users.append({
+    	    'uname': i[0],
+    	    'uid': i[2]
+        })
+
     return users
+
+
+    #p1 = Popen(["cat", "/etc/passwd"], stdout=PIPE)
+    #output = Popen(["cut", "-d:", "-f4-", "--complement"], stdin=p1.stdout, stdout=PIPE, universal_newlines=True).communicate()[0].splitlines()
+    #p1.stdout.close()
+    ##universal newlines serve a restutuire l'output come stringa e non come bytes
+    ##p3 = Popen(["sed", "s/:.:/:/g"], stdin=p2.stdout, stdout=PIPE, universal_newlines=True).communicate()[0] #, stdout=outputfile)
+    ##p2.stdout.close()
+    #
+    #users = list()
+    #for i in output:
+    #	actual = i.split(':')
+    #	users.append({
+    #		'uname': actual[0],
+    #		'uid': actual[2]
+    #})
+    #
+    #return users
     
     
     #print(users)

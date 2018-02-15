@@ -3,8 +3,13 @@ from apps import listinstalled, aptsearch, aptshow, aptinstall, aptremove
 import os
 
 
-for i in listinstalled():
+
+
+for i in getusers():
     print(i)
+
+
+
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments
 exit()
