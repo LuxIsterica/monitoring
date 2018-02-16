@@ -19,14 +19,19 @@ def listinstalled( summary=False ):
     options = '-f=${binary:Package};${Version};${Architecture}' + ( ';${binary:Summary}\n' if summary else '\n' )
     command = ['dpkg-query', options, '-W']
 
-    output = Popen(command, stdout=PIPE, universal_newlines=True).communicate()[0].splitlines()
+    try:
+        output = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
+    except CalledProcessError as e:
+        return command_error(e, command)
+    except FileNotFoundError as e:
+        return e
 
 
     #Lista di chiavi per le informazioni sull'app
     keys = ['name', 'version', 'architecture']
     if summary: keys.append('summary')
     
-    #apps conterrà la lista di dizionari con tutte le app da restituire
+    #Conterrà una lista di dizionari con tutte le app installate nel sistema
     pkgs = list()
 
     #Inserimento valori nella lista apps()
