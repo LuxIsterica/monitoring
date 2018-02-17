@@ -179,3 +179,8 @@ def removerepofile(filename):
         pass
 
     return logid
+
+
+def getinstalledrepopackages(filename):
+
+    command  = ['grep', '-h', '^Package']
