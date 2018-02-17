@@ -35,6 +35,10 @@ def mongolog(params, *args):
 
 
 
+def mongoaddtodocument(logid, *fields)
+
+
+
 #Deve essere chiamato quando viene lanciata una eccezione di tipo CalledProcessError
 #Restituisce un dizionario con le informazioni sull'eccezione
 def command_error(e, c):
