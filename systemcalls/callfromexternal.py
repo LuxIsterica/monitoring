@@ -1,15 +1,9 @@
 from user import getusers, getuser, getgroups, addusertogroups, removeuserfromgroups, adduser, removeuser, updateuserpass, updateusershell
-from apps import listinstalled, aptsearch, aptshow, aptinstall, aptremove
+from apps import listinstalled, aptsearch, aptshow, aptinstall, aptremove, aptupdate, addrepo,  getexternalrepos, removerepofile
 import os
 
 
-
-
-for i in getusers():
-    print(i)
-
-
-
+print( removerepofile('test') )
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments
 exit()

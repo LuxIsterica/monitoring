@@ -11,7 +11,16 @@ import inspect
 
 
 def aptupdate():
-    pass
+
+    logid = mongolog( locals() )
+
+    try:
+        command = ['apt-get', 'update']
+        check_call(command)
+    except CalledProcessError as e:
+        return command_error(e, command)
+
+    return logid
 
 #Se icludesummary è True allora aggiunge alla lista restituita anche le informazioni sull'applicazione
 def listinstalled( summary=False ):
@@ -111,3 +120,62 @@ def aptremove(pkgname, purge=False):
         check_call( command, env=environ ) #stdout=open(os.devnull, 'wb'), stderr=STDOUT)
     except CalledProcessError:
         print( 'Errore durante la rimozione del pacchetto "%s"' % (pkgname) )
+
+
+def getexternalrepos():
+
+    repospath = '/etc/apt/sources.list.d/'
+    repos = list()
+
+    try:
+        command = ['ls', '-1', repospath]
+        reposfiles = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
+
+        lines = str()
+        for filename in reposfiles:
+            
+            if not filename.endswith('.save'):
+                with open(repospath + filename) as f:
+                    lines = f.read()
+
+                repos.append({
+                    'filename': filename,
+                    'lines': lines
+                })
+
+    except CalledProcessError as e:
+        command_error(e, command)
+
+
+    return repos
+
+
+
+
+#returns <string> containing filename where repo is added
+def addrepo(url, name):
+
+    logid = mongolog( locals() )
+
+    filename = '/etc/apt/sources.list.d/' + name + '.list'
+    repofile = open( filename, 'a')
+    repofile.write(url + '\n')
+    repofile.close()
+
+    return filename
+
+
+
+def removerepofile(filename):
+
+    logid = mongolog( locals() )
+
+    repospath = '/etc/apt/sources.list.d/'
+
+    try:
+        os.remove(repospath + filename + '.list')
+        os.remove(repospath + filename + '.list.save')
+    except OSError:
+        pass
+
+    return logid
