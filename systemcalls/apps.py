@@ -22,6 +22,8 @@ def aptupdate():
 
     return logid
 
+
+
 #Se icludesummary è True allora aggiunge alla lista restituita anche le informazioni sull'applicazione
 def listinstalled( summary=False ):
 
@@ -108,6 +110,7 @@ def aptinstall(pkgname):
     return logid
 
 
+
 #A Lucia: checkbox "cancella tutto (purge)"
 def aptremove(pkgname, purge=False):
 
@@ -120,6 +123,7 @@ def aptremove(pkgname, purge=False):
         check_call( command, env=environ ) #stdout=open(os.devnull, 'wb'), stderr=STDOUT)
     except CalledProcessError:
         print( 'Errore durante la rimozione del pacchetto "%s"' % (pkgname) )
+
 
 
 def getexternalrepos():
@@ -148,7 +152,6 @@ def getexternalrepos():
 
 
     return repos
-
 
 
 

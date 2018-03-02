@@ -23,3 +23,19 @@ def hostname(hname=""):
         return command_error(e, command)
 
     return (logid if hname else hostname)
+
+
+#Return a string the /etc/hosts file content
+def gethosts():
+
+    with open('/etc/hosts', 'r') as hostsfile:
+        return hostsfile.read()
+
+
+#TODO: mongolog
+#Overwrite the /etc/hosts file with the one which the user
+#has modified from the web interface
+def writehosts(hosts):
+    
+    with open('hosts', 'w') as hostsfile:
+        hostsfile.write(hosts)

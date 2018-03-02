@@ -35,7 +35,8 @@ def mongolog(params, *args):
 
 
 
-def mongoaddtodocument(logid, *fields)
+#def mongoaddtodocument(logid, *fields)
+#    pass
 
 
 
