@@ -1,12 +1,16 @@
 from user import getusers, getuser, getgroups, addusertogroups, removeuserfromgroups, adduser, removeuser, updateuserpass, updateusershell
 from apps import listinstalled, aptsearch, aptshow, aptinstall, aptremove, aptupdate, addrepo,  getexternalrepos, removerepofile
-from system import hostname, gethosts, writehosts
+from system import hostname, gethosts, writehosts, getsysteminfo
 from systemfile import updatedb, locate, removefile
+from pprint import pprint
+from sets import Set
 import os
 
 
 
-print( writehosts( gethosts() ) ) 
+lines = Set(['jack', 'jones'])
+lines.add('jack')
+print(lines)
 
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments

@@ -39,3 +39,29 @@ def writehosts(hosts):
     
     with open('hosts', 'w') as hostsfile:
         hostsfile.write(hosts)
+
+def getsysteminfo():
+
+    try:
+        command = ['cat', '/proc/meminfo']
+        mem = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
+        command = ['cat', '/proc/cpuinfo']
+        cpu = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
+    except CalledProcessError as e:
+        return command_error(e, command)
+
+
+    infos = dict()
+
+    #Inserting memory informations into info dictionary
+    for line in mem:
+        line = re.sub(' ', '', line)
+        line = line.split(':')
+        infos.update( {line[0].lower() : line[1]} )
+
+
+#    for line in cpu:
+
+
+
+    #nproc

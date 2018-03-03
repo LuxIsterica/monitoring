@@ -73,7 +73,8 @@ def aptsearch( pkgname, namesonly=True ):
 
 
 #A Lucia: verrà richiamato dopo aver fatto un search sui pacchetti installati o disponibili
-#Mostra le informazioni sul pacchetto
+#onclydependencies option is used from other functions in this same file
+#Shows package information
 #Returns: List
 def aptshow(pkgname, onlydependences=False):
     
@@ -111,6 +112,8 @@ def aptinstall(pkgname):
 
 
 
+#Allows user to remove system packages using apt-get remove.
+#If purge == True then launch "apt-get remove --purge" instead
 #A Lucia: checkbox "cancella tutto (purge)"
 def aptremove(pkgname, purge=False):
 
@@ -126,6 +129,8 @@ def aptremove(pkgname, purge=False):
 
 
 
+#TODO: It only reads one line per file
+#Returns external repos added to system in folder /etc/apt/sources.list.d/
 def getexternalrepos():
 
     repospath = '/etc/apt/sources.list.d/'
