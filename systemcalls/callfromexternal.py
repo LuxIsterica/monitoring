@@ -3,14 +3,11 @@ from apps import listinstalled, aptsearch, aptshow, aptinstall, aptremove, aptup
 from system import hostname, gethosts, writehosts, getsysteminfo
 from systemfile import updatedb, locate, removefile
 from pprint import pprint
-from sets import Set
 import os
 
 
+pprint( getsysteminfo() )
 
-lines = Set(['jack', 'jones'])
-lines.add('jack')
-print(lines)
 
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments
