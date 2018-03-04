@@ -6,7 +6,8 @@ from pprint import pprint
 import os
 
 
-pprint( getsysteminfo() )
+[print(line) for line in getsysteminfo()]
+
 
 
 

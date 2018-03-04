@@ -41,28 +41,33 @@ def writehosts(hosts):
         hostsfile.write(hosts)
 
 
+
 #TODO: Only works on single cpu system
-def getsysteminfo():
+#Information about cpu, memory and processes
+def getsysteminfo( getall=True, getproc=False, getcpu=False, getmem=False ):
 
     try:
-        command = ['cat', '/proc/meminfo']
+        command = ['cat', '/proc/meminfo'] #Getting memory information
         memraw = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
-        command = ['cat', '/proc/cpuinfo']
+        command = ['cat', '/proc/cpuinfo'] #Getting cpu information
         cpuraw = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
-        command = ['top', '-b', '-n1']
+        command = ['top', '-b', '-n1'] #Getting processes information
         procraw = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
     except CalledProcessError as e:
         return command_error(e, command)
 
 
     
-    #Using the set() instead of list() i can remove duplicate lines from results
-    cpuset = set()
-    for line in cpuraw: cpuset.add(line)
+    ##### CPU #####
+    #Converting list() to set() to remove duplicate lines from output of command
+    cpuraw = set(cpuraw) ##rIPRENDERE daQuI
 
     cpusetstripped = set()
-    for line in cpuset:
-        cpusetstripped.add( re.sub('\t| ', '', line) )
+    cpuset.add( ( re.sub('\t| ', '', line) ) for line in cpuset.pop() )
+#    for line in cpuset:
+#        cpusetstripped.add( re.sub('\t| ', '', line) )
+
+    return cpuset
 
     #Deleting unwanted lines
     cpu = list()
@@ -76,34 +81,29 @@ def getsysteminfo():
     #### PROCESSES #####
     #Removing header from the output of top command
     i = 0
-    for i, line in enumerate(procraw):
-        if 'PID' in line: break
+    while 'PID' not in procraw[i]: i+=1
     procraw = procraw[i:]
 
-    #Fixing header line and splitting for fields for use as keys of the final dictionary
+    #Getting header and splitting fields for use final dictionary keys
     keys = procraw.pop(0).lstrip()
-    keys = re.sub('  *', ':', keys)
-    keys = keys.split(':')
+    keys = keys.split()
     
     proc = list()
 
     for line in procraw:
-        proc.append( dict( zip(keys, procraw.pop(0)) ) )
+        line = procraw.pop(0).lstrip()
+        line = line.split()
+        proc.append( dict( zip(keys, line) ) )
 
-    return proc
 
 
-    infos = dict()
 
+    ##### MEMORY #####
     #Inserting memory informations into info dictionary
     for line in memraw:
         line = re.sub(' ', '', line)
         line = line.split(':')
         infos.update( {line[0].lower() : line[1]} )
-
-
-#    for line in cpu:
-
 
 
     #nproc
