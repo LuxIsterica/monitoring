@@ -60,24 +60,38 @@ def getsysteminfo( getall=True, getproc=False, getcpu=False, getmem=False ):
     
     ##### CPU #####
     #Converting list() to set() to remove duplicate lines from output of command
-    cpuraw = set(cpuraw) ##rIPRENDERE daQuI
+    cpuraw = set(cpuraw)
+    #Removing empty lines
+    cpuraw = list(filter(None, cpuraw))
+    #Delete all tabulation and spaces for each line of the cpuraw set cpuraw
+    cpuraw = map( lambda line: re.sub('[\t| ]*:[\t| ]*', ':', line), cpuraw )
 
-    cpusetstripped = set()
-    cpuset.add( ( re.sub('\t| ', '', line) ) for line in cpuset.pop() )
-#    for line in cpuset:
-#        cpusetstripped.add( re.sub('\t| ', '', line) )
-
-    return cpuset
 
     #Deleting unwanted lines
-    cpu = list()
+    cpulist = list()
     linestoremove = ('flags', 'apicid', 'processor', 'core id', 'coreid')
 
-    for line in cpusetstripped:
+    for line in cpuraw:
         if not any(s in line for s in linestoremove):
-            cpu.append(line)
+            cpulist.append(line)
+
+
+    #We got three fields named "cpu Mhz", but to use them ad dictionry keys
+    #we need to rename them all
+    cpu = list()
+    i = 1
+    for line in cpulist:
+        #Adds an incremental number to the key
+        if 'mhz' in line.lower():
+            cpu.append( re.sub('^.*:', 'cpu' + str(i) +' MHz:', line) )
+            i += 1
+        else: cpu.append( line )
+    #QUI
+
+
 
     
+
     #### PROCESSES #####
     #Removing header from the output of top command
     i = 0
@@ -91,19 +105,19 @@ def getsysteminfo( getall=True, getproc=False, getcpu=False, getmem=False ):
     proc = list()
 
     for line in procraw:
-        line = procraw.pop(0).lstrip()
-        line = line.split()
-        proc.append( dict( zip(keys, line) ) )
+        line = procraw.pop(0).lstrip()          #Removing initial spaces
+        line = line.split()                     #Splitting by spaces
+        proc.append( dict( zip(keys, line) ) )  #Creating a dictionary for each process and inserting into a list to return
 
 
 
 
     ##### MEMORY #####
     #Inserting memory informations into info dictionary
+    mem = list()
     for line in memraw:
-        line = re.sub(' ', '', line)
-        line = line.split(':')
-        infos.update( {line[0].lower() : line[1]} )
+        line = re.sub(' ', '', line)                #Removing spaces for each line
+        line = line.split(':')                      #Splitting by colon
+        mem.append( {line[0].lower() : line[1]} ) #Appending the dictionary to a list to return
 
-
-    #nproc
+    return (cpu, proc, mem)

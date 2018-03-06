@@ -6,8 +6,11 @@ from pprint import pprint
 import os
 
 
-[print(line) for line in getsysteminfo()]
 
+
+(cpu, proc, mem) = getsysteminfo()
+
+[ print(line) for line in cpu ]
 
 
 
