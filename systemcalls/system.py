@@ -61,39 +61,41 @@ def getsysteminfo( getall=True, getproc=False, getcpu=False, getmem=False ):
     ##### CPU #####
     #Converting list() to set() to remove duplicate lines from output of command
     cpuraw = set(cpuraw)
+    
     #Removing empty lines
-    cpuraw = list(filter(None, cpuraw))
-    #Delete all tabulation and spaces for each line of the cpuraw set cpuraw
+    cpuraw = list( filter( None, cpuraw ) )
+
+    #Removing useless lines
+    linestoremove = ('flags', 'apicid', 'processor', 'core id', 'coreid')
+    cpuraw = list( filter( lambda line: not any(s in line for s in linestoremove), cpuraw ) )
+
+    #Deleting all tabulation and spaces for each line of the cpuraw set cpuraw
     cpuraw = map( lambda line: re.sub('[\t| ]*:[\t| ]*', ':', line), cpuraw )
 
 
-    #Deleting unwanted lines
-    cpulist = list()
-    linestoremove = ('flags', 'apicid', 'processor', 'core id', 'coreid')
-
-    for line in cpuraw:
-        if not any(s in line for s in linestoremove):
-            cpulist.append(line)
-
-
-    #We got three fields named "cpu Mhz", but to use them ad dictionry keys
+    #We got three fields named "cpu Mhz", but to use them as dictionry keys
     #we need to rename them all
-    cpu = list()
+    cpuaf = list()
     i = 1
-    for line in cpulist:
+    for line in cpuraw:
         #Adds an incremental number to the key
         if 'mhz' in line.lower():
-            cpu.append( re.sub('^.*:', 'cpu' + str(i) +' MHz:', line) )
+            cpuaf.append( re.sub('^.*:', 'cpu' + str(i) +' MHz:', line) )
             i += 1
-        else: cpu.append( line )
-    #QUI
+        else: cpuaf.append( line )
 
+
+    #Buiding final dictionary cotaining cpu information in the right form
+    cpu = dict()
+    for line in cpuaf:
+        line = line.split(':')
+        cpu.update({ line[0]: line[1] })
 
 
     
 
     #### PROCESSES #####
-    #Removing header from the output of top command
+    #Removing headers from the output of top command
     i = 0
     while 'PID' not in procraw[i]: i+=1
     procraw = procraw[i:]
@@ -113,11 +115,12 @@ def getsysteminfo( getall=True, getproc=False, getcpu=False, getmem=False ):
 
 
     ##### MEMORY #####
-    #Inserting memory informations into info dictionary
-    mem = list()
+    #Filling mem dict with memory information
+    mem = dict()
     for line in memraw:
         line = re.sub(' ', '', line)                #Removing spaces for each line
         line = line.split(':')                      #Splitting by colon
-        mem.append( {line[0].lower() : line[1]} ) #Appending the dictionary to a list to return
+        mem.update({ line[0].lower() : line[1] })   #Appending the dictionary to a list to return
 
+    #dict, list, list
     return (cpu, proc, mem)

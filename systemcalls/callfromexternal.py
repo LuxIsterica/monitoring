@@ -7,11 +7,9 @@ import os
 
 
 
-
 (cpu, proc, mem) = getsysteminfo()
 
-[ print(line) for line in cpu ]
-
+pprint(cpu)
 
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments
