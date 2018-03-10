@@ -10,7 +10,6 @@ import os
 
 pprint( getvhosts() )
 
-
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments
 exit()
 for i in listinstalled( summary=True ):
