@@ -42,21 +42,20 @@ def getuser(user=None):
 
 
 
+#Returns a list of dictionaries containing username ad userid of all system's users
 def getusers():
 
-    try:
-        command = ["cat", "/etc/passwd"]
-        output = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
-    except CalledProcessError as e:
-        return command_error(e, command)
+
+    with open('/etc/passwd', 'r') as passwdorig:
+        passwd = passwdorig.read().splitlines()
 
 
     users = list()
-    for i in output:
-        i = i.split(':', 3)
+    for line in passwd:
+        line = line.split(':', 3)
         users.append({
-    	    'uname': i[0],
-    	    'uid': i[2]
+    	    'uname': line[0],
+    	    'uid': line[2]
         })
 
     return users
@@ -91,20 +90,17 @@ def getusers():
 
 def getgroups():
 
-    try:
-        command = ['cat', '/etc/group']
-        output = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
-    except CalledProcessError as e:
-        return command_error(e, command)
+    with open('/etc/group', 'r') as grouporig:
+        etcgroup = grouporig.read().splitlines()
 
 
     groups = list()
-    for i in output:
-        actual = i.split(':')
+    for line in etcgroup:
+        line = line.split(':')
         groups.append({
-            'gname': actual[0],
-    	    'gid': actual[2],
-    	    'members': actual[3].split(',')
+            'gname': line[0],
+    	    'gid': line[2],
+    	    'members': line[3].split(',')
     	})
     
     return groups

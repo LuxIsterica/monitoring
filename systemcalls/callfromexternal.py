@@ -7,10 +7,8 @@ import os
 
 
 
-(cpu, proc, mem) = getsysteminfo()
 
-pprint(cpu)
-
+pprint( getgroups() )
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments
 exit()

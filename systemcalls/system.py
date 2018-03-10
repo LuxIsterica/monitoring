@@ -36,6 +36,9 @@ def gethosts():
 #Overwrite the /etc/hosts file with the one which the user
 #has modified from the web interface
 def writehosts(hosts):
+
+    #TODO: scrivere il file comlpleto nel log
+    logid = mongolog( locals() )
     
     with open('hosts', 'w') as hostsfile:
         hostsfile.write(hosts)
@@ -46,81 +49,109 @@ def writehosts(hosts):
 #Information about cpu, memory and processes
 def getsysteminfo( getall=True, getproc=False, getcpu=False, getmem=False ):
 
-    try:
-        command = ['cat', '/proc/meminfo'] #Getting memory information
-        memraw = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
-        command = ['cat', '/proc/cpuinfo'] #Getting cpu information
-        cpuraw = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
-        command = ['top', '-b', '-n1'] #Getting processes information
-        procraw = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
-    except CalledProcessError as e:
-        return command_error(e, command)
-
+    #Creating the tuple to return
+    toreturn = ()
 
     
+
     ##### CPU #####
-    #Converting list() to set() to remove duplicate lines from output of command
-    cpuraw = set(cpuraw)
+    if getall or getcpu:
+
+        #Reading cpu stat from /opt files
+        with open('/proc/cpuinfo', 'r') as cpuorig:
+            cpuraw = cpuorig.read().splitlines()
+
+        #Removing duplicate lines by converting list() to set()
+        cpuraw = set(cpuraw)
+        
+        #Removing empty lines
+        cpuraw = list( filter( None, cpuraw ) )
     
-    #Removing empty lines
-    cpuraw = list( filter( None, cpuraw ) )
-
-    #Removing useless lines
-    linestoremove = ('flags', 'apicid', 'processor', 'core id', 'coreid')
-    cpuraw = list( filter( lambda line: not any(s in line for s in linestoremove), cpuraw ) )
-
-    #Deleting all tabulation and spaces for each line of the cpuraw set cpuraw
-    cpuraw = map( lambda line: re.sub('[\t| ]*:[\t| ]*', ':', line), cpuraw )
-
-
-    #We got three fields named "cpu Mhz", but to use them as dictionry keys
-    #we need to rename them all
-    cpuaf = list()
-    i = 1
-    for line in cpuraw:
-        #Adds an incremental number to the key
-        if 'mhz' in line.lower():
-            cpuaf.append( re.sub('^.*:', 'cpu' + str(i) +' MHz:', line) )
-            i += 1
-        else: cpuaf.append( line )
-
-
-    #Buiding final dictionary cotaining cpu information in the right form
-    cpu = dict()
-    for line in cpuaf:
-        line = line.split(':')
-        cpu.update({ line[0]: line[1] })
-
-
+        #Removing useless lines
+        linestoremove = ('flags', 'apicid', 'processor', 'core id', 'coreid')
+        cpuraw = list( filter( lambda line: not any(s in line for s in linestoremove), cpuraw ) )
     
-
-    #### PROCESSES #####
-    #Removing headers from the output of top command
-    i = 0
-    while 'PID' not in procraw[i]: i+=1
-    procraw = procraw[i:]
-
-    #Getting header and splitting fields for use final dictionary keys
-    keys = procraw.pop(0).lstrip()
-    keys = keys.split()
+        #Deleting all tabulation and spaces for each line of the cpuraw set cpuraw
+        cpuraw = map( lambda line: re.sub('[\t| ]*:[\t| ]*', ':', line), cpuraw )
     
-    proc = list()
+    
+        #We got three fields named "cpu Mhz", but to use them as dictionry keys
+        #we need to rename them all
+        cpuaf = list()
+        i = 1
+        for line in cpuraw:
+            #Adds an incremental number to the key
+            if 'mhz' in line.lower():
+                cpuaf.append( re.sub('^.*:', 'cpu' + str(i) +' MHz:', line) )
+                i += 1
+            else: cpuaf.append( line )
+    
+    
+        #Buiding final dictionary cotaining cpu information in the right form
+        cpu = dict()
+        for line in cpuaf:
+            line = line.split(':')
+            cpu.update({ line[0]: line[1] })
 
-    for line in procraw:
-        line = procraw.pop(0).lstrip()          #Removing initial spaces
-        line = line.split()                     #Splitting by spaces
-        proc.append( dict( zip(keys, line) ) )  #Creating a dictionary for each process and inserting into a list to return
+        #Adding cpu dict to the tuple to return
+        toreturn = toreturn + (cpu,)
+
 
 
 
 
     ##### MEMORY #####
-    #Filling mem dict with memory information
-    mem = dict()
-    for line in memraw:
-        line = re.sub(' ', '', line)                #Removing spaces for each line
-        line = line.split(':')                      #Splitting by colon
-        mem.update({ line[0].lower() : line[1] })   #Appending the dictionary to a list to return
+    if getall or getmem:
 
-    #dict, list, list
-    return (cpu, proc, mem)
+        #Reading memory status from /opt files
+        with open('/proc/meminfo', 'r') as memorig:
+            memraw = memorig.read().splitlines()
+
+
+        #Filling mem dict with memory information
+        mem = dict()
+        for line in memraw:
+            line = re.sub(' ', '', line)                #Removing spaces for each line
+            line = line.split(':')                      #Splitting by colon
+            mem.update({ line[0].lower() : line[1] })   #Appending the dictionary to a list to return
+
+        toreturn = toreturn + (mem,)
+    
+
+
+
+
+    #### PROCESSES #####
+    if getall or getproc:
+
+        #Reading processes status using top command
+        try:
+            command = ['top', '-b', '-n1'] #Getting processes information
+            procraw = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
+        except CalledProcessError as e:
+            return command_error(e, command)
+
+
+
+        #Removing headers from the output of top command
+        i = 0
+        while 'PID' not in procraw[i]: i+=1
+        procraw = procraw[i:]
+    
+        #Getting header and splitting fields for use final dictionary keys
+        keys = procraw.pop(0).lstrip()
+        keys = keys.split()
+        
+        proc = list()
+    
+        for line in procraw:
+            line = procraw.pop(0).lstrip()          #Removing initial spaces
+            line = line.split()                     #Splitting by spaces
+            proc.append( dict( zip(keys, line) ) )  #Creating a dictionary for each process and inserting into a list to return
+
+        toreturn = toreturn + (proc,)
+
+
+
+    #dict, dict, list
+    return toreturn
