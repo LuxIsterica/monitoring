@@ -1,0 +1,14 @@
+{% extends "index.html" %}
+{% block page_content %}
+<h2>Lista utenti</h2>
+<table id="info-users">
+	{% for u in users %}
+		<tr>
+			<th> uid </th>
+			<td> {{ u.uid }} </td>
+			<th> uname </th>
+			<td> <a href="{{ url_for('getInfoUser',uname = u.uname) }}"><u>{{ u.uname }} </u></a></td>
+		</tr>
+	{% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "index.html" %}
+{% block page_content %}
+<h2>Informazioni utente</h2>
+<table id="info-users">
+	{% for key,value in infouser.items() %}
+		<tr>
+			<th> {{ key }} </th>
+			<td> {{ value }} </td>
+		</tr>
+	{% endfor %}
+</table>
+{% endblock %}
