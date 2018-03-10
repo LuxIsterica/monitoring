@@ -32,6 +32,21 @@ def locate(name, insensitive=True):
     return found
 
 
+#If "towrite" is not empty write the content into the file "filepath", else return the file contents
+def getsetfile(filepath, towrite=""):
+
+    if towrite:
+        logid = mongolog( locals() )
+        with open(filepath, 'w') as filedesc:
+            filedesc.write(towrite)
+        return logid
+    else:
+        with open(filepath, 'r') as filedesc:
+            return filedesc.read()
+
+
+
+#Unlink file using his path
 def removefile(path):
 
     logid = mongolog( locals() )

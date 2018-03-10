@@ -9,13 +9,14 @@ import inspect
 #import urllib.parse
 
 
-def hostname(hname=""):
+#If "newhostname" is not empty sets the hostname, else returns it
+def hostname(newhostname=""):
 
     command = ['hostname']
 
-    if hname:
+    if newhostname:
         logid = mongolog( locals() )
-        command.append(hname)
+        command.append(newhostname)
 
     try:
         hostname = check_output(command, stderr=PIPE, universal_newlines=True)
@@ -25,23 +26,17 @@ def hostname(hname=""):
     return (logid if hname else hostname)
 
 
-#Return a string the /etc/hosts file content
-def gethosts():
+#If "towrite" is not empty write the content into the file /etc/hosts, else return the file contents
+def etchosts(towrite=""):
 
-    with open('/etc/hosts', 'r') as hostsfile:
-        return hostsfile.read()
-
-
-#TODO: mongolog
-#Overwrite the /etc/hosts file with the one which the user
-#has modified from the web interface
-def writehosts(hosts):
-
-    #TODO: scrivere il file comlpleto nel log
-    logid = mongolog( locals() )
-    
-    with open('hosts', 'w') as hostsfile:
-        hostsfile.write(hosts)
+    if towrite:
+        logid = mongolog( locals() )
+        with open('/etc/hosts', 'w') as hostsfile:
+            hostsfile.write(towrite)
+        return logid
+    else:
+        with open('/etc/hosts', 'r') as hostsfile:
+            return hostsfile.read()
 
 
 
