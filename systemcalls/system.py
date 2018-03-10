@@ -11,9 +11,9 @@ import inspect
 
 #If "newhostname" is not empty sets the hostname, else returns it
 def hostname(newhostname=""):
-
+    
     command = ['hostname']
-
+        
     if newhostname:
         logid = mongolog( locals() )
         command.append(newhostname)
