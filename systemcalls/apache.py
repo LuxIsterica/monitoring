@@ -1,5 +1,5 @@
 # coding=utf-8
-from subprocess import Popen, PIPE, STDOUT, check_output, check_call, CalledProcessError
+from subprocess import Popen, DEVNULL, PIPE, STDOUT, check_output, check_call, CalledProcessError
 from utilities import mongolog, command_error
 import os
 import re
@@ -8,58 +8,67 @@ import pprint
 import inspect
 #import urllib.parse
 
-def getvhosts():
+#NOTE: Never call this function directly.
+#objtype can be one of "sites", "mods" or "conf"
+def getobjs(objtype):
 
     apacheconfdir = "/etc/apache2/"
-    availabledir = 'sites-available/'
-    #There no need for 'sites-enabled' because we can find those vhosts in sites-available too
+    availabledir = objtype + '-available/'
+    enableddir = objtype + '-enabled/'
 
-    vhosts = list()
+    objs = list()
 
-    #Getting enable vhosts and appending to vhosts list as dictionary
-    enabled = set( os.listdir(apacheconfdir + 'sites-enabled') )
-    for vhost in enabled:
-        vhosts.append({ 'filename': vhost, 'active': 1 })
+    #Getting enabled vhosts and appending to vhosts list as dictionary
+    enabled = set( os.listdir(apacheconfdir + enableddir ) )
+    for obj in enabled:
+        objs.append({ 'filename': obj, 'active': 1 })
 
     #Gets nonactive vhosts and appending to vhosts list as dictionary
-    notactive = set( os.listdir(apacheconfdir  + 'sites-available') ).difference(enabled)
-    for vhost in notactive:
-        vhosts.append({ 'filename': vhost, 'active': 0 })
-
-
-    
-    #Filling the list to return with all information about every single vhost
-    for vhost in vhosts:
-
-        #"vhostcontent" mantains all vhost file content
-        with open(apacheconfdir + availabledir + vhost['filename']) as opened:
-            vhostcontent = opened.read().splitlines()
-
-        
-        i = 0
-        for line in vhostcontent:
-            line = line.lstrip()
-            linestosearch = ('Alias', 'DocumentRoot', 'ServerName', 'ServerAlias')
-
-            #If any of this words in vhost file add the entire splitted line to the vhost dict
-            if any( line.startswith(s) for s in linestosearch ):
-
-                #A vhost can handle multiple ServerAlias but dict() cannot accept multiple key with the same string
-                #so we're going to add an incremental number to the key "ServerAlias"
-                if 'ServerAlias' in  line: line = re.sub('ServerAlias', 'ServerAlias' + str(i), line)
-                i += 1
-
-                line = line.split(None, maxsplit=1)
-                #vhost dict is a pointer to the original dict in vhosts list, hence an update here means an update to the original dict
-                vhost.update({ line[0]: line[1] })
-
-
-    return vhosts
+    notactive = set( os.listdir(apacheconfdir  + availabledir) ).difference(enabled)
+    for obj in notactive:
+        objs.append({ 'filename': obj, 'active': 0 })
 
 
 
+    ##### ONLY FOR VHOSTS #####
+    #Gathering object information only if objstype == "site"
+    if objtype is "sites":
+        #Gathering vhosts information to fill the list
+        for obj in objs:
+
+            #"vhostcontent" mantains all vhost file content
+            with open(apacheconfdir + availabledir + obj['filename']) as opened:
+                vhostcontent = opened.read().splitlines()
+
+            
+            i = 0
+            for line in vhostcontent:
+                line = line.lstrip()
+                linestosearch = ('Alias', 'DocumentRoot', 'ServerName', 'ServerAlias')
+
+                #If any of this words in vhost file add the entire splitted line to the vhost dict
+                if any( line.startswith(s) for s in linestosearch ):
+
+                    #A vhost can handle multiple ServerAlias but dict() cannot accept multiple key with the same string
+                    #so we're going to add an incremental number to the key "ServerAlias"
+                    if 'ServerAlias' in  line: line = re.sub('ServerAlias', 'ServerAlias' + str(i), line)
+                    i += 1
+
+                    line = line.split(None, maxsplit=1)
+
+                    #vhost dict is a pointer to the original dict in vhosts list, hence an update here means an update to the original dict
+                    obj.update({ line[0]: line[1] })
 
 
+    return objs
+
+def getvhosts(): return getobjs('sites')
+def getmods(): return getobjs('mods')
+def getconf(): return getobjs('conf')
+
+
+
+#NOTE: Must not be called directly
 def apache2(op="status"):
     
     #Can only accept these parameters
@@ -95,6 +104,12 @@ def apache2(op="status"):
 
     return toreturn
 
+def apachestart(): return apache2(op='start')
+def apachestop(): return apache2(op='stop')
+def apacherestart(): return apache2(op='restart')
+def apachereload(): return apache2(op='reload')
+
+
 
 
 #NOTE: Must not be called directly
@@ -104,14 +119,16 @@ def managevhosts(filename, op):
     command = [op, filename]
 
     try:
-        check_output = check_call(command)
+        check_call(command, stdout=DEVNULL)
     except CalledProcessError as e:
         return command_error(e, command)
 
     return logid
-    apache2(op='reload')
     #Reloading apache after site activation
+    apache2(op='reload')
+
+    return logid
 
 #Call a function with different parameters
-def activatevhost(filename): managevhosts(filename, op='a2ensite')
-def deactivatevhost(filename): managevhosts(filename, op='a2dissite')
+def activatevhost(filename): return managevhosts(filename, op='a2ensite')
+def deactivatevhost(filename): return managevhosts(filename, op='a2dissite')

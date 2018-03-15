@@ -1,5 +1,5 @@
 # coding=utf-8
-from subprocess import Popen, PIPE, STDOUT, check_output, check_call, CalledProcessError
+from subprocess import Popen, PIPE, DEVNULL, STDOUT, check_output, check_call, CalledProcessError
 from utilities import mongolog, command_error
 import os
 import re
