@@ -9,7 +9,10 @@ import os
 
 
 
-print( filedit('/etc/hosts') )
+repospath = '/etc/apt/sources.list.d/'
+reposfiles = os.listdir(repospath)
+print(reposfile)
+
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments
 exit()

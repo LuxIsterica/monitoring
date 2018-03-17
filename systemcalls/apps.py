@@ -1,6 +1,6 @@
 # coding=utf-8
 from subprocess import Popen, PIPE, DEVNULL, STDOUT, check_output, check_call, CalledProcessError
-from utilities import mongolog, command_error
+from utilities import mongolog, command_success, command_error
 import os
 import re
 import datetime
@@ -20,7 +20,7 @@ def aptupdate():
     except CalledProcessError as e:
         return command_error(e, command)
 
-    return logid
+    return command_success(logid)
 
 
 
@@ -35,7 +35,7 @@ def listinstalled( summary=False ):
     except CalledProcessError as e:
         return command_error(e, command)
     except FileNotFoundError as e:
-        return e
+        return e #TODO
 
 
     #Lista di chiavi per le informazioni sull'app
@@ -108,7 +108,7 @@ def aptinstall(pkgname):
     except CalledProcessError:
         print( 'Errore durante l\'installazione del pacchetto "%s"' % (pkgname) )
 
-    return logid
+    return command_success(logid)
 
 
 
@@ -124,9 +124,10 @@ def aptremove(pkgname, purge=False):
 
     try:
         check_call( command, env=environ ) #stdout=open(os.devnull, 'wb'), stderr=STDOUT)
-    except CalledProcessError:
-        print( 'Errore durante la rimozione del pacchetto "%s"' % (pkgname) )
-
+    except CalledProcessError as e:
+        return command_error(e, command)
+    
+    return command_success(logid)
 
 
 #TODO: It only reads one line per file
@@ -134,27 +135,21 @@ def aptremove(pkgname, purge=False):
 def getexternalrepos():
 
     repospath = '/etc/apt/sources.list.d/'
+    reposfiles = os.listdir(repospath)
+    return reposfile
+
     repos = list()
+    lines = str()
+    for filename in reposfiles:
+        
+        if not filename.endswith('.save'):
+            with open(repospath + filename) as opened:
+                lines = opened.read()
 
-    try:
-        command = ['ls', '-1', repospath]
-        reposfiles = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
-
-        lines = str()
-        for filename in reposfiles:
-            
-            if not filename.endswith('.save'):
-                with open(repospath + filename) as f:
-                    lines = f.read()
-
-                repos.append({
-                    'filename': filename,
-                    'lines': lines
-                })
-
-    except CalledProcessError as e:
-        command_error(e, command)
-
+            repos.append({
+                'filename': filename,
+                'lines': lines
+            })
 
     return repos
 
@@ -170,7 +165,7 @@ def addrepo(url, name):
     repofile.write(url + '\n')
     repofile.close()
 
-    return filename
+    return command_success(logid)
 
 
 
@@ -186,4 +181,4 @@ def removerepofile(filename):
     except OSError:
         pass
 
-    return logid
+    return command_succes(logid)

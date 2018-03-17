@@ -1,6 +1,6 @@
 # coding=utf-8
 from subprocess import Popen, DEVNULL, PIPE, STDOUT, check_output, check_call, CalledProcessError
-from utilities import mongolog, command_error
+from utilities import mongolog, command_success, command_error
 import os
 import re
 import datetime
@@ -16,7 +16,7 @@ def updatedb():
     except CalledProcessError as e:
         return command_error(e, command)
 
-    return 0
+    return command_success(None)
 
 
 def locate(name, insensitive=True):
@@ -42,4 +42,4 @@ def removefile(path):
     except OSError:
         pass
 
-    return logid
+    return command_success(logid)

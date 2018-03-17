@@ -1,6 +1,6 @@
 # coding=utf-8
 from subprocess import Popen, DEVNULL, PIPE, check_output, CalledProcessError, call, STDOUT
-from utilities import mongolog, command_error
+from utilities import mongolog, command_success, command_error
 import re
 #import urllib.parse
 
@@ -45,8 +45,8 @@ def getuser(user=None):
 #Returns a list of dictionaries containing username ad userid of all system's users
 def getusers():
 
-    with open('/etc/passwd', 'r') as passwdorig:
-        passwd = passwdorig.read().splitlines()
+    with open('/etc/passwd', 'r') as opened:
+        passwd = opened.read().splitlines()
 
 
     users = list()
@@ -66,8 +66,8 @@ def getusers():
 
 def getgroups():
 
-    with open('/etc/group', 'r') as grouporig:
-        etcgroup = grouporig.read().splitlines()
+    with open('/etc/group', 'r') as opened:
+        etcgroup = opened.read().splitlines()
 
 
     groups = list()
@@ -96,7 +96,8 @@ def addusertogroups(user, *groups):
     
     
     #ObjectID of mongo
-    return logid
+
+    return command_success(logid)
 
 
 def removeuserfromgroups(user, *groups):
@@ -114,7 +115,7 @@ def removeuserfromgroups(user, *groups):
     
     
     #ObjectID of mongo
-    return logid
+    return command_success(logid)
 
 
 def updateuserpass(user, password):
@@ -131,7 +132,7 @@ def updateuserpass(user, password):
     	print('Errore durante l\'aggiornamento della password dell\'utente %s' % (user))
     
     
-    return logid
+    return command_success(logid)
 
 
 
@@ -149,7 +150,7 @@ def updateusershell(user, shell):
         return command_error(e, command)
 
     
-    return logid
+    return command_success(logid)
 
 
 
@@ -187,4 +188,4 @@ def removeuser(user, removehome=None):
         return command_error(e, command)
     
     
-    return logid
+    return command_success(logid)

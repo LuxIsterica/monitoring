@@ -42,6 +42,15 @@ def mongolog(params, *args):
 
 
 
+#Called when a command does not return output.
+#Contains mongo logid and a 0 return code
+def command_success(logid):
+    return dict({
+        'returncode': 0,
+        'mongologid': logid
+    })
+
+
 #Called when a CalledProcessError is raised
 #Returns a dict containing exception info
 def command_error(e, c):
@@ -77,7 +86,13 @@ def filedit(filename, towrite=None, force=False):
         md5old = hashlib.md5( open( filename, 'rb' ).read() ).hexdigest()
 
         if md5new == md5old:
-            return {'code': 2, 'message': 'Nothing to write(no changes from original file). If you wish to write anyway use the parameter "force=True"'}
+
+            #A modified version of the dict() returned from the function commans_success() which is quite used
+            #Here stderr is a message so we assign it two keys
+            return dict({
+                'returncode': 2,
+                ('message', 'stderr'): 'Nothing to write(no changes from original file). You can force writing using the parameter "force=True"'
+            })
 
 
     ##Execute this code just when Force==True or md5new != md5old

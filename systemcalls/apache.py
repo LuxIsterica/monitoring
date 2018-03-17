@@ -1,6 +1,6 @@
 # coding=utf-8
 from subprocess import Popen, DEVNULL, PIPE, STDOUT, check_output, check_call, CalledProcessError
-from utilities import mongolog, command_error
+from utilities import mongolog, command_success, command_error
 import os
 import re
 import datetime
@@ -75,7 +75,10 @@ def manageapache(op):
     #Can only accept these parameters
     acceptedparams = ['stop', 'status', 'reload', 'restart']
     if not any(op in param for param in acceptedparams):
-        return {'errcode': -1, 'errmessage': 'Bad parameter :' + op}
+        return dict({
+            'returncode': -1,
+            ('message', 'stderr'): 'Bad parameter :' + op
+        })
     else:
         command = ['systemctl', op, 'apache2']
 
@@ -105,11 +108,11 @@ def manageapache(op):
 
     return toreturn
 
-def apachestart(): return apache2(op='start')
-def apachestop(): return apache2(op='stop')
-def apacherestart(): return apache2(op='restart')
-def apachereload(): return apache2(op='reload')
-def apachestatus(): return apache2(op="status")
+def apachestart(): return manageapache(op='start')
+def apachestop(): return manageapache(op='stop')
+def apacherestart(): return manageapache(op='restart')
+def apachereload(): return manageapache(op='reload')
+def apachestatus(): return manageapache(op="status")
 
 
 
@@ -128,7 +131,7 @@ def manageobjs(filename, op):
     #Reloading apache after site activation
     apachereload()
 
-    return logid
+    return command_success(logid)
 
 #Call a function with different parameters
 def activatevhost(filename): return manageobjs(filename, op='a2ensite')
