@@ -10,7 +10,7 @@ import sys
 
 
 with open('/root/apache2.conf', 'r') as opened:
-    pprint( filedit('/tmp/apache2.conf', opened.read() ) )
+    pprint( filedit('/tmp/apache2.conf', opened.read() )['filediff'] )
 
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments

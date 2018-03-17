@@ -1,5 +1,5 @@
 # coding=utf-8
-from subprocess import PIPE, STDOUT, check_output, check_call, CalledProcessError
+from subprocess import PIPE, STDOUT, Popen, check_output, check_call, CalledProcessError
 from pymongo import MongoClient
 import datetime
 import pprint
@@ -141,14 +141,11 @@ def filediff(filea, fileb):
         filecontent = fileb
         fileb = '/tmp/.nomodotempb'
         with open(fileb, 'w') as opened:
-            opened.write(fileb)
+            opened.write(filecontent)
 
     command = ['diff', filea, fileb]
-    return command
 
-    try:
-        output = check_output(command, stderr=PIPE, universal_newlines=True)
-    except CalledProcessError as e:
-        return command_error(e, command)
+    #We are using Popen here because check_output fails to return stdout and stderr on exit code != 0
+    output = Popen(command, stdout=PIPE, universal_newlines=True).communicate()[0]
 
     return {'filediff': output }
