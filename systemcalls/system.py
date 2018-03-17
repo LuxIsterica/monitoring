@@ -23,17 +23,17 @@ def hostname(newhostname=""):
     except CalledProcessError as e:
         return command_error(e, command)
 
-    return (logid if hname else hostname)
+    return ( command_success(logid) if newhostname else hostname )
 
 
 #TODO: Only works on single cpu system
 #Information about cpu, memory and processes
+#Returns tuple
 def getsysteminfo( getall=True, getproc=False, getcpu=False, getmem=False ):
 
     #Creating the tuple to return
     toreturn = ()
 
-    
 
     ##### CPU #####
     if getall or getcpu:

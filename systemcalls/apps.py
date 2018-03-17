@@ -60,7 +60,10 @@ def aptsearch( pkgname, namesonly=True ):
     command = ['apt-cache', 'search', pkgname]
     if namesonly: command.append('--names-only')
 
-    output = Popen(command, stdout=PIPE, universal_newlines=True).communicate()[0].splitlines()
+    try:
+        output = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
+    except CalledProcessError as e:
+        return command_error(e, command)
 
     keys = ['name', 'desc']
     pkgs = list()
@@ -81,17 +84,17 @@ def aptshow(pkgname, onlydependences=False):
     mode = 'depends' if onlydependences else 'show'
     command = ['apt-cache', mode, pkgname]
 
-    output = Popen(command, stdout=PIPE, universal_newlines=True).communicate()[0]
+    try:
+        output = check_output(command, stderr=PIPE, universal_newlines=True)
+    except CalledProcessError as e:
+        return command_error(e, command)
     
     #Se vengono restituiti più pacchetti (diverse versioni) prende solo il primo di questi
     if onlydependences:
-        output = output.splitlines()
-        output.pop(0) #Rimuove l'header
-        output = [item.strip(' ') for item in output] #Rimuove gli spazi bianchi ad inizio e fine stringa
+        #Remove the first line (header)
+        return re.sub('^.*\\n', '', output)
     else:
-        output = output.split('\n\n')[0]
-    
-    return output
+        return output.split('\n\n')[0]
     
 
 
@@ -136,19 +139,18 @@ def getexternalrepos():
 
     repospath = '/etc/apt/sources.list.d/'
     reposfiles = os.listdir(repospath)
-    return reposfile
 
+    #Removing file that ends with '.save'
+    reposfiles = list( filter( lambda item: not item.endswith('.save'), reposfiles ) )
+
+    #List to return
     repos = list()
-    lines = str()
-    for filename in reposfiles:
-        
-        if not filename.endswith('.save'):
-            with open(repospath + filename) as opened:
-                lines = opened.read()
 
+    for filename in reposfiles:
+        with open(repospath + filename) as opened:
             repos.append({
                 'filename': filename,
-                'lines': lines
+                'lines': opened.read()
             })
 
     return repos

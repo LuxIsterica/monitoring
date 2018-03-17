@@ -4,14 +4,13 @@ from system import hostname, getsysteminfo
 from systemfile import updatedb, locate, removefile
 from apache import getvhosts, getmods, getconf, activatevhost, deactivatevhost
 from pprint import pprint
-from utilities import filedit
+from utilities import filediff, filedit
 import os
+import sys
 
 
-
-repospath = '/etc/apt/sources.list.d/'
-reposfiles = os.listdir(repospath)
-print(reposfile)
+with open('/root/apache2.conf', 'r') as opened:
+    pprint( filedit('/tmp/apache2.conf', opened.read() ) )
 
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments

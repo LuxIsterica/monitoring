@@ -1,9 +1,11 @@
 # coding=utf-8
+from subprocess import PIPE, STDOUT, check_output, check_call, CalledProcessError
 from pymongo import MongoClient
 import datetime
 import pprint
 import inspect
 import hashlib
+import os
 
 
 #Mongo Authenticationn
@@ -14,7 +16,9 @@ db = client['nomodo']
 
 #Logs operation to mongodb in the 'log' collection
 #Should be called with locals() as first parameter
-#args shuld be dict()
+#                       
+#                       .------- Must be dict(); will be added to the log in mongodb
+#                       |
 def mongolog(params, *args):
 
     dblog = dict({
@@ -24,8 +28,8 @@ def mongolog(params, *args):
     })
     
     for arg in args:
-    	dblog.update( arg )
-    
+        dblog.update( arg )
+
     #ObjectID in mongodb
     return db.log.insert_one( dblog )
     
@@ -44,10 +48,10 @@ def mongolog(params, *args):
 
 #Called when a command does not return output.
 #Contains mongo logid and a 0 return code
-def command_success(logid):
+def command_success(data):
     return dict({
         'returncode': 0,
-        'mongologid': logid
+        'data': data
     })
 
 
@@ -95,10 +99,56 @@ def filedit(filename, towrite=None, force=False):
             })
 
 
+
     ##Execute this code just when Force==True or md5new != md5old
-    #On different contents write to file
-    logid = mongolog( locals() )
+
+    #We are going to insert the diff between the 2 file, so we need to remove the parameter "towrite" from "locals()"
+    #And pass the dict() returned by the filediff() function to mongolog()
+    localsvar = locals()
+    del localsvar['towrite']
+    return filediff(filename, towrite)
+    logid = mongolog( localsvar, filediff(filename, towrite) )
     opened = open(filename, 'w')
+
     opened.write(towrite)
     opened.close()
-    return logid
+
+    return command_success(logid)
+
+
+
+
+
+
+#Execute diff bash command between 2 files and saves the result output to mongodb
+#to keep tracking of file modifications.
+#Returns a dict() that perfectly fit to be a parameter for mongolog() function
+#
+#             .------.------ Filepath or String
+#             |      |
+#             |      |
+def filediff(filea, fileb):
+
+    #If either filea or fileb is tring then create a temp file and write to content
+    #to make possible diff execution
+    if not os.path.exists(filea):
+        filecontent = filea
+        filea = '/tmp/.nomodotempa'
+        with open(filea, 'w') as opened:
+            opened.write(filecontent)
+
+    if not os.path.exists(fileb):
+        filecontent = fileb
+        fileb = '/tmp/.nomodotempb'
+        with open(fileb, 'w') as opened:
+            opened.write(fileb)
+
+    command = ['diff', filea, fileb]
+    return command
+
+    try:
+        output = check_output(command, stderr=PIPE, universal_newlines=True)
+    except CalledProcessError as e:
+        return command_error(e, command)
+
+    return {'filediff': output }
