@@ -8,6 +8,7 @@ import pprint
 import inspect
 #import urllib.parse
 
+
 #NOTE: Never call this function directly.
 #objtype can be one of "sites", "mods" or "conf"
 def getobjs(objtype):
@@ -69,7 +70,7 @@ def getconf(): return getobjs('conf')
 
 
 #NOTE: Must not be called directly
-def apache2(op="status"):
+def manageapache(op):
     
     #Can only accept these parameters
     acceptedparams = ['stop', 'status', 'reload', 'restart']
@@ -108,12 +109,13 @@ def apachestart(): return apache2(op='start')
 def apachestop(): return apache2(op='stop')
 def apacherestart(): return apache2(op='restart')
 def apachereload(): return apache2(op='reload')
+def apachestatus(): return apache2(op="status")
 
 
 
 
 #NOTE: Must not be called directly
-def managevhosts(filename, op):
+def manageobjs(filename, op):
     logid = mongolog( locals() )
 
     command = [op, filename]
@@ -123,12 +125,15 @@ def managevhosts(filename, op):
     except CalledProcessError as e:
         return command_error(e, command)
 
-    return logid
     #Reloading apache after site activation
-    apache2(op='reload')
+    apachereload()
 
     return logid
 
 #Call a function with different parameters
-def activatevhost(filename): return managevhosts(filename, op='a2ensite')
-def deactivatevhost(filename): return managevhosts(filename, op='a2dissite')
+def activatevhost(filename): return manageobjs(filename, op='a2ensite')
+def deactivatevhost(filename): return manageobjs(filename, op='a2dissite')
+def activatemod(filename): return manageobjs(filename, op='a2enmod')
+def deactivatemod(filename): return manageobjs(filename, op='a2dismod')
+def activateconf(filename): return manageobjs(filename, op='a2enconf')
+def deactivateconf(filename): return manageobjs(filename, op='a2disconf')

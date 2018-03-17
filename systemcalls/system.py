@@ -1,6 +1,6 @@
 # coding=utf-8
 from subprocess import Popen, DEVNULL, PIPE, STDOUT, check_output, check_call, CalledProcessError
-from utilities import mongolog, command_error
+from utilities import mongolog, command_error, filedit
 import os
 import re
 import datetime
@@ -24,20 +24,6 @@ def hostname(newhostname=""):
         return command_error(e, command)
 
     return (logid if hname else hostname)
-
-
-#If "towrite" is not empty write the content into the file /etc/hosts, else return the file contents
-def etchosts(towrite=""):
-
-    if towrite:
-        logid = mongolog( locals() )
-        with open('/etc/hosts', 'w') as hostsfile:
-            hostsfile.write(towrite)
-        return logid
-    else:
-        with open('/etc/hosts', 'r') as hostsfile:
-            return hostsfile.read()
-
 
 
 #TODO: Only works on single cpu system
