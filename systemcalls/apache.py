@@ -61,7 +61,7 @@ def getobjs(objtype):
                     obj.update({ line[0]: line[1] })
 
 
-    return objs
+    return command_success(objs)
 
 def getvhosts(): return getobjs('sites')
 def getmods(): return getobjs('mods')
@@ -106,7 +106,7 @@ def manageapache(op):
         pass
 
 
-    return toreturn
+    return command_success(toreturn)
 
 def apachestart(): return manageapache(op='start')
 def apachestop(): return manageapache(op='stop')

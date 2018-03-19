@@ -1,5 +1,5 @@
 # coding=utf-8
-from subprocess import Popen, DEVNULL, PIPE, STDOUT, check_output, check_call, CalledProcessError
+from subprocess import DEVNULL, PIPE, STDOUT, check_output, check_call, CalledProcessError
 from utilities import mongolog, command_success, command_error
 import os
 import re
@@ -23,7 +23,7 @@ def hostname(newhostname=""):
     except CalledProcessError as e:
         return command_error(e, command)
 
-    return ( command_success(logid) if newhostname else hostname )
+    return command_success( logid if newhostname else hostname )
 
 
 #TODO: Only works on single cpu system
@@ -135,4 +135,4 @@ def getsysteminfo( getall=True, getproc=False, getcpu=False, getmem=False ):
 
 
     #dict, dict, list
-    return toreturn
+    return command_success(toreturn)

@@ -27,8 +27,8 @@ def getuser(user=None):
     usergroups = re.sub('^.*: ', '', usergroups[0])
     usergroups = usergroups.split(' ')
     
-    
-    return dict({
+
+    return command_success( dict({
     	'uname': userinfo[0],
     	'canlogin': 'yes' if userinfo[1]=='x' else 'no',
     	'uid': userinfo[2],
@@ -38,9 +38,9 @@ def getuser(user=None):
     	'shell': userinfo[6],
     	'group': usergroups.pop(0),
     	'groups': usergroups
-    })
-
-
+    }) )
+    
+    
 
 #Returns a list of dictionaries containing username ad userid of all system's users
 def getusers():
@@ -57,7 +57,7 @@ def getusers():
     	    'uid': line[2]
         })
 
-    return users
+    return command_success(users)
 
 
     #print(*string, sep='\n')
@@ -79,7 +79,7 @@ def getgroups():
     	    'members': line[3].split(',')
     	})
     
-    return groups
+    return command_success(groups)
 
 
 def addusertogroups(user, *groups):
@@ -124,15 +124,31 @@ def updateuserpass(user, password):
     logid = ( locals() )
     
     try:
-    	p1 = Popen(['echo', user + ':' + password], stdout=PIPE)
-    	p2 = Popen(['/usr/sbin/chpasswd'], stdin=p1.stdout)
-    	p1.stdout.close()
+        command = ['echo', user + ':' + password]
+        p1 = Popen(command, stdout=PIPE)
+        command = ['/usr/sbin/chpasswd']
+        p2 = Popen(command, stdin=p1.stdout)
+        p1.stdout.close()
     
-    except CalledProcessError:
-    	print('Errore durante l\'aggiornamento della password dell\'utente %s' % (user))
+    except CalledProcessError as e:
+        return command_error(e, command)
     
     
     return command_success(logid)
+
+
+
+#Returns a list containing available shells
+def getshells():
+
+    with open('/etc/shells') as opened:
+        shells = opened.read().splitlines()
+
+    #Removing comment lines
+    shells = list( filter( lambda shell: not shell.startswith('#'), shells) )
+
+    return command_success(shells)
+
 
 
 
@@ -170,7 +186,7 @@ def adduser(user, password, shell="/bin/bash"):
         return command_error(e, command)
     
 
-    return logid
+    return command_success(logid)
 
 
 

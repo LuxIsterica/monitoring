@@ -1,5 +1,5 @@
 # coding=utf-8
-from subprocess import Popen, PIPE, DEVNULL, STDOUT, check_output, check_call, CalledProcessError
+from subprocess import PIPE, DEVNULL, STDOUT, check_output, check_call, CalledProcessError
 from utilities import mongolog, command_success, command_error
 import os
 import re
@@ -50,7 +50,7 @@ def listinstalled( summary=False ):
         appinfo = i.split(';')
         pkgs.append( dict( zip(keys, appinfo) ) )
 
-    return pkgs
+    return command_success(pkgs)
 
 
 
@@ -72,7 +72,7 @@ def aptsearch( pkgname, namesonly=True ):
         appinfo = i.split(' - ')
         pkgs.append( dict( zip(keys, appinfo) ) )
 
-    return pkgs
+    return command_success(pkgs)
 
 
 #A Lucia: verrà richiamato dopo aver fatto un search sui pacchetti installati o disponibili
@@ -92,9 +92,11 @@ def aptshow(pkgname, onlydependences=False):
     #Se vengono restituiti più pacchetti (diverse versioni) prende solo il primo di questi
     if onlydependences:
         #Remove the first line (header)
-        return re.sub('^.*\\n', '', output)
+        toreturn = re.sub('^.*\\n', '', output)
     else:
-        return output.split('\n\n')[0]
+        toreturn = output.split('\n\n')[0]
+        
+    return command_success(toreturn)
     
 
 
@@ -153,7 +155,7 @@ def getexternalrepos():
                 'lines': opened.read()
             })
 
-    return repos
+    return command_success(repos)
 
 
 

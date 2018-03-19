@@ -1,5 +1,5 @@
 # coding=utf-8
-from subprocess import Popen, DEVNULL, PIPE, STDOUT, check_output, check_call, CalledProcessError
+from subprocess import DEVNULL, PIPE, STDOUT, check_output, check_call, CalledProcessError
 from utilities import mongolog, command_success, command_error
 import os
 import re
@@ -29,7 +29,7 @@ def locate(name, insensitive=True):
     except CalledProcessError as e:
         return command_error(e, command)
 
-    return found
+    return command_success(found)
 
 
 #Unlink file using his path
