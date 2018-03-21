@@ -35,7 +35,7 @@ def listinstalled( summary=False ):
     except CalledProcessError as e:
         return command_error(e, command)
     except FileNotFoundError as e:
-        return e #TODO
+        return command_error(e, command)
 
 
     #Lista di chiavi per le informazioni sull'app
@@ -135,7 +135,6 @@ def aptremove(pkgname, purge=False):
     return command_success(logid)
 
 
-#TODO: It only reads one line per file
 #Returns external repos added to system in folder /etc/apt/sources.list.d/
 def getexternalrepos():
 

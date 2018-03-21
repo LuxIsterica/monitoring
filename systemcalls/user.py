@@ -120,8 +120,11 @@ def removeuserfromgroups(user, *groups):
 
 def updateuserpass(user, password):
 
-    #TODO: In questo modo la password viene memorizzata in mongo
-    logid = ( locals() )
+    #We literally cannot store password in mongo log,
+    #hence here we are removing password from locals()
+    localsvar = locals()
+    del localsvar['password']
+    logid = mongolog( localsvar )
     
     try:
         command = ['echo', user + ':' + password]

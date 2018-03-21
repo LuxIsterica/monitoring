@@ -9,7 +9,7 @@ import os
 import sys
 
 
-data = getsysteminfo()
+data = updateuserpass('giuseppe', 'test')
 if data['returncode'] is 0:
     data = data['data']
 
