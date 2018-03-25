@@ -6,7 +6,7 @@ import re
 
 
 
-def getuser(user=None):
+def getuser(user):
 
     try:
         command = ['getent', 'passwd',  user]

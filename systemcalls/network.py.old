@@ -26,16 +26,17 @@ def getifacestat():
     del output[-1]
 
 
-    ifaces = dict()
+    ifaces = list()
     for iface in output:
 
         #Splitting interface lines
         iface = iface.splitlines()
 
         #Getting iface name on first line
-        #We need to split first line and reinsert the second item in the original list
+        #We need to split first line and reinsert in the same list
         firstline = iface.pop(0).split(None, maxsplit=1)
-        iface.insert(0, firstline[1])
+        iface.insert(0, firstline[0])
+        iface.insert(1, firstline[1])
 
         #We are going to cut out some useless lines with this instructions
         i = 0
@@ -48,9 +49,8 @@ def getifacestat():
             if iface[index].startswith('UP'): break
 
 
-
-        #A dictionary where the key is the interface name and the value is all the lines related to such interface
-        ifaces.update({ firstline[0]: '\n'.join(iface[:i]) })
+        #Inserting just a slice of the list
+        ifaces.append( iface[:i] )
 
 
     return command_success( ifaces )
