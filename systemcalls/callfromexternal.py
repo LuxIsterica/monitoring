@@ -5,12 +5,12 @@ from systemfile import updatedb, locate, removefile
 from apache import getvhosts, getmods, getconf, activatevhost, deactivatevhost, apachestatus, apachereload
 from pprint import pprint
 from utilities import filediff, filedit
-from network import getifacestat
+from network import ifacestat, getnewifacealiasname
 import os
 import sys
 
 
-data = getifacestat()
+data = ifacestat(namesonly=True)
 if data['returncode'] is 0:
     data = data['data']
 

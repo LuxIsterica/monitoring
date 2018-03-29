@@ -46,11 +46,12 @@ def mongolog(params, *args):
 
 
 
-#Called when a command does not return output.
-#Contains mongo logid and a 0 return code
-def command_success(data=None):
+#Called on command success
+#Returns a nice returncode and the data
+#"data" may containg mongo object id
+def command_success( data=None, returncode=0 ):
     return dict({
-        'returncode': 0,
+        'returncode': returncode,
         'data': data
     })
 
