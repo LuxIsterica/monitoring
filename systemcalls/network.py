@@ -81,5 +81,39 @@ def getnewifacealiasname(iface):
     return command_success( iface + ':' + str(occurrences) )
 
 
-def addifacealias(newname):
-    pass
+
+def ifacedown( iface ):
+    
+    logid = mongolog( locals() )
+
+    command = ['ifconfig', iface, 'down']
+
+    try:
+        check_call(command)
+    except CalledProcessError as e:
+        return command_error(e, command)
+
+    return command_success( logid )
+    
+def ifaceup( iface, address="", netmask="", broadcast="" ):
+    
+    logid = mongolog( locals() )    
+
+    command = ['ifconfig', iface]
+    if address: command.append(address)
+    if netmask: command = command + ['netmask', netmask]
+    if broadcast: command = command + ['broadcast', broadcast]
+    command.append('up')
+
+    try:
+        check_output = check_call(command, stderr=PIPE, universal_newlines=True)
+    except CalledProcessError as e:
+        return command_error(e, command)
+
+    return command_success( logid )
+
+
+def createalias( iface, address, netmask="", broadcast="" ):
+    return ifaceup(iface=iface, address=address, netmask=netmask, broadcast=broadcast)
+def destroyalias( iface ): #TODO: Non funziona
+    return ifacedown( iface )

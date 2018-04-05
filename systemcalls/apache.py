@@ -124,6 +124,9 @@ def manageobjs(filename, op):
     command = [op, filename]
 
     try:
+        #Shrinks the output --------.
+        #                           |
+        #                           v
         check_call(command, stdout=DEVNULL)
     except CalledProcessError as e:
         return command_error(e, command)
