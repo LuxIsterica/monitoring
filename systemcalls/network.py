@@ -67,6 +67,9 @@ def ifacestat(iface="", namesonly=False):
     return command_success( ifaces )
 
 
+#Returns a string containing an alias name that fit to be used as alias for "iface" interface
+# @iface interface name
+# @Returns string
 def getnewifacealiasname(iface):
     
     ifaces = ifacestat( iface=iface, namesonly=True )
@@ -82,6 +85,8 @@ def getnewifacealiasname(iface):
 
 
 
+# Bring interface down or destroy alias
+# @Returns logid
 def ifacedown( iface ):
     
     logid = mongolog( locals() )
@@ -95,6 +100,10 @@ def ifacedown( iface ):
 
     return command_success( logid )
     
+
+# Bring interface up or create new alias if "iface" param does not correspond to any iface name.
+# On alias creation "iface" must be defined using "getnewifacealiasname" function
+# @Returns logid
 def ifaceup( iface, address="", netmask="", broadcast="" ):
     
     logid = mongolog( locals() )    
@@ -113,7 +122,9 @@ def ifaceup( iface, address="", netmask="", broadcast="" ):
     return command_success( logid )
 
 
+##Functions to create or destroy alias. This functions use "ifaceup" and "ifacedown"
+#"iface" must be defined using "getnewifacealiasname" function
 def createalias( iface, address, netmask="", broadcast="" ):
     return ifaceup(iface=iface, address=address, netmask=netmask, broadcast=broadcast)
-def destroyalias( iface ): #TODO: Non funziona
+def destroyalias( iface ):
     return ifacedown( iface )

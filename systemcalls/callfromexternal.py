@@ -11,8 +11,9 @@ import sys
 
 
 
-data = destroyalias( 'eth0:1' )
-data = createalias( getnewifacealiasname('eth0')['data'], address='10.100.10.192', netmask='255.255.0.0' )
+data = locate("")
+#data = destroyalias( 'eth0:1' )
+#data = createalias( getnewifacealiasname('eth0')['data'], address='10.100.10.192', netmask='255.255.0.0' )
 if data['returncode'] is 0:
     data = data['data']
 

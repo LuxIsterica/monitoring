@@ -21,6 +21,10 @@ def updatedb():
 
 def locate(name, insensitive=True):
 
+    #Cannot search on empty string
+    if not name:
+        return { 'returncode': 255, 'stderr': 'Empty search string not allowed' }
+
     try:
         command = ['locate', '-i', name]
         if insensitive is False: command.pop(1)
