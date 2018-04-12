@@ -101,9 +101,11 @@ def ifacedown( iface ):
     return command_success( logid )
     
 
-# Bring interface up or create new alias if "iface" param does not correspond to any iface name.
-# On alias creation "iface" must be defined using "getnewifacealiasname" function
-# @Returns logid
+"""
+Bring interface up or create new alias if "iface" param does not correspond to any iface name.
+On alias creation "iface" must be defined using "getnewifacealiasname" function
+@Returns logid
+"""
 def ifaceup( iface, address="", netmask="", broadcast="" ):
     
     logid = mongolog( locals() )    
@@ -122,9 +124,66 @@ def ifaceup( iface, address="", netmask="", broadcast="" ):
     return command_success( logid )
 
 
-##Functions to create or destroy alias. This functions use "ifaceup" and "ifacedown"
-#"iface" must be defined using "getnewifacealiasname" function
+"""
+Functions to create or destroy alias. This functions use "ifaceup" and "ifacedown"
+iface must be defined using "getnewifacealiasname" function
+"""
 def createalias( iface, address, netmask="", broadcast="" ):
     return ifaceup(iface=iface, address=address, netmask=netmask, broadcast=broadcast)
 def destroyalias( iface ):
     return ifacedown( iface )
+
+
+#discutere con Lucia della formattazione che deve essere simile a quella del comando
+def getroutes():
+    
+    command = ['route', '-n']
+
+    try:
+        output = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
+    except CalledProcessError as e:
+        return command_error(e, command)
+
+
+    #Removing useless header
+    output.pop(0)
+
+    #Storing useful header to use later
+    header = output.pop(0).split()
+    routes = list( map( lambda route: dict(zip(header, route.split())), output ) )
+
+
+    return command_success( routes )
+
+
+#Either add a route or set a default route on default=True
+def addroute(gw, net, netmask, default=False):
+
+    logid = mongolog( locals() )
+
+    command = ['route', 'add']
+    if default:
+        command = command + ['default', 'gw', gw]
+    elif net is None or netmask is None:
+        raise ValueError('On non-default route you must enter "net" and "netmask" parameters')
+    else:
+        command = command + ['-net', net, 'netmask', netmask, 'gw', gw]
+
+    try:
+        check_call(command)
+    except CalledProcessError as e:
+        return command_error(e, command)
+
+    return command_success(logid)
+
+
+#Calls addroute with "default" paramemters on "True" and "None" on "net" and "netmask"
+def defaultroute(gw): return addroute(gw, net=None, netmask=None, default=True) 
+
+
+#TODO: Continue from here
+def delroute(route):
+    if isistance(route, dict):
+        return command_success( 'dict' )
+    else:
+        return command_success( 'not_dict' )

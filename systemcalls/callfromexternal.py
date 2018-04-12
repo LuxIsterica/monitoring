@@ -5,13 +5,13 @@ from systemfile import updatedb, locate, removefile
 from apache import getvhosts, getmods, getconf, activatevhost, deactivatevhost, apachestatus, apachereload
 from pprint import pprint
 from utilities import filediff, filedit
-from network import ifacestat, getnewifacealiasname, ifacedown, ifaceup, createalias, destroyalias
+from network import ifacestat, getnewifacealiasname, ifacedown, ifaceup, createalias, destroyalias, getroutes, addroute, defaultroute, delroute
 import os
 import sys
 
 
 
-data = locate("")
+data = delroute('stringa')
 #data = destroyalias( 'eth0:1' )
 #data = createalias( getnewifacealiasname('eth0')['data'], address='10.100.10.192', netmask='255.255.0.0' )
 if data['returncode'] is 0:
