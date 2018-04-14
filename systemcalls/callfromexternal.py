@@ -6,21 +6,16 @@ from apache import getvhosts, getmods, getconf, activatevhost, deactivatevhost, 
 from pprint import pprint
 from utilities import filediff, filedit
 from network import ifacestat, getnewifacealiasname, ifacedown, ifaceup, editiface, createalias, destroyalias, getroutes, addroute, defaultroute, delroute
+from cron import getusercron
 import os
 import sys
 
 
 
 
-#data = getroutes()
+data = getusercron('giuseppe')
 if data['returncode'] is 0:
     data = data['data']
-
-'''
-for route in data:
-    if route['Destination'].startswith('192'):
-        data = route
-'''
 
 pprint(data)
 

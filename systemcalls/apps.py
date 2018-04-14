@@ -57,6 +57,10 @@ def listinstalled( summary=False ):
 #Ricerca di una applicazione. se namesonly è true (default) la ricerca viene effettuata solo nel nome del pacchetto
 def aptsearch( pkgname, namesonly=True ):
 
+    #Cannot search on empty string
+    if not pkgname:
+        return { 'returncode': 255, 'stderr': 'Empty search string not allowed' }
+
     command = ['apt-cache', 'search', pkgname]
     if namesonly: command.append('--names-only')
 
