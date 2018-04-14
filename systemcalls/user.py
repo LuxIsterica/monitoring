@@ -195,7 +195,6 @@ def adduser(user, password, shell="/bin/bash"):
     return command_success(logid)
 
 
-
 def removeuser(user, removehome=None):
 	
     logid = mongolog( locals(), getuser(user) )

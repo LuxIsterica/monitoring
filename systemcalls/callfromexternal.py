@@ -6,14 +6,14 @@ from apache import getvhosts, getmods, getconf, activatevhost, deactivatevhost, 
 from pprint import pprint
 from utilities import filediff, filedit
 from network import ifacestat, getnewifacealiasname, ifacedown, ifaceup, editiface, createalias, destroyalias, getroutes, addroute, defaultroute, delroute
-from cron import getusercron
+from cron import getusercron, writeusercrontab
 import os
 import sys
 
 
 
 
-data = getusercron('giuseppe')
+data = writeusercrontab('giuseppe', 'nuovociaone')
 if data['returncode'] is 0:
     data = data['data']
 

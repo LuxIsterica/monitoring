@@ -101,10 +101,10 @@ def filedit(filename, towrite=None, force=False):
 
 
 
-    ##Execute this code just when Force==True or md5new != md5old
+    ##This code is being executed on either Force==True or md5new != md5old
 
-    #We are going to insert the diff between the 2 file, so we need to remove the parameter "towrite" from "locals()"
-    #And pass the dict() returned by the filediff() function to mongolog()
+    #Better insert the diff between the 2 file instead of full content, thus
+    #we need to remove the parameter "towrite" from "locals()" and pass the dict() returned by the filediff() function to mongolog()
     localsvar = locals()
     del localsvar['towrite']
     return filediff(filename, towrite)
@@ -138,6 +138,8 @@ def filediff(filea, fileb):
         with open(filea, 'w') as opened:
             opened.write(filecontent)
 
+    #N.B. Python's internal write function keeps current file owner
+
     if not os.path.exists(fileb):
         filecontent = fileb
         fileb = '/tmp/.nomodotempb'
@@ -146,7 +148,7 @@ def filediff(filea, fileb):
 
     command = ['diff', filea, fileb]
 
-    #We are using Popen here because check_output fails to return stdout and stderr on exit code != 0
+    #Must use Popen here because check_output fails to return stdout and stderr on exit code != 0
     output = Popen(command, stdout=PIPE, universal_newlines=True).communicate()[0]
 
     return {'filediff': output }
