@@ -2,16 +2,32 @@
 {% block page_content %}
 <h2>Trova file</h2>
 
-<form id="form" action="/findFile" role="form" method = "POST">
-    <div class="input-group input-group-sm col-xs-4 col-md-4">
-      <input type="text" name="fileSearch" class="form-control col-xs-4 col-md-4" placeholder="Seleziona il nome del file che vuoi ricercare">
-      <div class="input-group-btn">
-        <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
-      </div>
-    </div>
-</form>
 
-<input type="button" class="btn btn-default" value="Pulisci Lista" onclick="removeAll()">
+<div class="row">
+  <div class="col-md-8 col-sm-8">
+  	<form id="form" action="/findFile" role="form" method = "POST">
+	    <div class="input-group input-group-sm col-xs-4 col-md-4">
+	      <input type="text" name="fileSearch" class="form-control col-xs-4 col-md-4" placeholder="Seleziona file da ricercare">
+	      <div class="input-group-btn">
+	        <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+	      </div>
+	    </div>
+	</form>
+  </div>
+  <div class="col-md-4 col-sm-4">
+    <button type="button" class="btn btn-default" onclick="javascript:document.getElementById('pathFileFound').innerText = ''">Pulisci Lista</button>
+  </div>
+</div>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
 
 {% if pathFileFound|length > 0 %}
 	<div id="pathFileFound">

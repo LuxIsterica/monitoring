@@ -1,6 +1,6 @@
 import sys
 sys.path.append('systemcalls')
-from user import getusers, getuser, updateusershell
+from user import getusers, getuser, getshells, updateusershell
 from apps import listinstalled, aptsearch
 from systemfile import locate
 from flask import Flask, render_template, flash, request, redirect, url_for
@@ -29,14 +29,23 @@ def listUser():
 @app.route('/getInfoUser/<string:uname>')
 def getInfoUser(uname):
 	infouser = getuser(uname)
-	return render_template('info-user.html',infouser = infouser)
+	shells = getshells()
+	return render_template('info-user.html',infouser = infouser, shells = shells)
+
+#@app.route('/listShell')
+#def listShell():
+#	shells = getshells()
+#	return render_template('shells.html',shells = shells)
 
 @app.route('/updateShell', methods=['POST'])
 def updateShell():
 	error = None
 	uname = request.form['unameUpdate'];
 	shell = request.form['newShell'];
-	log = updateusershell(uname, shell);
+	if shell == '-- Seleziona nuova shell --':
+		flash('Opzione non valida')
+	else:
+		log = updateusershell(uname, shell);
 	if(log['returncode'] != 0):
 		flash(log['stderr'])
 		flash(log['command'])
@@ -57,7 +66,11 @@ def listInstalled():
 
 @app.route('/findPkgInstalled', methods=['POST'])
 def findPkgInstalled():
+	error = None
 	pkg = request.form['pkgSearch'];
+	if not pkg:
+		flash('Operazione errata')
+		return redirect(url_for('listInstalled'))
 	appFound = aptsearch(pkg);
 	return render_template('find-pkg-installed.html',appFound = appFound)
 
@@ -70,6 +83,8 @@ def file():
 def findFile():
 	error = None
 	fs = request.form['fileSearch'];
+	if not fs:
+		flash('Operazione errata')
 	pathFileFound = locate(fs);
 	return render_template('file.html', pathFileFound = pathFileFound)
 

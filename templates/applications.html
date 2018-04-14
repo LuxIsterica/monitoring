@@ -11,28 +11,18 @@
     </div>
 </form>
 
-<!--<button type="button" class="btn btn-success" data-toggle="collapse" data-target="#appList">Mostra Lista</button>
-<div id="appList" class="collapse">
-<table id="generic-table">
-	
-		<tr>
-			<th> NOME </th>
-			<th> VERSIONE </th>
-			<th> ARCHITETTURA </th>
-			<th> RIEPILOGO </th>
-		</tr>
-	
-		{% for a in listAppInst.data %}
-		<tr>
-			<td> {{ a.name }} </td>
-			<td> {{ a.version }} </td>
-			<td> {{ a.architecture }} </td>
-			<td> {{ a.summary }} </td>
-		</tr>
-		{% endfor %}
-	
-</table>
-</div>-->
+<br>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+<br>
+
 <div id="appList" >
 <table id="generic-table" class="tbody-scroll" style="max-height: 250px;overflow: auto;width: 100%;display: inline-block;">
 	<tr>
