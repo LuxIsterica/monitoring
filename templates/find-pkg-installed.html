@@ -1,0 +1,18 @@
+{% extends "index.html" %}
+{% block page_content %}
+<h2>Pacchetti trovati</h2>
+<table id="generic-table">
+
+	<tr>
+		<th> NOME </th>
+		<th> DESC </th>
+	</tr>
+	{% for af in appFound.data %}
+	<tr>
+		<td> {{ af.name }} </td>
+		<td> {{ af.desc }} </td>
+	</tr>
+	{% endfor %}
+
+</table>
+{% endblock %}

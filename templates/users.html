@@ -1,14 +1,27 @@
 {% extends "index.html" %}
 {% block page_content %}
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
 <h2>Lista utenti</h2>
-<table id="info-users">
-	{% for u in users %}
-		<tr>
-			<th> uid </th>
-			<td> {{ u.uid }} </td>
-			<th> uname </th>
-			<td> <a href="{{ url_for('getInfoUser',uname = u.uname) }}"><u>{{ u.uname }} </u></a></td>
-		</tr>
+<table id="generic-table">
+
+	<tr>
+		<th> UID </th>
+		<th> UNAME </th>
+	</tr>
+	{% for u in users.data %}
+	<tr>
+		<td> {{ u.uid }} </td>
+		<td> <a href="{{ url_for('getInfoUser',uname = u.uname) }}" class="btn btn-link"> {{ u.uname }} </a></td>
+	</tr>
 	{% endfor %}
+
 </table>
 {% endblock %}

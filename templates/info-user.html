@@ -1,12 +1,40 @@
 {% extends "index.html" %}
 {% block page_content %}
 <h2>Informazioni utente</h2>
-<table id="info-users">
-	{% for key,value in infouser.items() %}
+<table id="generic-table">
+	{% for key, value in infouser.data.items() %}
 		<tr>
 			<th> {{ key }} </th>
 			<td> {{ value }} </td>
 		</tr>
 	{% endfor %}
 </table>
+<br />
+
+<button id = "btnModal" class="btn btn-info btn-lg" data-toggle="modal" data-target="#modalUpd">Update Shell</button>
+
+<div id = "modalUpd" class = "modal fade" role="dialog">
+	<div class = "modal-dialog"> 
+		<div class = "modal-content"> 
+			<div class = "modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Inserisci nuovo comando shell</h4>
+			</div>
+			<div class="modal-body">
+			<form id="form" action="/updateShell" role="form" method = "POST">
+					Uname: <input type="text" id="unameUpdate" name="unameUpdate" value="{{infouser.data['uname']}}" class="form-control" readonly />
+	          		Nuovo comando shell:<input type="text" id="newShell" name="newShell" class="form-control"/>
+        	</div>	
+        	<div class="modal-footer">
+        		<!--<button id = "btnUpd" class="btn btn-info btn-default">Invio</button>-->
+        		<input type = "submit" value = "Invio" class="btn btn-info btn-default">
+          		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        	</div>
+        	</form>	
+        </div>	
+	</div>
+</div>
+
+{{ log }}
+<!-- modale modifica shell utente -->
 {% endblock %}
