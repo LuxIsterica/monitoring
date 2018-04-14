@@ -6,6 +6,7 @@ import re
 import datetime
 import pprint
 import inspect
+import types
 #import urllib.parse
 
 
@@ -129,9 +130,11 @@ Functions to create or destroy alias. This functions use "ifaceup" and "ifacedow
 iface must be defined using "getnewifacealiasname" function
 """
 def createalias( iface, address, netmask="", broadcast="" ):
-    return ifaceup(iface=iface, address=address, netmask=netmask, broadcast=broadcast)
+    return ifaceup( iface=iface, address=address, netmask=netmask, broadcast=broadcast )
 def destroyalias( iface ):
     return ifacedown( iface )
+def editiface( iface, address="", netmask="", broadcast="" ):
+    return ifaceup( iface=iface, address=address, netmask=netmask, broadcast=broadcast ) 
 
 
 #discutere con Lucia della formattazione che deve essere simile a quella del comando
@@ -162,8 +165,10 @@ def addroute(gw, net, netmask, default=False):
     logid = mongolog( locals() )
 
     command = ['route', 'add']
+    #If default is true we just need "gw" parameters
     if default:
         command = command + ['default', 'gw', gw]
+    #If default in False "net" and "netmask" must be set
     elif net is None or netmask is None:
         raise ValueError('On non-default route you must enter "net" and "netmask" parameters')
     else:
@@ -183,7 +188,17 @@ def defaultroute(gw): return addroute(gw, net=None, netmask=None, default=True)
 
 #TODO: Continue from here
 def delroute(route):
-    if isistance(route, dict):
-        return command_success( 'dict' )
-    else:
-        return command_success( 'not_dict' )
+
+    logid = mongolog( locals() )
+
+    if not type(route) is type(dict()):
+        raise ValueError('delroute function can only accept a dictionary as argument')
+
+    command = [ 'route', 'del', '-net', route['Destination'], 'netmask', route['Genmask'], 'gw', route['Gateway'] ]
+
+    try:
+        check_call(command)
+    except CalledProcessError as e:
+        return command_error(e, command)
+
+    return command_success( logid )

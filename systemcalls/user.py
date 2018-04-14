@@ -150,6 +150,9 @@ def getshells():
     #Removing comment lines
     shells = list( filter( lambda shell: not shell.startswith('#'), shells) )
 
+    #Manually Appending dummy shells
+    shells = shells + ['/usr/sbin/nologin', '/bin/false']
+
     return command_success(shells)
 
 
