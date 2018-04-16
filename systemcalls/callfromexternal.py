@@ -13,7 +13,12 @@ import sys
 
 
 
+<<<<<<< Updated upstream
 data = writeusercrontab('giuseppe', 'nuovociaone')
+=======
+data = getvhosts()
+#data = getusercron('giuseppe')
+>>>>>>> Stashed changes
 if data['returncode'] is 0:
     data = data['data']
 

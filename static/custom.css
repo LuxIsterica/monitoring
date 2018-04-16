@@ -31,7 +31,7 @@ a, a:hover, a:focus {
 
 .btn-info {
     color: #fff;
-    background-color: #0ec010;
+    background-color: #337ab7;
 }
 
 .line {
@@ -56,7 +56,7 @@ i, span {
 #sidebar {
     min-width: 280px;
     max-width: 280px;
-    background: #5ea8b5;
+    background: #138f0e;
     color: #fff;
     transition: all 0.3s;
 }
@@ -209,7 +209,7 @@ img {
 #generic-table {
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
     border-collapse: collapse;
-    width: 50%;
+    width: 80%;
 }
 
 #generic-table th, #generic-table td {
@@ -222,6 +222,10 @@ img {
     border-bottom: 1px solid green;
 }
 
+#generic-table th {
+    background-color: #198e16 !important;
+}
+
 /* ---------------------------------------
                 MEDIAQUERIES
 ------------------------------------------ */
@@ -230,8 +234,7 @@ img {
 
     #sidebar {
         min-width: 250px;
-        /*background: #5ea8b5;*/
-        background: #004218;
+        background: #028401;
         color: #fff;
         transition: all 0.3s;
     }
@@ -249,7 +252,8 @@ img {
         /* min-height: 100vh; */
         transition: all 0.3s;
         width: 100%;
-        background-color: #dad6a6;
+        /*background-color: #dad6a6; */
+        background-color: #dcdbcb;
     }
 
     .container {

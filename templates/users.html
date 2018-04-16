@@ -9,19 +9,40 @@
     </ul>
   {% endif %}
 {% endwith %}
-<h2>Lista utenti</h2>
-<table id="generic-table">
-
-	<tr>
-		<th> UID </th>
-		<th> UNAME </th>
-	</tr>
-	{% for u in users.data %}
-	<tr>
-		<td> {{ u.uid }} </td>
-		<td> <a href="{{ url_for('getInfoUser',uname = u.uname) }}" class="btn btn-link"> {{ u.uname }} </a></td>
-	</tr>
-	{% endfor %}
-
-</table>
+<div class="row">
+	<div class="col-sm-12">
+		<div align="center" class="col-md-6 col-sm-6">
+			<h2>Lista utenti</h2>
+			<table id="generic-table">
+				<tr>
+					<th> UID </th>
+					<th> UNAME </th>
+				</tr>
+				{% for u in users.data %}
+				<tr>
+					<td> {{ u.uid }} </td>
+					<td> <a style="font-size: 20px" href="{{ url_for('getInfoUser',uname = u.uname) }}" class="btn btn-link"> {{ u.uname }} </a></td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+		<div align="center" class="col-md-6 col-sm-6">
+			<h2>Lista gruppi</h2>
+			<table id="generic-table">
+				<tr>
+					<th> GNAME </th>
+					<th> GID </th>
+					<th> MEMBERS </th>
+				</tr>
+				{% for g in groups.data %}
+				<tr>
+					<td style="font-size: 20px"> {{ g.gname }} </td>
+					<td> {{ g.gid }} </td>
+					<td> {{ g.members }} </td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+	</div>
+</div>
 {% endblock %}

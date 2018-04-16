@@ -1,6 +1,6 @@
 import sys
 sys.path.append('systemcalls')
-from user import getusers, getuser, getshells, updateusershell
+from user import getusers, getuser, getgroups, getshells, updateusershell
 from apps import listinstalled, aptsearch
 from systemfile import locate
 from flask import Flask, render_template, flash, request, redirect, url_for
@@ -14,16 +14,17 @@ bootstrap = Bootstrap(app)
 ##### FUNZIONALITÀ user.py #####
 
 #http://localhost:5000/
-# definizione base index con componente fissa navbar
-@app.route('/')
-def index():
-	return render_template('index.html')
+# definizione base dash con componente fissa navbar
+@app.route('/dash')
+def dash():
+	return render_template('dash.html')
 
 # http://localhost:5000/listUser/
-@app.route('/listUser')
-def listUser():
+@app.route('/listUserAndGroups')
+def listUserAndGroups():
 	users = getusers()
-	return render_template('users.html',users = users)
+	groups = getgroups()
+	return render_template('users.html',users = users,groups = groups)
 
 # http://localhost:5000/getInfoUser/<clicca valore uname>
 @app.route('/getInfoUser/<string:uname>')
@@ -54,7 +55,6 @@ def updateShell():
 	
 	return redirect(url_for('listUser'))
 	#return render_template('info-user.html', log = log)
-
 
 ##### FUNZIONALITÀ apps.py #####
 
