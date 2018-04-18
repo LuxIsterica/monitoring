@@ -1,4 +1,4 @@
-from user import getusers, getuser, getgroups, addusertogroups, removeuserfromgroups, adduser, removeuser, updateuserpass, getshells, updateusershell
+from user import getusers, getuser, getgroups, getusergroups, getusernotgroups, addusertogroups, removeuserfromgroups, adduser, removeuser, updateuserpass, getshells, updateusershell
 from apps import listinstalled, aptsearch, aptshow, aptinstall, aptremove, aptupdate, addrepo,  getexternalrepos, removerepofile
 from system import hostname, getsysteminfo
 from systemfile import updatedb, locate, removefile
@@ -12,12 +12,23 @@ import sys
 
 
 
+print('USERGROUP\n', getusergroups('giuseppe')['data'] )
+print('GROUPS\n', getgroups(namesonly=True)['data'] )
+print('USERNOTGROUP\n', getusernotgroups('giuseppe')['data'] )
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 data = writeusercrontab('giuseppe', 'nuovociaone')
 =======
 data = getvhosts()
 #data = getusercron('giuseppe')
+>>>>>>> Stashed changes
+=======
+exit()
+
+
+data = getgroups(namesonly=True)
+#data = writeusercrontab('giuseppe', 'nuovociaone')
 >>>>>>> Stashed changes
 if data['returncode'] is 0:
     data = data['data']

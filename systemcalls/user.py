@@ -11,22 +11,21 @@ def getuser(user):
     try:
         command = ['getent', 'passwd',  user]
         userinfo = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
-
-        command = ['groups', user]
-        usergroups = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
-
     except CalledProcessError as e:
         return command_error(e, command)
-    
     
 
     #Info sull'utente dal file /etc/passwd
     userinfo = userinfo[0].split(':')
-    
-    #Gruppi a cui l'utente appartiene
-    usergroups = re.sub('^.*: ', '', usergroups[0])
-    usergroups = usergroups.split(' ')
-    
+
+
+    #Getting user groups
+    usergroups = getusergroups(user)
+    if usergroups['returncode'] is 0:
+        usergroups = usergroups['data']
+    else:
+        return usergroups
+
 
     return command_success( dict({
     	'uname': userinfo[0],
@@ -36,7 +35,7 @@ def getuser(user):
     	'geco': userinfo[4].split(','),
     	'home': userinfo[5],
     	'shell': userinfo[6],
-    	'group': usergroups.pop(0),
+    	'group': usergroups.pop(0), #Main user group
     	'groups': usergroups
     }) )
     
@@ -64,22 +63,69 @@ def getusers():
     
 
 
-def getgroups():
+#Returns ---> If namesonly=True: a list of string (group names)
+#        ---> If namesonly=False: a list of dict (groups information)
+def getgroups(namesonly=False):
 
     with open('/etc/group', 'r') as opened:
         etcgroup = opened.read().splitlines()
 
 
     groups = list()
-    for line in etcgroup:
-        line = line.split(':')
-        groups.append({
-            'gname': line[0],
-    	    'gid': line[2],
-    	    'members': line[3].split(',')
-    	})
+    if namesonly:
+        groups = list(map( lambda line: line.split(':')[0], etcgroup ))
+    else:
+        for line in etcgroup:
+            line = line.split(':')
+            groups.append({
+                'gname': line[0],
+                'gid': line[2],
+                'members': line[3].split(',')
+            })
     
-    return command_success(groups)
+    return command_success( groups )
+
+
+#Returns all groups which the user belong to
+# @Returns list
+def getusergroups(user):
+
+    command = ['groups', user]
+    
+    try:
+        usergroups = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
+    except CalledProcessError as e:
+        command_success(e, command)
+
+#                   .------Removing username from list
+#                   |                       .----------.
+#                   V                       V          | 
+    usergroups = re.sub('^.*: ', '', usergroups[0]) #Only first line contains the groups
+    usergroups = usergroups.split(' ')
+
+    return command_success( usergroups )
+
+
+#Returns all groups that "user" isn't in
+def getusernotgroups(user):
+    
+    #Getting all system groups
+    groups = getgroups(namesonly=True)
+    if groups['returncode'] is 0:
+        groups = groups['data']
+    else:
+        return groups
+
+    #Getting user specific groups
+    usergroups = getusergroups(user)
+    if usergroups['returncode'] is 0:
+        usergroups = usergroups['data']
+    else:
+        return usergroups
+
+    usernotgroup = list(filter( lambda group: not any(s in group for s in usergroups), groups ))
+
+    return command_success( usernotgroup )
 
 
 def addusertogroups(user, *groups):
