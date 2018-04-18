@@ -33,4 +33,3 @@ def writeusercrontab(user, newcron):
     userscronpath = '/var/spool/cron/crontabs/'
 
     return filedit( userscronpath + user, newcron )
-

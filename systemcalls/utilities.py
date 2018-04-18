@@ -94,6 +94,8 @@ def filedit(filename, towrite=None, force=False):
 
             #A modified version of the dict() returned from the function commans_success() which is quite used
             #Here stderr is a message so we assign it two keys
+# Lucia ------------.
+#                   |
             return dict({
                 'returncode': 2,
                 ('message', 'stderr'): 'Nothing to write(no changes from original file). You can force writing using the parameter "force=True"'
@@ -103,18 +105,18 @@ def filedit(filename, towrite=None, force=False):
 
     ##This code is being executed on either Force==True or md5new != md5old
 
-    #Better insert the diff between the 2 file instead of full content, thus
+    #Better insert the diff between the 2 files instead of full content, thus
     #we need to remove the parameter "towrite" from "locals()" and pass the dict() returned by the filediff() function to mongolog()
     localsvar = locals()
     del localsvar['towrite']
-    return filediff(filename, towrite)
     logid = mongolog( localsvar, filediff(filename, towrite) )
-    opened = open(filename, 'w')
 
+    #Writing new content to "filename" file
+    opened = open(filename, 'w')
     opened.write(towrite)
     opened.close()
 
-    return command_success(logid)
+    return command_success( logid )
 
 
 
@@ -130,7 +132,7 @@ def filedit(filename, towrite=None, force=False):
 #             |      |
 def filediff(filea, fileb):
 
-    #If either filea or fileb is tring then create a temp file and write to content
+    #If either filea or fileb is string then create a temp file and write to content
     #to make possible diff execution
     if not os.path.exists(filea):
         filecontent = filea

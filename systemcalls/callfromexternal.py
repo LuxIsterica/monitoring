@@ -12,30 +12,11 @@ import sys
 
 
 
-print('USERGROUP\n', getusergroups('giuseppe')['data'] )
-print('GROUPS\n', getgroups(namesonly=True)['data'] )
-print('USERNOTGROUP\n', getusernotgroups('giuseppe')['data'] )
-
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 data = writeusercrontab('giuseppe', 'nuovociaone')
-=======
-data = getvhosts()
-#data = getusercron('giuseppe')
->>>>>>> Stashed changes
-=======
-exit()
-
-
-data = getgroups(namesonly=True)
-#data = writeusercrontab('giuseppe', 'nuovociaone')
->>>>>>> Stashed changes
 if data['returncode'] is 0:
     data = data['data']
 
 pprint(data)
-
-#delroute( data )
 
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments
