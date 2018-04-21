@@ -1,0 +1,12 @@
+{% extends "index.html" %}
+{% block page_content %}
+
+<div class="container">
+  <div class="jumbotron">
+    {% for key, value in facestat.data.items() %}
+      <h1>{{ key }}</h1>
+      <p>{{ value }}</p> 
+    {% endfor %}
+  </div>     
+</div>
+{% endblock %}

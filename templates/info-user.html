@@ -5,7 +5,12 @@
 	{% for key, value in infouser.data.items() %}
 		<tr>
 			<th> {{ key }} </th>
-			<td> {{ value }} </td>
+			{% if key == 'shell' %}
+				<!--<td style="background-color: blue"> {{ value }} </td>-->
+				<td><button type="button" data-toggle="modal" class="btn btn-link" data-target="#modalUpd">{{ value }}</button></td>
+			{% else %}
+				<td> {{ value }} </td>
+			{% endif %}
 		</tr>
 	{% endfor %}
 </table>
@@ -19,11 +24,12 @@
         <button id = "btnRemoveUserGroup" class="btn btn-warning btn-lg" data-toggle="modal" data-target="#modalRemoveFromGroup">Remove User From Group</button>
     </div>
     <div class="col-md-4">
-        <button id = "btnUpdateShell" class="btn btn-info btn-lg" data-toggle="modal" data-target="#modalUpd">Update Shell</button>
+        <!--<button id = "btnUpdateShell" class="btn btn-info btn-lg" data-toggle="modal" data-target="#modalUpd">Update Shell</button>-->
+        <a></a>
     </div>
 </div>
 
-<div id = "modalAddFromGroup" class = "modal fade" role="dialog">
+<div id = "modalAddToGroup" class = "modal fade" role="dialog">
 	<div class = "modal-dialog"> 
 		<div class = "modal-content"> 
 			<div class = "modal-header">

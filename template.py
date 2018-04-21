@@ -3,6 +3,8 @@ sys.path.append('systemcalls')
 from user import getusers, getuser, getgroups, getshells, updateusershell
 from apps import listinstalled, aptsearch
 from systemfile import locate
+from system import getsysteminfo
+from network import ifacestat
 from flask import Flask, render_template, flash, request, redirect, url_for
 from flask_bootstrap import Bootstrap
 from collections import defaultdict
@@ -17,6 +19,14 @@ bootstrap = Bootstrap(app)
 # definizione base dash con componente fissa navbar
 @app.route('/dash')
 def dash():
+	error = None
+	tupl = getsysteminfo()
+	if tupl['returncode'] != 0:
+		flash(tupl['stderr'])
+	else:
+		(cpu,mem,proc) = tupl['data']
+		return render_template('dash.html', cpu=cpu,mem=mem,proc=proc)
+	
 	return render_template('dash.html')
 
 # http://localhost:5000/listUser/
@@ -46,7 +56,7 @@ def updateShell():
 	if shell == '-- Seleziona nuova shell --':
 		flash('Opzione non valida')
 	else:
-		log = updateusershell(uname, shell);
+		log = updateusershell(uname, shell)
 	if(log['returncode'] != 0):
 		flash(log['stderr'])
 		flash(log['command'])
@@ -61,7 +71,7 @@ def updateShell():
 # http://localhost:5000/listInstalled
 @app.route('/listInstalled')
 def listInstalled():
-	listAppInst = listinstalled(True);
+	listAppInst = listinstalled(True)
 	return render_template('applications.html',listAppInst = listAppInst)
 
 @app.route('/findPkgInstalled', methods=['POST'])
@@ -71,7 +81,7 @@ def findPkgInstalled():
 	if not pkg:
 		flash('Operazione errata')
 		return redirect(url_for('listInstalled'))
-	appFound = aptsearch(pkg);
+	appFound = aptsearch(pkg)
 	return render_template('find-pkg-installed.html',appFound = appFound)
 
 ##### FUNZIONALITÀ file.py #####
@@ -91,6 +101,12 @@ def findFile():
 ##### FUNZIONALITÀ system.py #####
 
 ##### FUNZIONALITÀ systemfile.py #####
+
+##### FUNZIONALITÀ network.py #####
+@app.route('/network')
+def network():
+	facestat = ifacestat()
+	return render_template('net.html',facestat=facestat)
 
 if __name__ == '__main__':
 	app.run(debug = True)
