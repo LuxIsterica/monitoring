@@ -57,7 +57,7 @@ def ifacestat(iface="", namesonly=False):
 
 
             #A dictionary where the key is the interface name and the value is part of the lines related to such interface
-            ifaces.update({ firstline[0]: '\n'.join(iface[:i]) })
+            ifaces.update({ firstline[0]: iface[:i] }) #  '\n'.join(iface[:i]) })
 
 
     return command_success( ifaces )

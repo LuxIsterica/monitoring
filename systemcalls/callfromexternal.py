@@ -12,7 +12,8 @@ import sys
 
 
 
-data = writeusercrontab('giuseppe', 'nuovociaone')
+data = ifacestat()
+#data = writeusercrontab('giuseppe', 'nuovociaone')
 if data['returncode'] is 0:
     data = data['data']
 

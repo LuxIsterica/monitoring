@@ -114,8 +114,9 @@ def getsysteminfo( getall=True, getproc=False, getcpu=False, getmem=False ):
     if getall or getproc:
 
         #Reading processes status using top command
+        command = ['top', '-b', '-n1']
+
         try:
-            command = ['top', '-b', '-n1'] #Getting processes information
             procraw = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
         except CalledProcessError as e:
             return command_error(e, command)
