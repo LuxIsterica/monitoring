@@ -36,7 +36,7 @@ def getuser(user):
     	'home': userinfo[5],
     	'shell': userinfo[6],
     	'group': usergroups.pop(0), #Main user group
-    	'groups': usergroups
+    	'groups': usergroups if usergroups else "No groups"
     }) )
     
     
