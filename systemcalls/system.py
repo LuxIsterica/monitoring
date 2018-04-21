@@ -126,6 +126,9 @@ def getsysteminfo( getall=True, getproc=False, getcpu=False, getmem=False ):
         #Removing headers from the output of top command
         i = 0
         while 'PID' not in procraw[i]: i+=1
+        return command_success( procraw[i:] )
+#           |_____________________________________________________________________ Real Return
+
         procraw = procraw[i:]
     
         #Getting header and splitting fields for use final dictionary keys
