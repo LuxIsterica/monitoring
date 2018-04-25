@@ -1,0 +1,9 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{command} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}ifconfig\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}\PYGZhy{}a\PYGZsq{}}\PYG{p}{]}
+\PYG{k}{try}\PYG{p}{:}
+	\PYG{n}{output} \PYG{o}{=} \PYG{n}{check\PYGZus{}output}\PYG{p}{(}\PYG{n}{command}\PYG{p}{,} \PYG{n}{stderr}\PYG{o}{=}\PYG{n}{PIPE}\PYG{p}{,} \PYG{n}{universal\PYGZus{}newlines}\PYG{o}{=}\PYG{n+nb+bp}{True}\PYG{p}{)}
+\PYG{k}{except} \PYG{n}{CalledProcessError} \PYG{k}{as} \PYG{n}{e}\PYG{p}{:}
+	\PYG{k}{return} \PYG{n}{command\PYGZus{}error}\PYG{p}{(}\PYG{n}{e}\PYG{p}{,} \PYG{n}{command}\PYG{p}{)}
+
+\PYG{k}{return} \PYG{n}{command\PYGZus{}success}\PYG{p}{(} \PYG{n}{output} \PYG{p}{)}
+\end{Verbatim}
