@@ -1,6 +1,7 @@
 # coding=utf-8
 from subprocess import PIPE, STDOUT, Popen, check_output, check_call, CalledProcessError
 from pymongo import MongoClient
+#from bson.objectid import ObjectId
 import datetime
 import pprint
 import inspect
@@ -24,7 +25,8 @@ def mongolog(params, *args):
     dblog = dict({
     	'date': datetime.datetime.utcnow(),     #Operation date
     	'funname': inspect.stack()[1][3],       #Function name
-    	'parameters': params
+    	'parameters': params,
+#        'status': 'success'
     })
     
     for arg in args:
@@ -34,16 +36,13 @@ def mongolog(params, *args):
     return db.log.insert_one( dblog )
     
     
-    #       #show collections
-    #       print(db.collection_names(include_system_collections=False))
-    #
-    #       pprint.pprint(db.posts.find_one({"author":"Mike"}))
-
-
-
-#def mongoaddtodocument(logid, *fields)
-#    pass
-
+def mongostatuserror(logid):
+    
+    return db.log.update_one(
+        {'_id': logid},
+        {'$set': { 'status' : 'error' }},
+        upsert=False
+        )
 
 
 #Called on command success
