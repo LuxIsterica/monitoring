@@ -10,6 +10,7 @@ import inspect
 
 
 #If "newhostname" is not empty sets the hostname, else returns it
+#Returnt tuple containing informtion about (cpu, mem, proc)
 def hostname(newhostname=""):
     
     command = ['hostname']
@@ -126,23 +127,24 @@ def getsysteminfo( getall=True, getproc=False, getcpu=False, getmem=False ):
         #Removing headers from the output of top command
         i = 0
         while 'PID' not in procraw[i]: i+=1
-        return command_success( procraw[i:] )
-#           |_____________________________________________________________________ Real Return
-
-        procraw = procraw[i:]
-    
-        #Getting header and splitting fields for use final dictionary keys
-        keys = procraw.pop(0).lstrip()
-        keys = keys.split()
-        
-        proc = list()
-    
-        for line in procraw:
-            line = procraw.pop(0).lstrip()          #Removing initial spaces
-            line = line.split()                     #Splitting by spaces
-            proc.append( dict( zip(keys, line) ) )  #Creating a dictionary for each process and inserting into a list to return
-
+        proc = procraw[i:]
         toreturn = toreturn + (proc,)
+#           |_____________________________________________________________________ Real Value
+
+#        procraw = procraw[i:]
+#    
+#        #Getting header and splitting fields for use final dictionary keys
+#        keys = procraw.pop(0).lstrip()
+#        keys = keys.split()
+#        
+#        proc = list()
+#    
+#        for line in procraw:
+#            line = procraw.pop(0).lstrip()          #Removing initial spaces
+#            line = line.split()                     #Splitting by spaces
+#            proc.append( dict( zip(keys, line) ) )  #Creating a dictionary for each process and inserting into a list to return
+#
+#        toreturn = toreturn + (proc,)
 
 
 

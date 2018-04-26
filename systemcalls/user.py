@@ -208,11 +208,13 @@ def updateusershell(user, shell):
 	
     logid = mongolog( locals() )
     
+    #TODO
     if not shell:
     	raise SyntaxError("La stringa contenente il nome della shell non può essere vuota")
+
+    command = ['chsh', user, '-s', shell]
     
     try:
-        command = ['chsh', user, '-s', shell]
         check_output(command, stderr=PIPE, universal_newlines=True)
     except CalledProcessError as e:
         return command_error(e, command)
@@ -227,7 +229,7 @@ def adduser(user, password, shell="/bin/bash"):
 	
     logid = mongolog( locals() )
     
-
+    #TODO
     if not shell:
     	raise SyntaxError("La stringa contenente il nome della shell non può essere vuota")
     

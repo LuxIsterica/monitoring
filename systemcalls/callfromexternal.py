@@ -12,8 +12,15 @@ import sys
 
 
 
-data = ifacestat()
-#data = writeusercrontab('giuseppe', 'nuovociaone')
+data = getsysteminfo()
+if data['returncode'] is 0:
+    (cpu, mem, proc) = data['data']
+
+
+pprint(proc)
+
+
+exit()
 if data['returncode'] is 0:
     data = data['data']
 
