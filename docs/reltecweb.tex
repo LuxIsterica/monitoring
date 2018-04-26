@@ -92,15 +92,26 @@ Allo stato attuale le categorie che compongono il backend sono le seguenti:
 	\item{Logs}
 \end{itemize}
 
-\paragraph{Interfaccia al frontend}
-Il messaggio di errore nella maggior parte dei casi è lo stesso messaggio restituito all'utente sulla shell,
-ma inserito nella variabile \texttt{stderr}.
+\paragraph{Interfaccia al frontend}\label{frontendinterface}
+Ogni funzione chimata restituisce sempre un dizionario contenente un codice di ritorno e a seconda dei casi
+i dati che si sono richiesti se il codice di ritorno è 0 o una variabile \texttt{stderr} contenente un messaggio di errore
+se il codice di ritorno è diverso da 0.
+Il frontend o l'utente che voglia chiamare per qualsivoglia motivo le funzioni del backend direttamente, potr\'a farlo quindi nel seguente modo::
+\begin{lstlisting}
+data = getifacestat()
+if data['returncode'] is 0:
+	data = data['data']
+else:
+	print( data['stderr'] )
+ 
+pprint(data)
+\end{lstlisting}
 
-\paragraph{subprocess}
+\paragraph{subprocess}\label{subprocess}
 Le funzionalità di Python più utilizzate per la realizzazione del progetto sono senza dubbio quelle appartenenti alla libreria subprocess,
 che permette di eseguire comandi come se si stessero eseguendo in bash. Si è cercato il più possibile di limitare l'utilizzo di questa libreria
-ma le sue funzionalità funzionalità state necessarie nella maggior parte delle funzioni del backend, a causa dello scarso agilità che ha python
-di interfacciarsi col sistema sottostante.
+ma le sue funzionalità si sono rese necessarie nella maggior parte dei casi delle funzioni del backend,
+a causa dello scarsa agilità che ha python di interfacciarsi col sistema sottostante.
 In generale l'esecuzione di un comando avviene nel seguente modo:
 \begin{lstlisting}
 command = ['ifconfig', '-a']
@@ -111,10 +122,11 @@ except CalledProcessError as e:
 
 return command_success( output )
 \end{lstlisting}
-Se viene lanciata l'eccezione \texttt{CalledProcessError} allora chiama la funzione \nameref{\texttt{command\_error}} che restituisce quindi
-contenente un \texttt{returncode} diverso da 0 (quindi errore) e un messaggio di errore che si trova nella chiave \texttt{stderr}.
-In questo specifico caso invece se l'operazione va buon fine viene invocata la funzione \nameref{\texttt{command\_success}} che restituisce
-un \texttt{returncode} uguale a 0 e l'output sulla shell del comando eseguito nella chiave di dizionario \texttt{data}.
+Se viene lanciata l'eccezione \texttt{CalledProcessError} allora chiama la funzione \texttt{ \nameref{command\string_error} }
+che restituisce quindi un dizionario contenente un \texttt{returncode} diverso da 0 (quindi errore)
+e un messaggio di errore che si trova nella chiave \texttt{stderr}. \\
+In questo specifico caso invece se l'operazione va buon fine viene invocata la funzione \texttt{ \nameref{command\string_success} }
+che restituisce un \texttt{returncode} uguale a 0 e l'output sulla shell del comando eseguito nella chiave di dizionario \texttt{data}. \\
 In caso invece il comando che si va ad eseguire non restituisce output, la chiave \texttt{data} andrà a contenere il \texttt{logid}
 di mongo, che non è altro l'Object ID del documento che è stato creato in mongo e contenente le informazioni sull'operazione appena effettuata.
 Un esempio è l'esecuzione del seguente codice:
@@ -136,10 +148,71 @@ def removeuser(user, removehome=None):
     return command_success(logid)
 \end{lstlisting}
 
-Nei prossimi sezioni verranno analizzate tutte le categorie e spiegato il funzionamento di ogni funzione che contengono.
+Nelle prossime sezioni verranno analizzate tutte le categorie e spiegato il funzionamento di ogni funzione che contengono.
 \subsection{utilities}
-\subsubsection{command\_success}\label{command\_success}
-\subsubsection{command\_error}\label{command\_error}
+Questa categoria contiene per la maggior parte funzioni che non vengono mai richiamate direttamente dal frontend, ma vengono utilizzate
+dalle altre funzioni del backend. Fa eccezione invece la funzione \nameref{filedit} utile alla modifica di file. \\
+Analizziamo adesso le funzioni di questa libreria.
+\subsubsection{mongolog}\label{mongolog}
+\begin{lstlisting}
+def mongolog(params, *args):
+
+    dblog = dict({
+    	'date': datetime.datetime.utcnow(),     #Operation date
+    	'funname': inspect.stack()[1][3],       #Function name
+    	'parameters': params
+    })
+    
+    for arg in args:
+        dblog.update( arg )
+
+    #ObjectID in mongodb
+    return db.log.insert_one( dblog )
+\end{lstlisting}
+Viene chiamata da ogni funzione che va a modificare lievemente o pesantemente il sistema e fa un insert su mongodb per memorizzare le informazioni.
+Accetta N parametri di cui \textbf{il primo} (che deve essere sempre presente) è la lista di parametri
+con cui è stata lanciata la funzione che ha chiamato \texttt{mongolog}. Ad esempio in
+\begin{lstlisting}
+def ifacedown( iface ):
+	logid = mongolog( locals() )
+	...
+\end{lstlisting}
+a \texttt{mongolog} viene passata \texttt{locals()} che contiene il parametro \texttt{iface} e che andrà quindi an inserire nel dizionario
+di base che restituir\'a, mentre \textbf{il secondo} parametro è opzionale e può essere uno o più dizionari da unire a questo dizionario restituito.
+\\~\\
+Il dizionario di base è formato da tre elementi:
+\begin{itemize}
+	\item{La data in cui viene effettuata l'operazione}
+	\item{Il nome della funzione che ha chiamato \texttt{mongolog}, ricavata tramite il supporto della libreria \texttt{inspect}}
+	\item{I parametri della funzione che chiama, come spiegato in precedenza, e ottenuti chiamando la funzione \texttt{locals()}}
+\end{itemize}
+
+\subsubsection{command\_success}\label{command\string_success}
+La funzione \texttt{command\_success} viene chiamata ogni qualvolta una funzione del backend inclusa nelle altre categorie esegue l'operazione
+richiesto in modo corretto ed è quindi in grado di informare l'utente del successo dell'operazione.
+Questa funzione (cos\'i come \texttt{command\_error}) viene chiamata da quasi tutte le funzioni al return; fanno eccezione le funzioni che
+per un motivo o per un altro non possono utilizzarla. In tal caso queste andranno a generare un dizionario proprio da restituire al frontend
+che avr\'a per\'o la stessa struttura del dizionario restituito da questa funzione.
+\\~\\
+\paragraph{Parametri}
+Accetta due parametri:
+\begin{itemize}
+	\item{Il primo che è \texttt{data} contiene i dati effettivi da restituire all'utente. Come gi\'a detto se l'operazione genera output
+		allora conterr\'a questo output, altrimenti il logid di mongodb e infine se proprio non c'è niente da restituire verr\'a
+		una variabile vuota}
+	\item{Il secondo che non è obbligatorio, è il returncode. Di base questa funzione dovrebbe restituire sempre 0 ma è stata data
+		la possibilit\'a di inserire returncode diversi da 0 per implementazioni (improbabili) future.
+\end{itemize}
+\paragraph{Return}
+Restituisce un dizionario contenente un \texttt{returncode} e una variabile \texttt{data} che assume il tipo dei dati da restituire,
+da utilizzare come spiegato in sezione \ref{frontendinterface}.
+
+\subsubsection{command\_error}\label{command\string_error}
+\texttt{command\_error} \'e l'opposto di \texttt{command\_success}. 
+
+\subsubsection{filedit}\label{filedit}
+\subsubsection{filediff}\label{filediff}
+
 \subsection{Utenti}
 \subsection{Network}
 \subsection{Cron}
@@ -150,36 +223,10 @@ Nei prossimi sezioni verranno analizzate tutte le categorie e spiegato il funzio
 \subsection{Logs}
 
 \section{Frontend}\label{frontend}
-Frontend\label{
+Frontend
 
 \section{Utility}
 \subsection{\href{https://developers.redhat.com/products/developertoolset/overview/}{Red Hat Developer Toolset}}
-\begin{itemize}
-	\item{systemtap-devel}
-	\item{systemtap-client}
-	\item{systemtap}
-	\item{systemtap-runtime}
-	\item{oprofile}
-\end{itemize}
-
-\paragraph{Limiti utenti}
-Appendere al file \texttt{/etc/security/limits.conf} le seguenti direttive\footnote{\label{limitsnotneededyet}Le direttive su memlock unlimited sono state omesse in quanto già presenti}:
-\begin{lstlisting}
-#ENEA custom
-* soft stack 2097152
-* hard stack 2097152
-* soft fsize 524288000
-* hard fsize 524288000
-* soft nofile 8192
-* hard nofile 8192
-\end{lstlisting}
-
-\subsection{OpenAFS}
-\begin{itemize}
-	\item{Installare i pacchetti di openafs che si trovano sulla macchina \texttt{cresco-inst1} al percorso \texttt{/root/AFS}}
-	\item{Copiare tutti i file a livello 0 di \texttt{/usr/vice/etc/} di inst1 nello stesso percorso sulla macchina locale}
-	\item{Giovanni Bracco: Continuare}
-\end{itemize}
 
 \subsection{kerberos5}
 \begin{enumerate}
