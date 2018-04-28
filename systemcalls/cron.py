@@ -23,7 +23,7 @@ def getusercron(user):
     try:
         output = check_output(command, stderr=PIPE, universal_newlines=True)
     except CalledProessError as e:
-        return command_error(e, command)
+        return command_error(e, command, logid)
 
     return command_success( output )
 

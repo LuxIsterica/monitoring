@@ -16,7 +16,7 @@ def ifacestat(iface="", namesonly=False):
     try:
         output = check_output(command, stderr=PIPE, universal_newlines=True)
     except CalledProcessError as e:
-        return command_error(e, command)
+        return command_error(e, command, logid)
 
 
     #After this split each list item contains an interface specs
@@ -92,7 +92,7 @@ def ifacedown( iface ):
     try:
         check_call(command)
     except CalledProcessError as e:
-        return command_error(e, command)
+        return command_error(e, command, logid)
 
     return command_success( logid )
     
@@ -115,7 +115,7 @@ def ifaceup( iface, address="", netmask="", broadcast="" ):
     try:
         check_output = check_call(command, stderr=PIPE, universal_newlines=True)
     except CalledProcessError as e:
-        return command_error(e, command)
+        return command_error(e, command, logid)
 
     return command_success( logid )
 
@@ -140,7 +140,7 @@ def getroutes():
     try:
         output = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
     except CalledProcessError as e:
-        return command_error(e, command)
+        return command_error(e, command, logid)
 
 
     #Removing useless header
@@ -172,7 +172,7 @@ def addroute(gw, net, netmask, default=False):
     try:
         check_call(command)
     except CalledProcessError as e:
-        return command_error(e, command)
+        return command_error(e, command, logid)
 
     return command_success(logid)
 
@@ -194,6 +194,6 @@ def delroute(route):
     try:
         check_call(command)
     except CalledProcessError as e:
-        return command_error(e, command)
+        return command_error(e, command, logid)
 
     return command_success( logid )

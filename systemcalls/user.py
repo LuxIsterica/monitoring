@@ -12,7 +12,7 @@ def getuser(user):
         command = ['getent', 'passwd',  user]
         userinfo = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
     except CalledProcessError as e:
-        return command_error(e, command)
+        return command_error(e, command, logid)
     
 
     #Info sull'utente dal file /etc/passwd
@@ -138,7 +138,7 @@ def addusertogroups(user, *groups):
             command = ['adduser', user, group],
             check_output(command, stderr=PIPE, universal_newlines=True)
     except CalledProcessError as e:
-        return command_error(e, command)
+        return command_error(e, command, logid)
     
     
     #ObjectID of mongo
@@ -157,7 +157,7 @@ def removeuserfromgroups(user, *groups):
                 command = ['gpasswd', '-d', user, group]
                 check_output(command, stderr=PIPE, universal_newlines=True)
     except CalledProcessError as e:
-        return command_error(e, command)
+        return command_error(e, command, logid)
     
     
     #ObjectID of mongo
@@ -180,7 +180,7 @@ def updateuserpass(user, password):
         p1.stdout.close()
     
     except CalledProcessError as e:
-        return command_error(e, command)
+        return command_error(e, command, logid)
     
     
     return command_success(logid)
@@ -217,7 +217,7 @@ def updateusershell(user, shell):
     try:
         check_output(command, stderr=PIPE, universal_newlines=True)
     except CalledProcessError as e:
-        return command_error(e, command)
+        return command_error(e, command, logid)
 
     
     return command_success(logid)
@@ -237,7 +237,7 @@ def adduser(user, password, shell="/bin/bash"):
         command = ['useradd', '-m', '-p', password, '-s', shell, user]
         check_output(command, stderr=PIPE, universal_newlines=True)
     except CalledProcessError as e:
-        return command_error(e, command)
+        return command_error(e, command, logid)
     
 
     return command_success(logid)
@@ -254,7 +254,7 @@ def removeuser(user, removehome=None):
 
         check_output( command, stderr=PIPE, universal_newlines=True )
     except CalledProcessError as e:
-        return command_error(e, command)
+        return command_error(e, command, logid)
     
     
     return command_success(logid)

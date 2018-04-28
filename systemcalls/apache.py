@@ -129,7 +129,7 @@ def manageobjs(filename, op):
         #                           v
         check_call(command, stdout=DEVNULL)
     except CalledProcessError as e:
-        return command_error(e, command)
+        return command_error(e, command, logid)
 
     #Reloading apache after site activation
     apachereload()

@@ -1,7 +1,7 @@
 # coding=utf-8
 from subprocess import PIPE, STDOUT, Popen, check_output, check_call, CalledProcessError
 from pymongo import MongoClient
-#from bson.objectid import ObjectId
+from bson.objectid import ObjectId
 import datetime
 import pprint
 import inspect
@@ -18,31 +18,38 @@ db = client['nomodo']
 #Logs operation to mongodb in the 'log' collection
 #Should be called with locals() as first parameter
 #                       
-#                       .------- Must be dict(); will be added to the log in mongodb
+#                       .------- Must be dict(); will be added to mongodb log
 #                       |
 def mongolog(params, *args):
 
     dblog = dict({
     	'date': datetime.datetime.utcnow(),     #Operation date
     	'funname': inspect.stack()[1][3],       #Function name
-    	'parameters': params,
-#        'status': 'success'
+    	'parameters': params,                   #Called function's parameters
+        'status': 'success'                     #Operation status, default to 'success': turns to 'error' in 'mongotstauserror' function
     })
     
     for arg in args:
         dblog.update( arg )
 
     #ObjectID in mongodb
-    return db.log.insert_one( dblog )
+    return db.log.insert_one( dblog ).inserted_id
     
-    
-def mongostatuserror(logid):
-    
-    return db.log.update_one(
-        {'_id': logid},
-        {'$set': { 'status' : 'error' }},
-        upsert=False
-        )
+
+#Changes a mongolog status. Can be called from 'mongologstatuserr' as well
+#
+#           .-----------------------------------------------------------------------------------------------.
+#           v                                                                                               #
+def changemongologstatus(logid):                                                                            #
+                                                                                                            #
+    return db.log.update_one(                                                                               #
+        {'_id': logid},                                                                                     #
+        {'$set': { 'status' : 'error' }},                                                                   #
+        upsert=False                                                                                        #
+        )                                                                                                   #
+                                                                                                            #
+def mongologstatuserr(logid, status='error'): #Turns a mongolog status from 'success' to 'error'            #
+    return changemongologstatus(logid, status) # >----------------------------------------------------------^
 
 
 #Called on command success
@@ -57,11 +64,13 @@ def command_success( data=None, returncode=0 ):
 
 #Called when a CalledProcessError is raised
 #Returns a dict containing exception info
-def command_error(e, c):
+def command_error(e, command, logid):
 
+    mongostatuserror(logid) #Check the function in this same document
+    
     return dict({
         'returncode': e.returncode,
-        'command': ' '.join(c),
+        'command': ' '.join(command),
         'stderr': e.stderr
     })
 
@@ -102,7 +111,7 @@ def filedit(filename, towrite=None, force=False):
 
 
 
-    ##This code is being executed on either Force==True or md5new != md5old
+    ##This code will get executed on either Force==True or md5new != md5old
 
     #Better insert the diff between the 2 files instead of full content, thus
     #we need to remove the parameter "towrite" from "locals()" and pass the dict() returned by the filediff() function to mongolog()

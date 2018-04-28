@@ -18,7 +18,7 @@ def aptupdate():
         command = ['apt-get', 'update']
         check_call(command)
     except CalledProcessError as e:
-        return command_error(e, command)
+        return command_error(e, command, logid)
 
     return command_success(logid)
 
@@ -33,9 +33,9 @@ def listinstalled( summary=False ):
     try:
         output = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
     except CalledProcessError as e:
-        return command_error(e, command)
+        return command_error(e, command, logid)
     except FileNotFoundError as e:
-        return command_error(e, command)
+        return command_error(e, command, logid)
 
 
     #Lista di chiavi per le informazioni sull'app
@@ -67,7 +67,7 @@ def aptsearch( pkgname, namesonly=True ):
     try:
         output = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
     except CalledProcessError as e:
-        return command_error(e, command)
+        return command_error(e, command, logid)
 
     keys = ['name', 'desc']
     pkgs = list()
@@ -91,7 +91,7 @@ def aptshow(pkgname, onlydependences=False):
     try:
         output = check_output(command, stderr=PIPE, universal_newlines=True)
     except CalledProcessError as e:
-        return command_error(e, command)
+        return command_error(e, command, logid)
     
     #Se vengono restituiti più pacchetti (diverse versioni) prende solo il primo di questi
     if onlydependences:
@@ -134,7 +134,7 @@ def aptremove(pkgname, purge=False):
     try:
         check_call( command, env=environ ) #stdout=open(os.devnull, 'wb'), stderr=STDOUT)
     except CalledProcessError as e:
-        return command_error(e, command)
+        return command_error(e, command, logid)
     
     return command_success(logid)
 

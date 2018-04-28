@@ -14,7 +14,7 @@ def updatedb():
         command = ['updatedb']
         check_call(command, stderr=PIPE)
     except CalledProcessError as e:
-        return command_error(e, command)
+        return command_error(e, command, logid)
 
     return command_success(None)
 
@@ -31,7 +31,7 @@ def locate(name, insensitive=True):
 
         found = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
     except CalledProcessError as e:
-        return command_error(e, command)
+        return command_error(e, command, logid)
 
     return command_success(found)
 
