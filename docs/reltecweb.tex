@@ -69,8 +69,10 @@ che anche andremo quindi ad analizzare qui brevemente e più approfinditamente n
 \paragraph{MongoDB}
 Ogni operazione sensibile effettuata tramite l'applicazione comporta la memorizzazione delle modifiche che comporta la stessa
 in documento di mongodb, cos\'i da poter risalire alla storia delle operazioni effettuate e tentare un revert delle modifiche
-in caso as esempio il sistema perda di stabilità o le modifiche non portino al risultato sperato.
+in caso ad esempio il sistema perda di stabilità o le modifiche non portino al risultato sperato.
 Tali operazioni possono riguardare ad esempio la modifica di un file, o la rimozione di un pacchetto dal sistema.
+Ogni log in mongodb presenta inoltre un flag \textbf{status} che indica se l'operazione eseguita sia andata a buon fine
+o meno, in modo da rendere più chiara la navigazione tra i log e dare la possibiltà all'utente di filtrarli in base a questo campo.
 \footnote{\label{loglimit1}
 Le uniche operazioni memorizzate nel database sono quelle relative all'utilizzo dell'applicativo;
 una modifica effettuata direttamente sul sistema ad esempio tramite il terminale va incontro alle regole del sistema Ubuntu
@@ -118,18 +120,20 @@ command = ['ifconfig', '-a']
 try:
 	output = check_output(command, stderr=PIPE, universal_newlines=True)
 except CalledProcessError as e:
-	return command_error(e, command)
+	return command_error(e, command, logid)
 
 return command_success( output )
 \end{lstlisting}
 Se viene lanciata l'eccezione \texttt{CalledProcessError} allora chiama la funzione \texttt{ \nameref{command\string_error} }
 che restituisce quindi un dizionario contenente un \texttt{returncode} diverso da 0 (quindi errore)
-e un messaggio di errore che si trova nella chiave \texttt{stderr}. \\
+e un messaggio di errore che si trova nella chiave \texttt{stderr} oltre al logid dell'operazione se applicabile e al comando lanciato
+per causare l'errore. \\
 In questo specifico caso invece se l'operazione va buon fine viene invocata la funzione \texttt{ \nameref{command\string_success} }
-che restituisce un \texttt{returncode} uguale a 0 e l'output sulla shell del comando eseguito nella chiave di dizionario \texttt{data}. \\
-In caso invece il comando che si va ad eseguire non restituisce output, la chiave \texttt{data} andrà a contenere il \texttt{logid}
-di mongo, che non è altro l'Object ID del documento che è stato creato in mongo e contenente le informazioni sull'operazione appena effettuata.
-Un esempio è l'esecuzione del seguente codice:
+che restituisce un \texttt{returncode} uguale a 0, e l'output sulla shell nella chiave di dizionario  \texttt{data} e \texttt{logid}
+se applicabile. \\
+In caso invece il comando che si va ad eseguire non restituisce output la chiave \texttt{data} sarà nulla mentre se l'operazione è una
+operazione sensibile sarà restituito il \texttt{logid} di mongo.
+Un esempio di quest'ultimo caso è rappresentato dalla funzione \textit{removeuser}:
 \begin{lstlisting}
 def removeuser(user, removehome=None):
         
@@ -142,32 +146,32 @@ def removeuser(user, removehome=None):
 
         check_output( command, stderr=PIPE, universal_newlines=True )
     except CalledProcessError as e:
-        return command_error(e, command)
+        return command_error(e, command, logid)
     
     
     return command_success(logid)
 \end{lstlisting}
-
 Nelle prossime sezioni verranno analizzate tutte le categorie e spiegato il funzionamento di ogni funzione che contengono.
+
 \subsection{utilities}
 Questa categoria contiene per la maggior parte funzioni che non vengono mai richiamate direttamente dal frontend, ma vengono utilizzate
 dalle altre funzioni del backend. Fa eccezione invece la funzione \nameref{filedit} utile alla modifica di file. \\
 Analizziamo adesso le funzioni di questa libreria.
-\subsubsection{mongolog}\label{mongolog}
+\subsubsection{mongolog()}\label{mongolog}
 \begin{lstlisting}
 def mongolog(params, *args):
 
     dblog = dict({
     	'date': datetime.datetime.utcnow(),     #Operation date
     	'funname': inspect.stack()[1][3],       #Function name
-    	'parameters': params
+    	'parameters': params,			#Called function's parameters
     })
     
     for arg in args:
         dblog.update( arg )
 
     #ObjectID in mongodb
-    return db.log.insert_one( dblog )
+    return db.log.insert_one( dblog ).inserted_id
 \end{lstlisting}
 Viene chiamata da ogni funzione che va a modificare lievemente o pesantemente il sistema e fa un insert su mongodb per memorizzare le informazioni.
 Accetta N parametri di cui \textbf{il primo} (che deve essere sempre presente) è la lista di parametri
@@ -187,7 +191,38 @@ Il dizionario di base è formato da tre elementi:
 	\item{I parametri della funzione che chiama, come spiegato in precedenza, e ottenuti chiamando la funzione \texttt{locals()}}
 \end{itemize}
 
+\subsubsection{changemongologstatus() e funzioni collegate }\label{logstatus}
+\begin{lstlisting}
+def changemongologstatus(logid):
+
+    return db.log.update_one(
+        {'_id': logid},
+        {'$set': { 'status' : 'error' }},
+        upsert=False
+        )
+
+def mongologstatuserr(logid, status='error'):
+    return changemongologstatus(logid, status)
+def mongologstatussuc(logid, status='success')                                                              #
+    return changemongologstatus(logid, status) #riprenderedaqui
+\end{lstlisting}
+Questa funzione è intesa per modificare il campo \texttt{status} di un documento di MongoDB. Le funzioni di nomodo (come è giusto che sia)
+creano un documento di mongo per memorizzare le informazioni sull'operazione prima di procedere all'operazione stessa.
+In caso un'operazione non andasse nel modo aspettato quindi bisognerebbe marcare il documento appena creato in mongo in modo da avvisare l'utente
+che sta consultando il log che l'operazione riferita a quel documento non è andata a buon fine; è proprio qui che interviene il campo \texttt{status}.
+Alla creazione del documento questo campo è \texttt{success} per poi essere modificato a seconda di come è andata l'operazione
+
+
+\subsubsection{mongologstatuserr}\label{mongologstatuserr}
+
 \subsubsection{command\_success}\label{command\string_success}
+\begin{lstlisting}
+def command_success( data=None, returncode=0 ):
+    return dict({
+        'returncode': returncode,
+        'data': data
+    })
+\end{lstlisting}
 La funzione \texttt{command\_success} viene chiamata ogni qualvolta una funzione del backend inclusa nelle altre categorie esegue l'operazione
 richiesto in modo corretto ed è quindi in grado di informare l'utente del successo dell'operazione.
 Questa funzione (cos\'i come \texttt{command\_error}) viene chiamata da quasi tutte le funzioni al return; fanno eccezione le funzioni che
@@ -201,14 +236,36 @@ Accetta due parametri:
 		allora conterr\'a questo output, altrimenti il logid di mongodb e infine se proprio non c'è niente da restituire verr\'a
 		una variabile vuota}
 	\item{Il secondo che non è obbligatorio, è il returncode. Di base questa funzione dovrebbe restituire sempre 0 ma è stata data
-		la possibilit\'a di inserire returncode diversi da 0 per implementazioni (improbabili) future.
+		la possibilit\'a di inserire returncode diversi da 0 per implementazioni (improbabili) future.}
 \end{itemize}
+\paragraph{Costruisce il dizionario da restituire}
 \paragraph{Return}
 Restituisce un dizionario contenente un \texttt{returncode} e una variabile \texttt{data} che assume il tipo dei dati da restituire,
 da utilizzare come spiegato in sezione \ref{frontendinterface}.
 
 \subsubsection{command\_error}\label{command\string_error}
-\texttt{command\_error} \'e l'opposto di \texttt{command\_success}. 
+\begin{lstlisting}
+def command_error(e, c):
+
+    return dict({
+        'returncode': e.returncode,
+        'command': ' '.join(c),
+        'stderr': e.stderr
+    })
+\end{lstlisting}
+\texttt{command\_error} è l'opposto di \texttt{command\_success}. Come visto in sezione \ref{subprocess} viene invocato quando
+un comando lanciato attraverso la libreria \texttt{subprocess} fallisce nell'esecuzione.
+\paragraph{Parametri}
+Accetta 2 parametri di cui:
+\begin{itemize}
+	\item{Il primo è l'oggetto creato al lancio dell'eccezione \texttt{CalledProcessError}}
+	\item{Il secondo è il comando che è andato in errore}
+\end{itemize}
+\paragraph{Funzionamento}
+Costruisce il dizionario da restituire inserendovi il \texttt{returncode} dell'eccezione lanciata, il comando che ha causato l'eccezione
+unito in una sola stringa usando il comando \texttt{join} e il messaggio di errore così come restituito dall'eccezione
+\paragraph{Return}
+Restituisce il dizionario creato come descritto nel funzionamento.
 
 \subsubsection{filedit}\label{filedit}
 \subsubsection{filediff}\label{filediff}

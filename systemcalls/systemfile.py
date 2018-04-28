@@ -23,7 +23,7 @@ def locate(name, insensitive=True):
 
     #Cannot search on empty string
     if not name:
-        return command_error( returncode=255, stderr='Empty search string not allowed' }
+        return command_error( returncode=255, stderr='Empty search string not allowed' )
 
     try:
         command = ['locate', '-i', name]

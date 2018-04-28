@@ -49,7 +49,7 @@ def changemongologstatus(logid):                                                
                                                                                                             #
 def mongologstatuserr(logid, status='error'):                                                               #
     return changemongologstatus(logid, status)  # >---------------------------------------------------------^
-def mongologstatussuc(logid, status='success')                                                              #
+def mongologstatussuc(logid, status='success'):                                                             #
     return changemongologstatus(logid, status)  # >---------------------------------------------------------^
 
 
