@@ -12,7 +12,7 @@ def getuser(user):
         command = ['getent', 'passwd',  user]
         userinfo = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
     except CalledProcessError as e:
-        return command_error(e, command, logid)
+        return command_error( e, command )
     
 
     #Info sull'utente dal file /etc/passwd
@@ -24,10 +24,10 @@ def getuser(user):
     if usergroups['returncode'] is 0:
         usergroups = usergroups['data']
     else:
-        return usergroups
+        return usergroups #Returns the entire error dictionary as created by "command_error" function
 
 
-    return command_success( dict({
+    return command_success( data=dict({
     	'uname': userinfo[0],
     	'canlogin': 'yes' if userinfo[1]=='x' else 'no',
     	'uid': userinfo[2],
@@ -56,7 +56,7 @@ def getusers():
     	    'uid': line[2]
         })
 
-    return command_success(users)
+    return command_success( data=users )
 
 
     #print(*string, sep='\n')
@@ -83,7 +83,7 @@ def getgroups(namesonly=False):
                 'members': line[3].split(',')
             })
     
-    return command_success( groups )
+    return command_success( data=groups )
 
 
 #Returns all groups which the user belong to
@@ -95,7 +95,7 @@ def getusergroups(user):
     try:
         usergroups = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
     except CalledProcessError as e:
-        command_success(e, command)
+        command_error( e, command )
 
 #                   .------Removing username from list
 #                   |                       .----------.
@@ -103,7 +103,7 @@ def getusergroups(user):
     usergroups = re.sub('^.*: ', '', usergroups[0]) #Only first line contains the groups
     usergroups = usergroups.split(' ')
 
-    return command_success( usergroups )
+    return command_success( data=usergroups )
 
 
 #Returns all groups that "user" isn't in
@@ -125,7 +125,7 @@ def getusernotgroups(user):
 
     usernotgroup = list(filter( lambda group: not any(s in group for s in usergroups), groups ))
 
-    return command_success( usernotgroup )
+    return command_success( data=usernotgroup )
 
 
 def addusertogroups(user, *groups):
@@ -138,19 +138,18 @@ def addusertogroups(user, *groups):
             command = ['adduser', user, group],
             check_output(command, stderr=PIPE, universal_newlines=True)
     except CalledProcessError as e:
-        return command_error(e, command, logid)
+        return command_error( e, command, logid )
     
     
     #ObjectID of mongo
 
-    return command_success(logid)
+    return command_success( logid=logid )
 
 
 def removeuserfromgroups(user, *groups):
 
     #Logging operation to mongo first
     logid = mongolog( locals(), getuser(user) )
-    
     
     try:
     	for group in groups:
@@ -161,7 +160,7 @@ def removeuserfromgroups(user, *groups):
     
     
     #ObjectID of mongo
-    return command_success(logid)
+    return command_success( logid=logid )
 
 
 def updateuserpass(user, password):
@@ -183,7 +182,7 @@ def updateuserpass(user, password):
         return command_error(e, command, logid)
     
     
-    return command_success(logid)
+    return command_success( logid=logid )
 
 
 
@@ -199,7 +198,7 @@ def getshells():
     #Manually Appending dummy shells
     shells = shells + ['/usr/sbin/nologin', '/bin/false']
 
-    return command_success(shells)
+    return command_success( data=shells )
 
 
 
@@ -217,10 +216,10 @@ def updateusershell(user, shell):
     try:
         check_output(command, stderr=PIPE, universal_newlines=True)
     except CalledProcessError as e:
-        return command_error(e, command, logid)
+        return command_error( e, command, logid )
 
     
-    return command_success(logid)
+    return command_success( logid=logid )
 
 
 
@@ -237,10 +236,10 @@ def adduser(user, password, shell="/bin/bash"):
         command = ['useradd', '-m', '-p', password, '-s', shell, user]
         check_output(command, stderr=PIPE, universal_newlines=True)
     except CalledProcessError as e:
-        return command_error(e, command, logid)
+        return command_error( e, command, logid )
     
 
-    return command_success(logid)
+    return command_success( logid=logid )
 
 
 def removeuser(user, removehome=None):
@@ -254,7 +253,7 @@ def removeuser(user, removehome=None):
 
         check_output( command, stderr=PIPE, universal_newlines=True )
     except CalledProcessError as e:
-        return command_error(e, command, logid)
+        return command_error( e, command, logid )
     
     
-    return command_success(logid)
+    return command_success( logid=logid )

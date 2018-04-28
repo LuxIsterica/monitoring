@@ -10,22 +10,23 @@ from grp import getgrgid
 
 
 #Returns user cron as shown by command "crontab -l"
+#If user crontab does not exist returns a returncode of "42" and a message
 def getusercron(user):
     
     crontab = '/var/spool/cron/crontabs/' + user
 
     #On file 
     if not os.path.isfile( crontab ):
-        return command_success( 'No crontab found for user "' + user + '"' )
+        return command_error( returncode=42, data='No crontab found for the user "' + user + '"' )
 
     command = ['crontab', '-l']
 
     try:
         output = check_output(command, stderr=PIPE, universal_newlines=True)
     except CalledProessError as e:
-        return command_error(e, command, logid)
+        return command_error( e, command )
 
-    return command_success( output )
+    return command_success( data=output )
 
 
 def writeusercrontab(user, newcron):

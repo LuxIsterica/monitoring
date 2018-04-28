@@ -26,7 +26,6 @@ def mongolog(params, *args):
     	'date': datetime.datetime.utcnow(),     #Operation date
     	'funname': inspect.stack()[1][3],       #Function name
     	'parameters': params,                   #Called function's parameters
-        'status': 'success'                     #Operation status, default to 'success': turns to 'error' in 'mongotstauserror' function
     })
     
     for arg in args:
@@ -36,7 +35,7 @@ def mongolog(params, *args):
     return db.log.insert_one( dblog ).inserted_id
     
 
-#Changes a mongolog status. Can be called from 'mongologstatuserr' as well
+# Creates the 'status' field into an existing mongolog 
 #
 #           .-----------------------------------------------------------------------------------------------.
 #           v                                                                                               #
@@ -48,30 +47,40 @@ def changemongologstatus(logid):                                                
         upsert=False                                                                                        #
         )                                                                                                   #
                                                                                                             #
-def mongologstatuserr(logid, status='error'): #Turns a mongolog status from 'success' to 'error'            #
-    return changemongologstatus(logid, status) # >----------------------------------------------------------^
+def mongologstatuserr(logid, status='error'):                                                               #
+    return changemongologstatus(logid, status)  # >---------------------------------------------------------^
+def mongologstatussuc(logid, status='success')                                                              #
+    return changemongologstatus(logid, status)  # >---------------------------------------------------------^
 
 
 #Called on command success
 #Returns a nice returncode and the data
 #"data" may containg mongo object id
-def command_success( data=None, returncode=0 ):
+def command_success( data=None, logid=None, returncode=0 ):
+
+    if logid:
+        mongologstatussuc( logid )
+
     return dict({
         'returncode': returncode,
-        'data': data
+        'data': data,
+        'logid': logid
     })
+
 
 
 #Called when a CalledProcessError is raised
 #Returns a dict containing exception info
-def command_error(e, command, logid):
+def command_error( e=None, command=None, logid=None, returncode=1, stderr='No messages defined for this error' ):
 
-    mongostatuserror(logid) #Check the function in this same document
+    if logid:
+        mongostatuserror( logid )
     
     return dict({
-        'returncode': e.returncode,
+        'returncode': e.returncode if e else returncode,
         'command': ' '.join(command),
-        'stderr': e.stderr
+        'stderr': e.stderr if e else stderr,
+        'logid': logid
     })
 
 
@@ -87,8 +96,8 @@ def filedit(filename, towrite=None, force=False):
             return opened.read()
 
     if not force:
-        #If force is not specified then calculate md5sum to check if the file has changed.
-        #If file hasn't changed it is notg written
+        #If force is not specified then calculate md5sum to check whether the file has changed.
+        #If file hasn't changed it is not written
         md5new = hashlib.md5()
 
         #(Referring encode()) To calculate md5sum string 'towrite' needs to be converted into 'bite' format
@@ -99,15 +108,7 @@ def filedit(filename, towrite=None, force=False):
         md5old = hashlib.md5( open( filename, 'rb' ).read() ).hexdigest()
 
         if md5new == md5old:
-
-            #A modified version of the dict() returned from the function commans_success() which is quite used
-            #Here stderr is a message so we assign it two keys
-# Lucia ------------.
-#                   |
-            return dict({
-                'returncode': 2,
-                ('message', 'stderr'): 'Nothing to write(no changes from original file). You can force writing using the parameter "force=True"'
-            })
+            return command_error( returncode=2, stderr='Nothing to write(no changes from original file). You can force writing using the parameter "force=True"' )
 
 
 
@@ -124,7 +125,8 @@ def filedit(filename, towrite=None, force=False):
     opened.write(towrite)
     opened.close()
 
-    return command_success( logid )
+    return command_success( logid=logid )
+
 
 
 

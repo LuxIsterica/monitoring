@@ -22,9 +22,12 @@ def hostname(newhostname=""):
     try:
         hostname = check_output(command, stderr=PIPE, universal_newlines=True)
     except CalledProcessError as e:
-        return command_error(e, command, logid)
+        return command_error( e, command )
 
-    return command_success( logid if newhostname else hostname )
+    if newhostname:
+        return command_success( logid=logid )
+    else:
+        return command_success( data=hostname )
 
 
 #TODO: Only works on single cpu systems
@@ -120,7 +123,7 @@ def getsysteminfo( getall=True, getproc=False, getcpu=False, getmem=False ):
         try:
             procraw = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
         except CalledProcessError as e:
-            return command_error(e, command, logid)
+            return command_error( e, command )
 
 
 
@@ -149,4 +152,4 @@ def getsysteminfo( getall=True, getproc=False, getcpu=False, getmem=False ):
 
 
     #dict, dict, list
-    return command_success(toreturn)
+    return command_success( data=toreturn )

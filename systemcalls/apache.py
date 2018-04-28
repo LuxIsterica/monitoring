@@ -61,7 +61,7 @@ def getobjs(objtype):
                     obj.update({ line[0]: line[1] })
 
 
-    return command_success(objs)
+    return command_success( data=objs )
 
 def getvhosts(): return getobjs('sites')
 def getmods(): return getobjs('mods')
@@ -75,10 +75,7 @@ def manageapache(op):
     #Can only accept these parameters
     acceptedparams = ['stop', 'status', 'reload', 'restart']
     if not any(op in param for param in acceptedparams):
-        return dict({
-            'returncode': -1,
-            ('message', 'stderr'): 'Bad parameter :' + op
-        })
+        return command_error( returncode=-1, stderr='Bad parameter: '+op )
     else:
         command = ['systemctl', op, 'apache2']
 
@@ -106,7 +103,7 @@ def manageapache(op):
         pass
 
 
-    return command_success(toreturn)
+    return command_success( data=toreturn )
 
 def apachestart(): return manageapache(op='start')
 def apachestop(): return manageapache(op='stop')
@@ -119,6 +116,7 @@ def apachestatus(): return manageapache(op="status")
 
 #NOTE: Must not be called directly
 def manageobjs(filename, op):
+
     logid = mongolog( locals() )
 
     command = [op, filename]
@@ -129,12 +127,12 @@ def manageobjs(filename, op):
         #                           v
         check_call(command, stdout=DEVNULL)
     except CalledProcessError as e:
-        return command_error(e, command, logid)
+        return command_error( e, command, logid )
 
     #Reloading apache after site activation
     apachereload()
 
-    return command_success(logid)
+    return command_success( logid=logid )
 
 #Call a function with different parameters
 def activatevhost(filename): return manageobjs(filename, op='a2ensite')

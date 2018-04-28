@@ -18,9 +18,9 @@ def aptupdate():
         command = ['apt-get', 'update']
         check_call(command)
     except CalledProcessError as e:
-        return command_error(e, command, logid)
+        return command_error( e, command, logid )
 
-    return command_success(logid)
+    return command_success( logid=logid )
 
 
 
@@ -33,9 +33,9 @@ def listinstalled( summary=False ):
     try:
         output = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
     except CalledProcessError as e:
-        return command_error(e, command, logid)
+        return command_error( e, command )
     except FileNotFoundError as e:
-        return command_error(e, command, logid)
+        return command_error( e, command )
 
 
     #Lista di chiavi per le informazioni sull'app
@@ -50,7 +50,7 @@ def listinstalled( summary=False ):
         appinfo = i.split(';')
         pkgs.append( dict( zip(keys, appinfo) ) )
 
-    return command_success(pkgs)
+    return command_success( data=pkgs )
 
 
 
@@ -59,7 +59,7 @@ def aptsearch( pkgname, namesonly=True ):
 
     #Cannot search on empty string
     if not pkgname:
-        return { 'returncode': 255, 'stderr': 'Empty search string not allowed' }
+        command_error( returncode=255, stderr='Empty search string not allowed' )
 
     command = ['apt-cache', 'search', pkgname]
     if namesonly: command.append('--names-only')
@@ -67,7 +67,7 @@ def aptsearch( pkgname, namesonly=True ):
     try:
         output = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
     except CalledProcessError as e:
-        return command_error(e, command, logid)
+        return command_error( e, command )
 
     keys = ['name', 'desc']
     pkgs = list()
@@ -76,7 +76,7 @@ def aptsearch( pkgname, namesonly=True ):
         appinfo = i.split(' - ')
         pkgs.append( dict( zip(keys, appinfo) ) )
 
-    return command_success(pkgs)
+    return command_success( data=pkgs )
 
 
 #A Lucia: verrà richiamato dopo aver fatto un search sui pacchetti installati o disponibili
@@ -91,7 +91,7 @@ def aptshow(pkgname, onlydependences=False):
     try:
         output = check_output(command, stderr=PIPE, universal_newlines=True)
     except CalledProcessError as e:
-        return command_error(e, command, logid)
+        return command_error( e, command )
     
     #Se vengono restituiti più pacchetti (diverse versioni) prende solo il primo di questi
     if onlydependences:
@@ -100,7 +100,7 @@ def aptshow(pkgname, onlydependences=False):
     else:
         toreturn = output.split('\n\n')[0]
         
-    return command_success(toreturn)
+    return command_success( data=toreturn )
     
 
 
@@ -115,9 +115,9 @@ def aptinstall(pkgname):
     try:
         check_call( command, env=environ )  #, stdout=open(os.devnull, 'wb'), stderr=STDOUT)
     except CalledProcessError:
-        print( 'Errore durante l\'installazione del pacchetto "%s"' % (pkgname) )
+        return command_error( returncode=14, stderr='Errore durante l\'installazione del pacchetto "'+pkgname+'"', logid=logid )
 
-    return command_success(logid)
+    return command_success( logid=logid )
 
 
 
@@ -134,9 +134,9 @@ def aptremove(pkgname, purge=False):
     try:
         check_call( command, env=environ ) #stdout=open(os.devnull, 'wb'), stderr=STDOUT)
     except CalledProcessError as e:
-        return command_error(e, command, logid)
+        return command_error( e, command, logid )
     
-    return command_success(logid)
+    return command_success( logid=logid )
 
 
 #Returns external repos added to system in folder /etc/apt/sources.list.d/
@@ -158,7 +158,7 @@ def getexternalrepos():
                 'lines': opened.read()
             })
 
-    return command_success(repos)
+    return command_success( data=repos )
 
 
 
@@ -172,7 +172,7 @@ def addrepo(url, name):
     repofile.write(url + '\n')
     repofile.close()
 
-    return command_success(logid)
+    return command_success( logid=logid )
 
 
 
@@ -188,4 +188,4 @@ def removerepofile(filename):
     except OSError:
         pass
 
-    return command_succes(logid)
+    return command_succes( logid=logid )

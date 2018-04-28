@@ -16,7 +16,7 @@ def ifacestat(iface="", namesonly=False):
     try:
         output = check_output(command, stderr=PIPE, universal_newlines=True)
     except CalledProcessError as e:
-        return command_error(e, command, logid)
+        return command_error( e, command )
 
 
     #After this split each list item contains an interface specs
@@ -60,7 +60,7 @@ def ifacestat(iface="", namesonly=False):
             ifaces.update({ firstline[0]: iface[:i] }) #  '\n'.join(iface[:i]) })
 
 
-    return command_success( ifaces )
+    return command_success( data=ifaces )
 
 
 #Returns a string containing an alias name that fit to be used as alias for "iface" interface
@@ -77,7 +77,7 @@ def getnewifacealiasname(iface):
         if item.startswith(iface):
             occurrences += 1
 
-    return command_success( iface + ':' + str(occurrences) )
+    return command_success( data=iface + ':' + str(occurrences) )
 
 
 
@@ -92,9 +92,9 @@ def ifacedown( iface ):
     try:
         check_call(command)
     except CalledProcessError as e:
-        return command_error(e, command, logid)
+        return command_error( e, command, logid )
 
-    return command_success( logid )
+    return command_success( logid=logid )
     
 
 """
@@ -115,9 +115,9 @@ def ifaceup( iface, address="", netmask="", broadcast="" ):
     try:
         check_output = check_call(command, stderr=PIPE, universal_newlines=True)
     except CalledProcessError as e:
-        return command_error(e, command, logid)
+        return command_error( e, command, logid )
 
-    return command_success( logid )
+    return command_success( logid=logid )
 
 
 """
@@ -140,7 +140,7 @@ def getroutes():
     try:
         output = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
     except CalledProcessError as e:
-        return command_error(e, command, logid)
+        return command_error( e, command )
 
 
     #Removing useless header
@@ -151,7 +151,7 @@ def getroutes():
     routes = list( map( lambda route: dict(zip(header, route.split())), output ) )
 
 
-    return command_success( routes )
+    return command_success( data=routes )
 
 
 #Either add a route or set a default route on default=True
@@ -165,16 +165,16 @@ def addroute(gw, net, netmask, default=False):
         command = command + ['default', 'gw', gw]
     #If default in False "net" and "netmask" must be set
     elif net is None or netmask is None:
-        raise ValueError('On non-default route you must enter "net" and "netmask" parameters')
+        raise ValueError('On non-default route you must enter "net" and "netmask" parameters') #TODO
     else:
         command = command + ['-net', net, 'netmask', netmask, 'gw', gw]
 
     try:
         check_call(command)
     except CalledProcessError as e:
-        return command_error(e, command, logid)
+        return command_error( e, command, logid )
 
-    return command_success(logid)
+    return command_success( data=logid )
 
 
 #Calls addroute with "default" paramemters on "True" and "None" on "net" and "netmask"
@@ -194,6 +194,6 @@ def delroute(route):
     try:
         check_call(command)
     except CalledProcessError as e:
-        return command_error(e, command, logid)
+        return command_error( e, command, logid )
 
-    return command_success( logid )
+    return command_success( logid=logid )

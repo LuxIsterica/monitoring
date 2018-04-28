@@ -14,16 +14,16 @@ def updatedb():
         command = ['updatedb']
         check_call(command, stderr=PIPE)
     except CalledProcessError as e:
-        return command_error(e, command, logid)
+        return command_error( e, command )
 
-    return command_success(None)
+    return command_success()
 
 
 def locate(name, insensitive=True):
 
     #Cannot search on empty string
     if not name:
-        return { 'returncode': 255, 'stderr': 'Empty search string not allowed' }
+        return command_error( returncode=255, stderr='Empty search string not allowed' }
 
     try:
         command = ['locate', '-i', name]
@@ -31,9 +31,9 @@ def locate(name, insensitive=True):
 
         found = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
     except CalledProcessError as e:
-        return command_error(e, command, logid)
+        return command_error( e, command )
 
-    return command_success(found)
+    return command_success( data=found )
 
 
 #Unlink file using his path
@@ -46,4 +46,4 @@ def removefile(path):
     except OSError:
         pass
 
-    return command_success(logid)
+    return command_success( logid=logid )
