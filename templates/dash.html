@@ -5,14 +5,14 @@
   <div class="panel panel-default">
     <div class="panel-heading">cpu</div>
     <div class="panel-body">
-    	<table>
-    	{% for key,value in cpu.items()%}
+      <table>
+      {% for key,value in cpu.items()%}
         <tr>
           <td><h4>{{key}}</h4></td>
-    		  <td><h4>{{value}}</h4></td>
+          <td><h4>{{value}}</h4></td>
         </tr>
-    	{% endfor %}
-    	</table>
+      {% endfor %}
+      </table>
     </div>
   </div>
 </div>
@@ -34,27 +34,18 @@
 <div class="container">
   <div class="panel panel-default">
     <div class="panel-heading">process</div>
-    <div class="panel-body">Panel Content</div>
+    <div class="panel-body">
+      <table>
+      {% for p in proc%}
+        <tr>
+          <td><h4>{{p}}</h4></td>
+        </tr>
+      {% endfor %}
+      </table>
+    </div>
   </div>
 </div>
 
 
-
-<!--
-<ul>
-  {% for item in tupl.data %}
-    <li>{{item}}</li>
-  {% endfor %}
-</ul>
-
-
-  <ul>
-  {% for item in tupl.data %}
-    {% for value in item %}
-    <li>{{value}}</li>
-    {% endfor %}
-  {% endfor %}
-  </ul>
--->
 
 {% endblock %}
