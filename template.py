@@ -19,25 +19,28 @@ bootstrap = Bootstrap(app)
 # definizione base dash con componente fissa navbar
 @app.route('/dash')
 def dash():
-#	error = None
-#	tpl = getsysteminfo()
-#	if tpl['returncode'] != 0:
-#		flash(tpl['stderr'])
-#	else:
-#		(cpu,mem,proc) = tpl['data']
-#		return render_template('dash.html', cpu = cpu, mem = mem, proc = proc)
-
-#	return render_template('dash.html')
+	error = None
 	tpl = getsysteminfo()
-	(cpu,mem,proc) = tpl['data']
-	return render_template('dash.html', cpu = cpu, mem = mem, proc = proc)
+	if tpl['returncode'] != 0:
+		flash(tpl['stderr'])
+	else:
+		(cpu,mem,proc) = tpl['data']
+		return render_template('dash.html', cpu = cpu, mem = mem, proc = proc)
+
+	return render_template('dash.html')
 
 # http://localhost:5000/listUser/
 @app.route('/listUserAndGroups')
 def listUserAndGroups():
 	users = getusers()
 	groups = getgroups()
-	return render_template('users.html', users = users,groups = groups)
+
+	if users['returncode'] != 0 or groups['returncode'] != 0:
+		flash("getusers or getgroups fallita")
+	else:
+		return render_template('users.html', users = users,groups = groups)
+
+	return redirect(url_for('listUserAndGroups'))
 
 # http://localhost:5000/getInfoUser/<clicca valore uname>
 @app.route('/getInfoUser/<string:uname>')
@@ -46,27 +49,22 @@ def getInfoUser(uname):
 	shells = getshells()
 	return render_template('info-user.html', infouser = infouser, shells = shells)
 
-#@app.route('/listShell')
-#def listShell():
-#	shells = getshells()
-#	return render_template('shells.html',shells = shells)
-
 @app.route('/updateShell', methods=['POST'])
 def updateShell():
 	error = None
 	uname = request.form['unameUpdate'];
 	shell = request.form['newShell'];
 	if shell == '-- Seleziona nuova shell --':
-		flash('Opzione non valida')
+		flash('Opzione nuova shell non valida')
 	else:
 		log = updateusershell(uname, shell)
-	if(log['returncode'] != 0):
-		flash(log['stderr'])
-		flash(log['command'])
-	else:
-		flash('Comando shell modificato correttamente')
+		if(log['returncode'] != 0):
+			flash(log['stderr'])
+			flash(log['command'])
+		else:
+			flash('Comando shell modificato correttamente')
 	
-	return redirect(url_for('listUser'))
+	return redirect(url_for('listUserAndGroups'))
 	#return render_template('info-user.html', log = log)
 
 ##### FUNZIONALITÀ apps.py #####
@@ -98,8 +96,11 @@ def findFile():
 	fs = request.form['fileSearch'];
 	if not fs:
 		flash('Operazione errata')
-	pathFileFound = locate(fs);
-	return render_template('file.html', pathFileFound = pathFileFound)
+	else:
+		pathFileFound = locate(fs);
+		return render_template('file.html', pathFileFound = pathFileFound)
+		
+	return redirect(url_for('file'))
 
 ##### FUNZIONALITÀ system.py #####
 @app.route('/param')
@@ -119,14 +120,14 @@ def newHostname():
 	error = None
 	hname = request.form['newHname'];
 	if not hname:
-		error = 'Hostname non può essere vuoto!'
+		flash('Hostname non può essere vuoto!')
 	else:
 		log = hostname(hname)
-	if(log['returncode'] != 0):
-		flash(log['stderr'])
-		flash(log['command'])
-	else:
-		flash('Hostname modificato correttamente')
+		if(log['returncode'] != 0):
+			flash(log['stderr'])
+			flash(log['command'])
+		else:
+			flash('Hostname modificato correttamente')
 	
 	return redirect(url_for('param'))
 

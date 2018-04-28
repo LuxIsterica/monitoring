@@ -1,7 +1,14 @@
 {% extends "index.html" %}
 {% block page_content %}
-<h2>Trova file</h2>
+<h2>Aggiorna database indicizzato dei file</h2>
 
+<div class="row">
+  <div class="col-md-12 col-sm-12">
+  	<button type="button" class="btn btn-info">Aggiorna</button>
+  </div>
+</div>
+
+<h2>Trova file</h2>
 
 <div class="row">
   <div class="col-md-8 col-sm-8">
@@ -29,7 +36,7 @@
   {% endif %}
 {% endwith %}
 
-{% if pathFileFound|length > 0 %}
+<!--{% if pathFileFound|length > 0 %}
 	<div id="pathFileFound">
 		<ol>
 			{% for pff in pathFileFound.data %}
@@ -37,6 +44,21 @@
 			{% endfor %}
 		</ol>
 	</div>
+{% endif %}-->
+
+{% if pathFileFound|length > 0 %}
+<div id="pathFileFound">
+	<ol>
+		{% for pff in pathFileFound.data %}
+			<li><button class="accordion"> {{ pff }} </button>
+				<div class="panel">
+					<button type="button" class="btn btn-warning">Modifica</button>
+					<button type="button" class="btn btn-danger">Elimina</button>
+				</div>
+			</li>
+		{% endfor %}
+	</ol>
+</div>
 {% endif %}
 
 {% endblock %}
