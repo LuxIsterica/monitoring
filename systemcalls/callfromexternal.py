@@ -12,6 +12,14 @@ import sys
 
 
 
+data = adduser('giuseppe2', 'test')
+if data['returncode'] is 0:
+    print("OK")
+else:
+    print(data['stderr'])
+
+
+exit()
 data = getsysteminfo()
 if data['returncode'] is 0:
     (cpu, mem, proc) = data['data']

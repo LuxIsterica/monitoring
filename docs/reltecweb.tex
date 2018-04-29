@@ -179,7 +179,7 @@ def mongolog(params, *args):
 \end{lstlisting}
 Viene chiamata ogni volta che una funzione sia classificata come \textbf{sensibile} cioè che va a modificare lievemente o pesantemente il sistema
 e prende in carico di creare un log mongodb contenente le operazioni eseguite e i dati modificati dalla funzione.
-Accetta N parametri di cui il primo\thank{Parametro obbligatorio} è la lista di parametri con cui è stata lanciata la funzione
+Accetta N parametri di cui il primo (obbligatorio) è la lista di parametri con cui è stata lanciata la funzione
 di cui si sta memorizzando il log. Ad esempio in
 \begin{lstlisting}
 def ifacedown( iface ):
@@ -203,7 +203,7 @@ def addusertogroups(user, *groups):
     ...
 \end{lstlisting}
 si è deciso che prima di aggiungere un utente a dei nuovi gruppi si va a memorizzare in mongo non solo \texttt{locals()} e quindi
-\texttt{user} e \texttt{*groups} man anche le informazioni sull'utente ricavate attraverso la funzione \texttt{getuser()} e passate
+\texttt{user} e \texttt{*groups} ma anche le informazioni sull'utente ricavate attraverso la funzione \texttt{getuser()} e passate
 a \texttt{mongolog()} come secondo parametro.
 \\~\\
 Il dizionario di base memorizzato in mongo è formato da tre elementi:
@@ -213,66 +213,107 @@ Il dizionario di base memorizzato in mongo è formato da tre elementi:
 	\item{I parametri della funzione che chiama, come spiegato in precedenza, e ottenuti chiamando la funzione \texttt{locals()}}
 \end{itemize}
 
-\subsubsection{changemongologstatus() e funzioni collegate }\label{logstatus}
+\subsubsection{mongologstatus() e funzioni collegate }\label{mongologstatus}
 \begin{lstlisting}
-def changemongologstatus(logid):
+def mongologstatus(logid, status):
 
     return db.log.update_one(
         {'_id': logid},
-        {'$set': { 'status' : 'error' }},
+        {'$set': { 'status' : status }},
         upsert=False
         )
-
+	
 def mongologstatuserr(logid, status='error'):
-    return changemongologstatus(logid, status)
-def mongologstatussuc(logid, status='success')                                                              #
-    return changemongologstatus(logid, status) #riprenderedaqui
+    return mongologstatus(logid, status)
+def mongologstatussuc(logid, status='success'):
+    return mongologstatus(logid, status)
 \end{lstlisting}
-Questa funzione è intesa per modificare il campo \texttt{status} di un documento di MongoDB. Le funzioni di nomodo (come è giusto che sia)
+Questa funzione è intesa per aggiungere o modificare il campo \texttt{status} di un log di MongoDB. Le funzioni di nomodo (come è giusto che sia)
 creano un documento di mongo per memorizzare le informazioni sull'operazione prima di procedere all'operazione stessa.
-In caso un'operazione non andasse nel modo aspettato quindi bisognerebbe marcare il documento appena creato in mongo in modo da avvisare l'utente
-che sta consultando il log che l'operazione riferita a quel documento non è andata a buon fine; è proprio qui che interviene il campo \texttt{status}.
-Alla creazione del documento questo campo è \texttt{success} per poi essere modificato a seconda di come è andata l'operazione
+In caso un'operazione non andasse nel modo aspettato bisognerebbe quindi marcare il documento appena creato in mongo in modo da avvisare l'utente
+che sta consultando il log che l'operazione riferita a quel documento non è andata a buon fine.
+La memorizzazione del log avviene quindi nei seguenti step:
+\begin{enumerate}
+	\item{Viene lanciata la funzione che richiede la memorizzazione del log e quindi \nameref{mongolog}, che va a creare il log
+		senza nessuna indicazione sul successo o meno dell'operazione}
+	\item{Dopo l'esecuzione della funzione viene chiamata \texttt{command\string_success} se l'operazione è andata a buon fine;
+		la prima operazione che questa va ad eseguire è chiamare a sua volta la funzione \texttt{mongologstatussuc()}
+		che chiama \texttt{mongologstatus()} con il parametro \texttt{status='error'} aggiungendo tale campo \texttt{status} al log
+		di mongo ed indicando la buona riuscita dell'applicazione all'utente che andrà ad analizzare i log}
+	\item{In caso invece la funzione vada in errore viene chiamata \nameref{command\string_success} che chiama \texttt{mongologstatuserr()}
+		che chiama \texttt{mongologstatus()} con il secondo parametro \texttt{status='error'} aggiungendo tale campo al log di mongo}
+	\item{In caso invece si voglia personalizzare il campo \texttt{status} basta quindi che la funzione chiami direttamente \texttt{mongologstatus()}
+		con il secondo parametro \texttt{status} ad un qualsivoglia valore si voglia inserire, ad es. \texttt{status='canceled'}}
+\end{enumerate}
+Si intuisce quindi da questi step che un log che non abbia il campo status indica un crash della funzione nel codice che è intercorso tra
+la memorizzazione del log e l'aggiunta del campo \texttt{status}.
+\\~\\
+L'operazione deve fallire se il documento indicato da \texttt{logid} non esiste, quindi si è aggiunta la direttiva \texttt{upsert=False}.
+\\~\\
+Ecco un esempio che mostra lo stato di un log appena aggiunto (senza il campo \texttt{status}) e al termine dopo aver chiamato \texttt{command\string_success}:
+\begin{lstlisting}
+> db.log.find()
+{ "_id" : ObjectId("5ae596d4bf3bd205c1aeea25"), "parameters" : { "shell" : "/bin/bash", "user" : "giuseppe2", "password" : "test" }, "funname" : "adduser", "date" : ISODate("2018-04-29T09:56:36.627Z") }
+> db.log.find()
+{ "_id" : ObjectId("5ae596d4bf3bd205c1aeea25"), "parameters" : { "shell" : "/bin/bash", "user" : "giuseppe2", "password" : "test" }, "funname" : "adduser", "date" : ISODate("2018-04-29T09:56:36.627Z"), "status" : "success" }
+\end{lstlisting}
+\paragraph{Parametri}
+Come menzionato accetta 2 parametri:
+\begin{itemize}
+	\item{\texttt{logid}: è il logid del documento di mongo a cui aggiungere o modificare il campo status}
+	\item{\texttt{status='error'}: è lo stato da assegnare la log individuato da \texttt{logid}}
+\end{itemize}
+\paragraph{Return}
+Restituisce un oggetto della classe 
 
-
-\subsubsection{mongologstatuserr}\label{mongologstatuserr}
 
 \subsubsection{command\_success}\label{command\string_success}
 \begin{lstlisting}
-def command_success( data=None, returncode=0 ):
+def command_success( data=None, logid=None, returncode=0 ):
+
+    if logid:
+        mongologstatussuc( logid )
+
     return dict({
         'returncode': returncode,
-        'data': data
+        'data': data,
+        'logid': logid
     })
 \end{lstlisting}
-La funzione \texttt{command\_success} viene chiamata ogni qualvolta una funzione del backend inclusa nelle altre categorie esegue l'operazione
-richiesto in modo corretto ed è quindi in grado di informare l'utente del successo dell'operazione.
-Questa funzione (cos\'i come \texttt{command\_error}) viene chiamata da quasi tutte le funzioni al return; fanno eccezione le funzioni che
-per un motivo o per un altro non possono utilizzarla. In tal caso queste andranno a generare un dizionario proprio da restituire al frontend
-che avr\'a per\'o la stessa struttura del dizionario restituito da questa funzione.
-\\~\\
+La funzione \texttt{command\_success} fondamentalmente costruisce il dizionario da restituire all'utente quando una funzione del backend
+ha finito le sue opoerazioni e non ci sono stati errori durante l'esecuzione.
+Insieme alla sorella \nameref{command\string_error} sono le uniche due funzioni chiamate al termine di una funzione del backend.
+\paragraph{Funzionamento}
+La prima operazione eseguita è la chiamata a\texttt{mongologstatussuc()} per aggiungere al log di mongo il campo \texttt{status},
+questo solo in caso il parametro \texttt{logid} sia non nullo e quindi la funzione chiamante ha dovuto memorizzare un mongolog.
+Successivamente va a costruire il dizionario da restituire formato dal codice di ritorno, i dati voluti dall'utente (se disponibili,
+altrimenti \texttt{None}), e il \textit{logid} dell'operazione.
 \paragraph{Parametri}
-Accetta due parametri:
+Accetta tre parametri:
 \begin{itemize}
-	\item{Il primo che è \texttt{data} contiene i dati effettivi da restituire all'utente. Come gi\'a detto se l'operazione genera output
-		allora conterr\'a questo output, altrimenti il logid di mongodb e infine se proprio non c'è niente da restituire verr\'a
-		una variabile vuota}
-	\item{Il secondo che non è obbligatorio, è il returncode. Di base questa funzione dovrebbe restituire sempre 0 ma è stata data
-		la possibilit\'a di inserire returncode diversi da 0 per implementazioni (improbabili) future.}
+	\item{\texttt{data=None}: Sono i dati da restituire all'utente se la funzione che l'ha chiamata li genera. Di base è \texttt{None}}
+	\item{\texttt{logid}: Il logid a cui aggiungere il campo \texttt{status} e da restituire all'utente nel dizionario come campo del dizionario.
+		Di base è \texttt{None} in quanto il chiamante potrebbe non avere necessità di generare un mongolog}
+	\item{\texttt{returncode}: È il codice di ritorno che verrà inserito nel dizionario.
+		Essendo questa funzione invocata ogni qualvolta il chiamante esegue tutte le operazioni senza errore di base questo parametro è 0
+		ad indicare successo e può quindi essere omesso, ma può essere personalizzato passandolo alla chiamata}
 \end{itemize}
-\paragraph{Costruisce il dizionario da restituire}
 \paragraph{Return}
-Restituisce un dizionario contenente un \texttt{returncode} e una variabile \texttt{data} che assume il tipo dei dati da restituire,
-da utilizzare come spiegato in sezione \ref{frontendinterface}.
+Restituisce il dizionario contenente i parametri passati alla funzione o i loro valori di default se non vengono passati.
+Da utilizzare come spiegato in sezione \ref{frontendinterface}.
 
 \subsubsection{command\_error}\label{command\string_error}
 \begin{lstlisting}
-def command_error(e, c):
+def command_error( e=None, command=None, logid=None, returncode=1, stderr='No messages defined for this error' ):
 
+    if logid:
+        mongologstatuserr( logid )
+    
     return dict({
-        'returncode': e.returncode,
-        'command': ' '.join(c),
-        'stderr': e.stderr
+        'returncode': e.returncode if e else returncode,
+        'command': ' '.join(command),
+        'stderr': e.stderr if e else stderr,
+        'logid': logid
     })
 \end{lstlisting}
 \texttt{command\_error} è l'opposto di \texttt{command\_success}. Come visto in sezione \ref{subprocess} viene invocato quando

@@ -234,6 +234,8 @@ def adduser(user, password, shell="/bin/bash"):
 	
     logid = mongolog( locals() )
     
+    input("Press any button to continue")
+
     #TODO
     if not shell:
     	raise SyntaxError("La stringa contenente il nome della shell non può essere vuota")

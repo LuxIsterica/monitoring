@@ -35,22 +35,22 @@ def mongolog(params, *args):
     return db.log.insert_one( dblog ).inserted_id
     
 
-# Creates the 'status' field into an existing mongolog 
+# Creates or updates the field 'status' into an existing mongolog 
 #
 #           .-----------------------------------------------------------------------------------------------.
 #           v                                                                                               #
-def changemongologstatus(logid):                                                                            #
+def mongologstatus(logid, status):                                                                          #
                                                                                                             #
     return db.log.update_one(                                                                               #
         {'_id': logid},                                                                                     #
-        {'$set': { 'status' : 'error' }},                                                                   #
+        {'$set': { 'status' : status }},                                                                    #
         upsert=False                                                                                        #
         )                                                                                                   #
                                                                                                             #
 def mongologstatuserr(logid, status='error'):                                                               #
-    return changemongologstatus(logid, status)  # >---------------------------------------------------------^
+    return mongologstatus(logid, status)  # >---------------------------------------------------------------^
 def mongologstatussuc(logid, status='success'):                                                             #
-    return changemongologstatus(logid, status)  # >---------------------------------------------------------^
+    return mongologstatus(logid, status)  # >---------------------------------------------------------------^
 
 
 #Called on command success
@@ -74,7 +74,7 @@ def command_success( data=None, logid=None, returncode=0 ):
 def command_error( e=None, command=None, logid=None, returncode=1, stderr='No messages defined for this error' ):
 
     if logid:
-        mongostatuserror( logid )
+        mongologstatuserr( logid )
     
     return dict({
         'returncode': e.returncode if e else returncode,
