@@ -131,7 +131,13 @@ def getusernotgroups(user):
 def addusertogroups(user, *groups):
 
     #Logging operation to mongo first
-    logid = mongolog( locals(), getuser(user) )
+    userinfo = getuser(user)
+    if userinfo['returncode'] is 0:
+        userinfo = userinfo['data']
+    else:
+        return userinfo
+
+    logid = mongolog( locals(), userinfo )
     
     try:
     	for group in groups:

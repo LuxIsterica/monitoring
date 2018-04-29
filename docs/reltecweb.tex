@@ -95,9 +95,19 @@ Allo stato attuale le categorie che compongono il backend sono le seguenti:
 \end{itemize}
 
 \paragraph{Interfaccia al frontend}\label{frontendinterface}
-Ogni funzione chimata restituisce sempre un dizionario contenente un codice di ritorno e a seconda dei casi
-i dati che si sono richiesti se il codice di ritorno è 0 o una variabile \texttt{stderr} contenente un messaggio di errore
-se il codice di ritorno è diverso da 0.
+Ogni funzione chimata restituisce sempre un dizionario contenente almeno n codice di ritorno e il logid del documento inserito
+in mongo con un mongo \texttt{\_id} se applicabile\footnote{\label{mongologwhen}
+Cioè in caso l'operazione sia una operazione sensibile e richieda quindi un inserimento in mongo per tenere traccia della stessa}
+oppure un logid \texttt{None} se non è stato creato alcun log.
+Distinguiamo quindi 2 casi in base al valore della variabile \texttt{returncode}:
+\begin{itemize}
+	\item{Se $returncode = 0$ l'operazione è andata a buon fine e il dizionario conterrà una terza variabile \texttt{data}
+		che conterrà i dati richiesti se la funzione chiamata è tesa per restutuire output oppure sarà una variabile nulla
+		se la funzione non restituisce output}
+	\item{Se $returncode \neq 0$ c'è stato un errore durante l'esecuzione dell'applicazione e il dizionario restituito conterrà
+		quindi una terza variabile \texttt{stderr} il cui valore è un messaggio di errore e, se l'errore è dato da un comando
+		eseguito in bash, il comando che una volta lanciato ha generato l'eccezione.}
+\end{itemize}
 Il frontend o l'utente che voglia chiamare per qualsivoglia motivo le funzioni del backend direttamente, potr\'a farlo quindi nel seguente modo::
 \begin{lstlisting}
 data = getifacestat()
@@ -110,7 +120,7 @@ pprint(data)
 \end{lstlisting}
 
 \paragraph{subprocess}\label{subprocess}
-Le funzionalità di Python più utilizzate per la realizzazione del progetto sono senza dubbio quelle appartenenti alla libreria subprocess,
+Le funzionalità di Python più utilizzata per la realizzazione dell'applicazione sono senza dubbio quelle appartenenti alla libreria subprocess,
 che permette di eseguire comandi come se si stessero eseguendo in bash. Si è cercato il più possibile di limitare l'utilizzo di questa libreria
 ma le sue funzionalità si sono rese necessarie nella maggior parte dei casi delle funzioni del backend,
 a causa dello scarsa agilità che ha python di interfacciarsi col sistema sottostante.
@@ -124,16 +134,10 @@ except CalledProcessError as e:
 
 return command_success( output )
 \end{lstlisting}
-Se viene lanciata l'eccezione \texttt{CalledProcessError} allora chiama la funzione \texttt{ \nameref{command\string_error} }
-che restituisce quindi un dizionario contenente un \texttt{returncode} diverso da 0 (quindi errore)
-e un messaggio di errore che si trova nella chiave \texttt{stderr} oltre al logid dell'operazione se applicabile e al comando lanciato
-per causare l'errore. \\
-In questo specifico caso invece se l'operazione va buon fine viene invocata la funzione \texttt{ \nameref{command\string_success} }
-che restituisce un \texttt{returncode} uguale a 0, e l'output sulla shell nella chiave di dizionario  \texttt{data} e \texttt{logid}
-se applicabile. \\
-In caso invece il comando che si va ad eseguire non restituisce output la chiave \texttt{data} sarà nulla mentre se l'operazione è una
-operazione sensibile sarà restituito il \texttt{logid} di mongo.
-Un esempio di quest'ultimo caso è rappresentato dalla funzione \textit{removeuser}:
+Tutte le funzioni di nomodo ritornano o con un \texttt{ \nameref{command\string_success}} in caso l'operazione sia andata a buon fine
+o con un \texttt{ \nameref{commmand\string_error} } in caso il comando non vada a buon fine e venga lanciata l'eccezione \texttt{CalledProcessError}.
+In entrambi i casi viene restituito il dizionario menzionato in sezione \ref{frontendinterface}.
+Un esempio di comando che non restituisce output è il seguente:
 \begin{lstlisting}
 def removeuser(user, removehome=None):
         
@@ -155,8 +159,8 @@ Nelle prossime sezioni verranno analizzate tutte le categorie e spiegato il funz
 
 \subsection{utilities}
 Questa categoria contiene per la maggior parte funzioni che non vengono mai richiamate direttamente dal frontend, ma vengono utilizzate
-dalle altre funzioni del backend. Fa eccezione invece la funzione \nameref{filedit} utile alla modifica di file. \\
-Analizziamo adesso le funzioni di questa libreria.
+dalle altre funzioni del backend. Fa eccezione la funzione \nameref{filedit} utile alla modifica di file. \\
+Analizziamo le funzioni di questa libreria.
 \subsubsection{mongolog()}\label{mongolog}
 \begin{lstlisting}
 def mongolog(params, *args):
@@ -173,18 +177,36 @@ def mongolog(params, *args):
     #ObjectID in mongodb
     return db.log.insert_one( dblog ).inserted_id
 \end{lstlisting}
-Viene chiamata da ogni funzione che va a modificare lievemente o pesantemente il sistema e fa un insert su mongodb per memorizzare le informazioni.
-Accetta N parametri di cui \textbf{il primo} (che deve essere sempre presente) è la lista di parametri
-con cui è stata lanciata la funzione che ha chiamato \texttt{mongolog}. Ad esempio in
+Viene chiamata ogni volta che una funzione sia classificata come \textbf{sensibile} cioè che va a modificare lievemente o pesantemente il sistema
+e prende in carico di creare un log mongodb contenente le operazioni eseguite e i dati modificati dalla funzione.
+Accetta N parametri di cui il primo\thank{Parametro obbligatorio} è la lista di parametri con cui è stata lanciata la funzione
+di cui si sta memorizzando il log. Ad esempio in
 \begin{lstlisting}
 def ifacedown( iface ):
 	logid = mongolog( locals() )
 	...
 \end{lstlisting}
-a \texttt{mongolog} viene passata \texttt{locals()} che contiene il parametro \texttt{iface} e che andrà quindi an inserire nel dizionario
-di base che restituir\'a, mentre \textbf{il secondo} parametro è opzionale e può essere uno o più dizionari da unire a questo dizionario restituito.
+il primo parametro è \texttt{locals()} che contiene la variabile \texttt{iface} che verrà quindi memorizzata nel log di mongo;
+il secondo parametro (opzionale) può essere uno o più dizionari da unire al dizionario memorizzato in mongodb.
+Ad esempio nella funzionei \texttt{addusertogroups}:
+\begin{lstlisting}
+def addusertogroups(user, *groups):
+
+    #Logging operation to mongo first
+    userinfo = getuser(user)
+    if userinfo['returncode'] is 0:
+        userinfo = userinfo['data']
+    else:
+        return userinfo
+
+    logid = mongolog( locals(), userinfo )
+    ...
+\end{lstlisting}
+si è deciso che prima di aggiungere un utente a dei nuovi gruppi si va a memorizzare in mongo non solo \texttt{locals()} e quindi
+\texttt{user} e \texttt{*groups} man anche le informazioni sull'utente ricavate attraverso la funzione \texttt{getuser()} e passate
+a \texttt{mongolog()} come secondo parametro.
 \\~\\
-Il dizionario di base è formato da tre elementi:
+Il dizionario di base memorizzato in mongo è formato da tre elementi:
 \begin{itemize}
 	\item{La data in cui viene effettuata l'operazione}
 	\item{Il nome della funzione che ha chiamato \texttt{mongolog}, ricavata tramite il supporto della libreria \texttt{inspect}}
