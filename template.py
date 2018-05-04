@@ -19,15 +19,18 @@ bootstrap = Bootstrap(app)
 # definizione base dash con componente fissa navbar
 @app.route('/dash')
 def dash():
-	error = None
-	tpl = getsysteminfo()
-	if tpl['returncode'] != 0:
-		flash(tpl['stderr'])
-	else:
-		(cpu,mem,proc) = tpl['data']
-		return render_template('dash.html', cpu = cpu, mem = mem, proc = proc)
+	#error = None
+	#tpl = getsysteminfo()
+	#if tpl['returncode'] != 0:
+	#	flash(tpl['stderr'])
+	#else:
+	#	(cpu,mem,proc) = tpl['data']
+	#	return render_template('dash.html', cpu = cpu, mem = mem, proc = proc)
 
-	return render_template('dash.html')
+	#return render_template('dash.html')
+	tpl = getsysteminfo()
+	(cpu,mem,proc) = tpl['data']
+	return render_template('dash.html', cpu = cpu, mem = mem, proc = proc)
 
 # http://localhost:5000/listUser/
 @app.route('/listUserAndGroups')
