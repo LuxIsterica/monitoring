@@ -12,9 +12,9 @@ import sys
 
 
 
-data = adduser('giuseppe2', 'test')
+data = getusers()
 if data['returncode'] is 0:
-    print("OK")
+    print(data['data'])
 else:
     print(data['stderr'])
 

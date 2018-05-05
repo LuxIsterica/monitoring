@@ -48,13 +48,17 @@ def getusers():
         passwd = opened.read().splitlines()
 
 
-    users = list()
+#    users = list()
+    users = dict()
     for line in passwd:
         line = line.split(':', 3)
-        users.append({
-    	    'uname': line[0],
-    	    'uid': line[2]
-        })
+        uname = line[0]
+        uid = line[2]
+        users[uid] = uname
+#        users.append({
+#    	    'uname': line[0],
+#    	    'uid': line[2]
+#        })
 
     return command_success( data=users )
 
