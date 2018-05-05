@@ -15,23 +15,3 @@
 \BOOKMARK [3][-]{subsubsection.2.2.3}{getgroups}{subsection.2.2}% 15
 \BOOKMARK [3][-]{subsubsection.2.2.4}{getusergroups}{subsection.2.2}% 16
 \BOOKMARK [3][-]{subsubsection.2.2.5}{getusernotgroups}{subsection.2.2}% 17
-\BOOKMARK [3][-]{subsubsection.2.2.6}{addusertogroups}{subsection.2.2}% 18
-\BOOKMARK [3][-]{subsubsection.2.2.7}{removeuserfromgroups}{subsection.2.2}% 19
-\BOOKMARK [3][-]{subsubsection.2.2.8}{updatepass}{subsection.2.2}% 20
-\BOOKMARK [3][-]{subsubsection.2.2.9}{getshells}{subsection.2.2}% 21
-\BOOKMARK [3][-]{subsubsection.2.2.10}{updateusershell}{subsection.2.2}% 22
-\BOOKMARK [3][-]{subsubsection.2.2.11}{adduser}{subsection.2.2}% 23
-\BOOKMARK [3][-]{subsubsection.2.2.12}{removeuser}{subsection.2.2}% 24
-\BOOKMARK [2][-]{subsection.2.3}{Network}{section.2}% 25
-\BOOKMARK [2][-]{subsection.2.4}{Cron}{section.2}% 26
-\BOOKMARK [2][-]{subsection.2.5}{Sistema}{section.2}% 27
-\BOOKMARK [2][-]{subsection.2.6}{apache}{section.2}% 28
-\BOOKMARK [2][-]{subsection.2.7}{Database}{section.2}% 29
-\BOOKMARK [2][-]{subsection.2.8}{File}{section.2}% 30
-\BOOKMARK [2][-]{subsection.2.9}{Logs}{section.2}% 31
-\BOOKMARK [1][-]{section.3}{Frontend}{}% 32
-\BOOKMARK [1][-]{section.4}{Utility}{}% 33
-\BOOKMARK [2][-]{subsection.4.1}{Red Hat Developer Toolset}{section.4}% 34
-\BOOKMARK [2][-]{subsection.4.2}{kerberos5}{section.4}% 35
-\BOOKMARK [2][-]{subsection.4.3}{Rimossi tra CentOS 6 e 7 e le cui alternative non presenti su CRESCO 6}{section.4}% 36
-\BOOKMARK [2][-]{subsection.4.4}{Rimossi da Centos 6 e 7 e le cui alternative sono presenti su CRESCO 6}{section.4}% 37
