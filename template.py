@@ -19,6 +19,7 @@ bootstrap = Bootstrap(app)
 # definizione base dash con componente fissa navbar
 @app.route('/dash')
 def dash():
+<<<<<<< Updated upstream
 	#error = None
 	#tpl = getsysteminfo()
 	#if tpl['returncode'] != 0:
@@ -28,6 +29,17 @@ def dash():
 	#	return render_template('dash.html', cpu = cpu, mem = mem, proc = proc)
 
 	#return render_template('dash.html')
+=======
+#	error = None
+#	tpl = getsysteminfo()
+#	if tpl['returncode'] != 0:
+#		flash(tpl['stderr'])
+#	else:
+#		(cpu,mem,proc) = tpl['data']
+#		return render_template('dash.html', cpu = cpu, mem = mem, proc = proc)
+
+#	return render_template('dash.html')
+>>>>>>> Stashed changes
 	tpl = getsysteminfo()
 	(cpu,mem,proc) = tpl['data']
 	return render_template('dash.html', cpu = cpu, mem = mem, proc = proc)
