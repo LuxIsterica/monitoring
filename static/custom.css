@@ -244,11 +244,15 @@ img {
 }
 
 .panel {
-    padding: 0 18px;
-    display: none;
-    background-color: white;
-    overflow: hidden;
     width: 80%;
+}
+
+table.systeminfo {
+    width: 100% !important;
+}
+
+.systeminfo tr, .systeminfo td {
+    border: 1px solid black;
 }
 
 /* ---------------------------------------
