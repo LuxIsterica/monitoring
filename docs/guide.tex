@@ -462,6 +462,46 @@ Restituisce il \textit{dizionario di successo} generato dalla funzione \texttt{c
 il solo \texttt{logid} dell'operazione.
 
 \subsubsection{filediff}\label{filediff}
+\begin{lstlisting}
+def filediff(filea, fileb):
+    if not os.path.exists(filea):
+        filecontent = filea
+        filea = '/tmp/.nomodotempa'
+        with open(filea, 'w') as opened:
+            opened.write(filecontent)
+
+    if not os.path.exists(fileb):
+        filecontent = fileb
+        fileb = '/tmp/.nomodotempb'
+        with open(fileb, 'w') as opened:
+            opened.write(filecontent)
+
+    command = ['diff', filea, fileb]
+
+    output = Popen(command, stdout=PIPE, universal_newlines=True).communicate()[0]
+
+    return {'filediff': output }
+\end{lstlisting}
+La funzione \texttt{filediff} come si intusice dal nome serve a generare un diff tra 2 file. È usata principalmente dalla funzione \nameref{filedit}
+per le sue operazioni di log su mongo ma può anche essere chiamata direttamente dall'utente curioso o dal fontend.
+\paragraph{Parametri}
+Accetta 2 parametri. Questi non si differenziano l'uno dall'altro e possono essere un percorso ad un file sul sistema, o una stringa.
+È perfettamente legale che uno sia di un tipo e uno di un altro, ad es. \texttt{filea} può essere il percorso di un file mentre \texttt{fileb}
+una stringa che rappresenta il contenuto di un file, così come accade quando questa funzione viene chiamata da \texttt{filedit}.
+\paragraph{Funzionamento}
+Innanzitutto nei primi due \texttt{if} la funzione controlla se i parametri contengono una stringa che identifica il percorso di un file sul sistema
+o un contenuto usando la libreria \texttt{os}. Se uno dei due parametri non contiene un percorso si prende in carico di scrivere la stringa che contiene
+in un file temporaneo creato al momento.
+Ad es. se \texttt{filea} non è un file ma una stringa crea un nuovo file vuoto, \texttt{/tmp/.nomodotempa} in questo caso, e ci scrive il contenuto
+di \texttt{filea}. \\
+Nella seconda parte viene composto e lanciato il comando \texttt{Popen} di \texttt{subprocess}
+\footnote{\label{Popenneeded} Da notare che questa è una delle poche funzioni che usa \texttt{Popen} al posto di \texttt{check\_output} e \texttt{check\_call}.
+Questo è dovuto al fatto che i codici di ritorno del comando \texttt{diff} sono diversi da 0 se esistono differenze tra i 2 file analizzati, e utilizzare
+le due funzioni menzionate genererebbe un eccezione \texttt{CalledProcessError} che farebbe crashare il programma}
+per effettuare il diff in linux style. Si è optato per tale diff in quanto nessuna funzione di Python restituisce il diff
+così chiaramente e in modo così adatto da essere inserito in un database.\\
+\paragraph{Return}
+Restituisce un dizionario con la sola chiave \texttt{filediff} dove il valore è il diff generato.
 
 \subsection{Utenti}
 \subsection{Network}
