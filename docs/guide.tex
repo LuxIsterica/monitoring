@@ -504,6 +504,128 @@ così chiaramente e in modo così adatto da essere inserito in un database.\\
 Restituisce un dizionario con la sola chiave \texttt{filediff} dove il valore è il diff generato.
 
 \subsection{Utenti}
+\subsubsection{getuser}\label{getuser}
+\begin{lstlisting}
+def getuser(user):
+
+    try:
+        command = ['getent', 'passwd',  user]
+        userinfo = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
+    except CalledProcessError as e:
+        return command_error( e, command )
+    
+
+    #Info sull'utente dal file /etc/passwd
+    userinfo = userinfo[0].split(':')
+
+
+    #Getting user groups
+    usergroups = getusergroups(user)
+    if usergroups['returncode'] is 0:
+        usergroups = usergroups['data']
+    else:
+        return usergroups #Returns the entire error dictionary as created by "command_error" function
+
+
+    return command_success( data=dict({
+    	'uname': userinfo[0],
+    	'canlogin': 'yes' if userinfo[1]=='x' else 'no',
+    	'uid': userinfo[2],
+    	'gid': userinfo[3],
+    	'geco': userinfo[4].split(','),
+    	'home': userinfo[5],
+    	'shell': userinfo[6],
+    	'group': usergroups.pop(0), #Main user group
+    	'groups': usergroups if usergroups else "< No groups >"
+    }) )
+\end{lstlisting}
+Questa funzione restituisce tutti le informazioni di un utente così come lette da comando \texttt{getent} e quindi dal file \texttt{/etc/passwd}.
+\paragraph{Parametri}
+Accetta l'unico \texttt{user} che è il nome utente dell'utente di cuisi vogliono le informazioni. Questo utente deve esistere nel sistema e deve
+quindi essere presente nel file \texttt{/etc/passwd}. È possibile ottenere la lista di utenti che possono essere usati per questa funzione
+leggendo il campo \texttt{uname} dal dizionario restituito dalla funzione \nameref{getusers}.
+\paragraph{Funzionamento}
+\begin{lstlisting}
+    try:
+        command = ['getent', 'passwd',  user]
+        userinfo = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
+    except CalledProcessError as e:
+        return command_error( e, command )
+
+	userinfo = userinfo[0].split(':')
+\end{lstlisting}
+Innanzitutto viene costruito e lanciato il comando \texttt{getent passwd <user>} che ricava le informazioni sull'utente dal file \texttt{/etc/passwd}.
+L'esecuzione viene controllata per catturare un eventuale eccezione \texttt{CalledProcessError}. Da notare che l'output del comando viene diviso per righe
+dalla funzione \texttt{splitlines()} posta alla fine di \texttt{check\_output()}.\\
+Dato che le informazioni sull'utente sono divise da un due punti ma racchiusi in una stringa queste vengono separate dalla funzione \texttt{split()}
+che crea una lista di stringhe.
+\begin{lstlisting}
+    usergroups = getusergroups(user)
+    if usergroups['returncode'] is 0:
+        usergroups = usergroups['data']
+    else:
+        return usergroups #Returns the entire error dictionary as created by "command_error" function
+\end{lstlisting}
+Visto che \texttt{getent} non restituisce la lista dei gruppo di cui l'utente fa parte ma solo il principale, ricaviamo questa lista
+dalla funzione \nameref{getusergroups}, facendo gli opportuni controlli sul codice di ritorno come spiegato in sezione \ref{frontendinterface}.
+\begin{lstlisting}
+return command_success( data=dict({
+	'uname': userinfo[0],
+	'canlogin': 'yes' if userinfo[1]=='x' else 'no',
+	'uid': userinfo[2],
+	'gid': userinfo[3],
+	'geco': userinfo[4].split(','),
+	'home': userinfo[5],
+	'shell': userinfo[6],
+	'group': usergroups.pop(0), #Main user group
+	'groups': usergroups if usergroups else "< No groups >"
+}) )
+\end{lstlisting}
+Non resta quindi che creare un dizinario da dare in pasto a \texttt{command\_success} per essere restituita agli utenti.
+A parte i campi che vengono inseriti normalmente ne distinguiamo quattro che si comportano in modo diverso:
+\begin{itemize}
+	\item{\texttt{canlogin}: indica se è possibile effettuare l'accesso alla shell con l'utente.
+		In particolare se il campo di \texttt{/etc/passwd} è \texttt{x} allora l'utente può effettuare l'accesso}
+	\item{\texttt{geco}: Indica l'anagrafica dell'utente e altre informazioni come l'email. Questo campo è una lista
+		ma presentatdosi come una semplice stringa divisa da virgole necessita di essere splittata prima dell'inserimento
+		in modo da poter essere riferita direttamente}
+	\item{\texttt{group}: È il gruppo principale dell'utente e viene ricavata dalla lista di gruppi in quanto primo membro,
+		e poi rimosso da questa lista}
+	\item{\texttt{groups}: È la lista dei gruppi secondari di cui l'utente fa parte e viene inserita così com'è (una lista)
+		se il l'utente ha almeno un gruppo secondario, altrimenti viene inserita una stringa che indica l'assenza dei gruppi
+		in modo da non vedere apparire in questo campo una lista vuota}
+\end{itemize}
+\paragraph{Return}
+Il dizionario descritto nel funzionamento, composto quindi dai seguenti campi:
+\begin{itemize}
+	\item{uname: Nome utente}
+	\item{canlogin: Indica la possibilità di accesso alla shell con questo utente}
+	\item{uid: L'user ID dell'utente\footnote{\label{uidusers}Nei sistemi UNIX based gli utenti non di sistema hanno un uid
+		che parte da 1000 a salire.}}
+	\item{gid: il group ID del gruppo principale di cui l'utente fa parte, che di base ha lo stesso nome dell'utente}
+	\item{geco: Alcune informazioni sull'utente, ossia nome, cognome, email, stanza ecc.}
+	\item{home: la home dell'utente; solitamente se l'utente non è di sistema si trova al percorso \texttt{/home/<uname>}}
+	\item{shell: la shell assegnata all'utente. Di base è \texttt{/bin/bash} ma solitamente se l'utente non è di sistema
+		si possono trovare le shell fittizie \texttt{/bin/false} e \texttt{/usr/bin/nologin}
+	\item{group: il nome del gruppo principale di cui l'utente fa parte. Solitamente alla creazione dell'utente viene creato
+		dal sistema anche questo gruppo e gli viene dato lo stesso nome. Ad es. l'utente \textit{giuseppe} ha come
+		gruppo principale \textit{giuseppe} e di base quindi è l'unico membro}
+	\item{groups: la lista dei gruppi secondari di cui l'utente faf parte. È possibile in nimodo aggiungere un utente ad uno
+		o più gruppi usando la funzione \nameref{addusertogroups}}
+\end{itemize}
+
+\subsubsection{getusers}\label{getusers}
+\subsubsection{getgroups}\label{getgroups}
+\subsubsection{getusergroups}\label{getusergroups}
+\subsubsection{getusernotgroups}\label{getusernotgroups}
+\subsubsection{addusertogroups}\label{addusertogroups}
+\subsubsection{removeuserfromgroups}\label{removeuserfromgroups}
+\subsubsection{updatepass}\label{updatepass}
+\subsubsection{getshells}\label{getshells}
+\subsubsection{updateusershell}\label{updateusershell}
+\subsubsection{adduser}\label{adduser}
+\subsubsection{removeuser}\label{removeuser}
+
 \subsection{Network}
 \subsection{Cron}
 \subsection{Sistema}
