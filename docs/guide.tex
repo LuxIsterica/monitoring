@@ -159,8 +159,9 @@ Nelle prossime sezioni verranno analizzate tutte le categorie e spiegato il funz
 
 \subsection{utilities}
 Questa categoria contiene per la maggior parte funzioni che non vengono mai richiamate direttamente dal frontend, ma vengono utilizzate
-dalle altre funzioni del backend. Fa eccezione la funzione \nameref{filedit} utile alla modifica di file. \\
-Analizziamo le funzioni di questa libreria.
+dalle altre funzioni del backend. Fa eccezione la funzione \nameref{filedit} che oltre essere chiamata da queste funzioni può anche
+essere chiamata direttamente, ed è utile alla modifica dei. \\
+Analizziamo le funzioni di questa libreria nelle prossime sezioni.
 \subsubsection{mongolog()}\label{mongolog}
 \begin{lstlisting}
 def mongolog(params, *args):
@@ -335,7 +336,7 @@ La funzione costruisce un dizionario da restituire all'utente contenente le vari
 il codice di ritrorno, il messaggio di errore, il comando che ha generato l'errore (da passare in input) e il logid del documento
 in mongo che riguarda il comando/operazione.
 \\~\\
-Distinguiamo 2 casi:
+Distinguiamo 3 casi:
 \begin{itemize}
 	\item{Viene generato un oggetto del tipo \texttt{CalledProcessError} appartenente a subprocess: in questo caso si passa alla funzione
 		l'oggetto generato e il comando che ha causato l'errore. La funzione ricava automaticamente da questo oggetto il codice
@@ -353,6 +354,113 @@ aggiungendo quindi al log dell'operazione il campo \texttt{status} col valore \t
 Restituisce il dizionario creato come descritto nel funzionamento e come si può vedere nel codice.
 
 \subsubsection{filedit}\label{filedit}
+\begin{lstlisting}
+def filedit(filename, towrite=None, force=False):
+
+    if not towrite:
+        with open(filename, 'r') as opened:
+            return opened.read()
+
+    if not force:
+        #If force is not specified then calculate md5sum to check whether the file has changed.
+        #If file hasn't changed it is not written
+        md5new = hashlib.md5()
+
+        #(Referring encode()) To calculate md5sum string 'towrite' needs to be converted into 'bite' format
+        md5new.update( towrite.encode() )
+        md5new = md5new.hexdigest()
+
+        #old file content md5sum 
+        md5old = hashlib.md5( open( filename, 'rb' ).read() ).hexdigest()
+
+        if md5new == md5old:
+            return command_error( returncode=2, stderr='Nothing to write(no changes from original file). You can force writing using the parameter "force=True"' )
+
+
+    ##This code will get executed on either Force==True or md5new != md5old
+
+    #Better insert the diff between the 2 files instead of full content, thus
+    #we need to remove the parameter "towrite" from "locals()" and pass the dict() returned by the filediff() function to mongolog()
+    localsvar = locals()
+    del localsvar['towrite']
+    logid = mongolog( localsvar, filediff(filename, towrite) )
+
+    #Writing new content to "filename" file
+    opened = open(filename, 'w')
+    opened.write(towrite)
+    opened.close()
+
+    return command_success( logid=logid )
+\end{lstlisting}
+Questa funzione è intesa per dare un supporto in caso l'utente voglia modificare un file. Implementa tutte le operazioni e i controlli
+che bisognerebbe effettuare prima della modifica di un file, incluso un mongolog da cui si possa risalire al contenuto del file
+prima della scrittura. È inoltre capace di restituire il contenuto di un file, utile in fase di pre-scrittura.
+\paragraph{Parametri}
+Sono 3 i paramentri accettati da questa funzione:
+\begin{itemize}
+	\item{\texttt{filename}: è il percorso del file sul sistema che si vuole modificare}
+	\item{\texttt{towrite=None}: è il nuovo contenuto del file da scrivere sullo stesso}
+	\item{\texttt{force=False}: questa variabile (di base a \texttt{False}) se \texttt{True} forza la scrittura del nuovo contenuto
+		anche se questo non differisce dal contenuto originale del file}
+\end{itemize}
+\paragraph{Funzionamento}
+~\\
+\begin{lstlisting}
+if not towrite:
+    with open(filename, 'r') as opened:
+        return opened.read()
+\end{lstlisting}
+Oltre a scrivere i file questa funzione è intesa anche per ritornare il contenuto di un file. Come si vede dal primo \texttt{if}
+se \texttt{towrite} è nulla semplicemente apre il file in lettura e restituisce il suo contenuto.
+\\~\\
+\begin{lstlisting}
+    if not force:
+        md5new = hashlib.md5()
+
+        md5new.update( towrite.encode() )
+        md5new = md5new.hexdigest()
+
+        md5old = hashlib.md5( open( filename, 'rb' ).read() ).hexdigest()
+
+        if md5new == md5old:
+            return command_error( returncode=2, stderr='Nothing to write(no changes from original file). You can force writing using the parameter "force=True"' )
+\end{lstlisting}
+In questa seconda parte controlla la varibile \texttt{force}. Se questa è \texttt{false} genera l'md5 del nuovo contenuto (towrite)
+e del vecchio contenuto (quello del file) e nell'ultimo \texttt{if} ne controlla l'uguaglianza. Quindi se \texttt{force=False} e
+\texttt{md5new==md5old} non c'è necessità di scrivere il file e genera quindi un messaggio di errore personalizzato (o potremmo dire
+di warning in questo caso) usando la funzione \nameref{command\string_error}, e che avverte il chiamante (o il fontend) che non è stata eseguita
+alcuna operazione ma che la si può forzare passando il parametro \texttt{force} col valore booleano \texttt{True}.
+\\~\\
+\begin{lstlisting}
+    localsvar = locals()
+    del localsvar['towrite']
+    logid = mongolog( localsvar, filediff(filename, towrite) )
+
+    #Writing new content to "filename" file
+    opened = open(filename, 'w')
+    opened.write(towrite)
+    opened.close()
+
+    return command_success( logid=logid )
+\end{lstlisting}
+Si arriva quindi a questo pezzo di codice se \texttt{force=True} o se \texttt{force=False} e \texttt{md5new!=md5old}.
+Questa funzione andando a modifcare file che possono essere o meno importanti necessità di un log che memorizzi una quantità
+di informazioni tali da consentire il ripristino del file vecchio. Si intuisce però che memorizzare interamente 
+il vecchio e il nuovo contenuto sarebbe impensabile per avere un mongolog decente e di piccole dimensioni. Si è quindi optato per inserire
+il solo diff tra vecchio e nuovo contenuto. In casi comuni e per i nostri scopi questa scelta porta ad una riduzione significativa della dimensione
+del log, in quanto raramemnte un utente cancella completamente e riscrive file di migliaia di righe di codice. \\
+Passando al funzionamento quindi si memorizza dapprima ciò che restituisce la funzione \texttt{locals()} (che come spiegato
+restituisce i parametri con cui la funzione è stata chiamata) e si inserisce ciò che ritora nella variabile \texttt{localsvar}.
+Dopodichè da questa variabile (che è diventata un dizionario dopo l'assegnazione) si elimina il parametro \texttt{towrite}
+che a quanto ne sappiamo potrebbe anche essere di migliaia di righe.
+Si crea a questo punto un mongolog che non abbia più al suo interno il contenuto scritto ma ciò che ritorna la funzione
+\nameref{filediff} che come vedremo in seguito non fa altro che restituire il diff tra il vecchio e il nuovo contenuto del file.
+Una volta effettuato i controlli e memorizzati in mongo i dati necessari si procede finalmente a scrivere il nuovo contenuto sul file
+tramite le funzioni Python per la gestione dei file. Si invoca infine \texttt{command\string_success} passandogli il \texttt{logid}.
+\paragraph{Return}
+Restituisce il \textit{dizionario di successo} generato dalla funzione \texttt{command\string_success} con all'interno
+il solo \texttt{logid} dell'operazione.
+
 \subsubsection{filediff}\label{filediff}
 
 \subsection{Utenti}
