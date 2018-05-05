@@ -606,15 +606,35 @@ Il dizionario descritto nel funzionamento, composto quindi dai seguenti campi:
 	\item{geco: Alcune informazioni sull'utente, ossia nome, cognome, email, stanza ecc.}
 	\item{home: la home dell'utente; solitamente se l'utente non è di sistema si trova al percorso \texttt{/home/<uname>}}
 	\item{shell: la shell assegnata all'utente. Di base è \texttt{/bin/bash} ma solitamente se l'utente non è di sistema
-		si possono trovare le shell fittizie \texttt{/bin/false} e \texttt{/usr/bin/nologin}
+		si possono trovare le shell fittizie \texttt{/bin/false} e \texttt{/usr/bin/nologin}}
 	\item{group: il nome del gruppo principale di cui l'utente fa parte. Solitamente alla creazione dell'utente viene creato
 		dal sistema anche questo gruppo e gli viene dato lo stesso nome. Ad es. l'utente \textit{giuseppe} ha come
-		gruppo principale \textit{giuseppe} e di base quindi è l'unico membro}
+		gruppo principale \textit{giuseppe} e di base è l'unico membro}
 	\item{groups: la lista dei gruppi secondari di cui l'utente faf parte. È possibile in nimodo aggiungere un utente ad uno
 		o più gruppi usando la funzione \nameref{addusertogroups}}
 \end{itemize}
 
 \subsubsection{getusers}\label{getusers}
+\begin{lstlisting}
+def getusers():
+
+    with open('/etc/passwd', 'r') as opened:
+        passwd = opened.read().splitlines()
+
+
+    users = list()
+    for line in passwd:
+        line = line.split(':', 3)
+        users.append({
+    	    'uname': line[0],
+    	    'uid': line[2]
+        })
+
+    return command_success( data=users )
+\end{lstlisting}
+Questa funzione nasce
+
+
 \subsubsection{getgroups}\label{getgroups}
 \subsubsection{getusergroups}\label{getusergroups}
 \subsubsection{getusernotgroups}\label{getusernotgroups}
