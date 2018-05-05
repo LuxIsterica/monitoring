@@ -3,10 +3,14 @@
 
 <div class="container">
   <div class="jumbotron">
-    {% for key, value in facestat.data.items() %}
-      <h1>{{ key }}</h1>
-      <p>{{ value }}</p> 
-    {% endfor %}
+  	<dl>
+	    {% for key, value in facestat.data.items() %}
+	      <dt><h2>{{ key }}</h2></dt>
+	      {% for v in value %}
+	      	<dd>{{ v }}</dd>
+	      {% endfor %}
+	    {% endfor %}
+    </dl>
   </div>     
 </div>
 {% endblock %}

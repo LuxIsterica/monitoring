@@ -14,7 +14,7 @@
 	<div class="col-sm-12">
 		<div align="center" class="col-md-6 col-sm-6">
 			<h2>Lista utenti</h2>
-			<table id="generic-table">
+			<!--<table id="generic-table">
 				<tr>
 					<th> UID </th>
 					<th> UNAME </th>
@@ -23,6 +23,18 @@
 				<tr>
 					<td> {{ u.uid }} </td>
 					<td> <a style="font-size: 20px" href="{{ url_for('getInfoUser',uname = u.uname) }}" class="btn btn-link"> {{ u.uname }} </a></td>
+				</tr>
+				{% endfor %}
+			</table>-->
+			<table id="generic-table">
+				<tr>
+					<th> UID </th>
+					<th> UNAME </th>
+				</tr>
+				{% for key, value in users.data.items() %}
+				<tr>
+					<td> {{ key }} </td>
+					<td> <a style="font-size: 20px" href="{{ url_for('getInfoUser',uname = value) }}" class="btn btn-link"> {{ value }} </a></td>
 				</tr>
 				{% endfor %}
 			</table>

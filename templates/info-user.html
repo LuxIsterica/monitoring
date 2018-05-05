@@ -18,10 +18,10 @@
 
 <div class="row">
     <div class="col-md-4">
-    	<button id = "btnAddUserGroup" class="btn btn-success btn-lg" data-toggle="modal" data-target="#modalAddToGroup">Add User From Group</button>
+    	<button id = "btnAddUserGroup" class="btn btn-success btn-lg" data-toggle="modal" data-target="#modalAddToGroups">Add User To Groups</button>
     </div>
     <div class="col-md-4">
-        <button id = "btnRemoveUserGroup" class="btn btn-warning btn-lg" data-toggle="modal" data-target="#modalRemoveFromGroup">Remove User From Group</button>
+        <button id = "btnRemoveUserGroup" class="btn btn-warning btn-lg" data-toggle="modal" data-target="#modalRemoveFromGroups">Remove User From Groups</button>
     </div>
     <div class="col-md-4">
         <!--<button id = "btnUpdateShell" class="btn btn-info btn-lg" data-toggle="modal" data-target="#modalUpd">Update Shell</button>-->
@@ -29,24 +29,53 @@
     </div>
 </div>
 
-<div id = "modalAddToGroup" class = "modal fade" role="dialog">
+
+<div id = "modalRemoveFromGroups" class = "modal fade" role="dialog">
 	<div class = "modal-dialog"> 
 		<div class = "modal-content"> 
 			<div class = "modal-header">
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
-				<h4 class="modal-title">Inserisci user ad un gruppo</h4>
+				<h4 class="modal-title">Rimuovi user da uno o pi&ugrave; gruppi</h4>
+			</div>
+			<div class="modal-body">
+			<form id="form" action="/removeUserGroup" role="form" method = "POST">
+					User: <input type="text" id="unameRem" name="unameRem" value="{{infouser.data['uname']}}" class="form-control" readonly />
+
+		          	<label for="sel2">-- Seleziona uno o più dei seguenti gruppi --</label>
+				      <select multiple class="form-control" id="sel3" name="moreGroups">
+				        <option selected="selected">-- Seleziona uno o più gruppi --</option>
+				        {% for gu in groupsuser.data %}
+				    		<option> {{gu}} </option>
+		    	  		{% endfor %}	
+				      </select>
+        	</div>	
+        	<div class="modal-footer">
+        		<!--<button id = "btnUpd" class="btn btn-info btn-default">Invio</button>-->
+        		<input type = "submit" value = "Invio" class="btn btn-info btn-default">
+          		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        	</div>
+        	</form>	
+        </div>	
+	</div>
+</div>
+
+<div id = "modalAddToGroups" class = "modal fade" role="dialog">
+	<div class = "modal-dialog"> 
+		<div class = "modal-content"> 
+			<div class = "modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Inserisci user ad uno o pi&ugrave; gruppi</h4>
 			</div>
 			<div class="modal-body">
 			<form id="form" action="/addUserGroup" role="form" method = "POST">
 					User: <input type="text" id="unameAdd" name="unameAdd" value="{{infouser.data['uname']}}" class="form-control" readonly />
 
-		          	<label for="sel2">Seleziona uno o più dei seguenti gruppi</label>
-				      <select multiple class="form-control" id="sel2">
-				        <option>1</option>
-				        <option>2</option>
-				        <option>3</option>
-				        <option>4</option>
-				        <option>5</option>
+		          	<label for="sel2">-- Seleziona uno o più dei seguenti gruppi --</label>
+				      <select multiple class="form-control" id="sel2" name="moreGroups">
+				        <option selected="selected">-- Seleziona uno o più gruppi --</option>
+				        {% for ng in nogroups.data %}
+				    		<option> {{ng}} </option>
+		    	  		{% endfor %}	
 				      </select>
         	</div>	
         	<div class="modal-footer">

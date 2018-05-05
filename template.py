@@ -1,6 +1,6 @@
 import sys
 sys.path.append('systemcalls')
-from user import getusers, getuser, getgroups, getshells, updateusershell
+from user import getusers, getuser, getgroups, getshells, updateusershell, getusernotgroups, getusergroups
 from apps import listinstalled, aptsearch
 from systemfile import locate
 from system import getsysteminfo, hostname
@@ -19,7 +19,6 @@ bootstrap = Bootstrap(app)
 # definizione base dash con componente fissa navbar
 @app.route('/dash')
 def dash():
-<<<<<<< Updated upstream
 	#error = None
 	#tpl = getsysteminfo()
 	#if tpl['returncode'] != 0:
@@ -29,17 +28,6 @@ def dash():
 	#	return render_template('dash.html', cpu = cpu, mem = mem, proc = proc)
 
 	#return render_template('dash.html')
-=======
-#	error = None
-#	tpl = getsysteminfo()
-#	if tpl['returncode'] != 0:
-#		flash(tpl['stderr'])
-#	else:
-#		(cpu,mem,proc) = tpl['data']
-#		return render_template('dash.html', cpu = cpu, mem = mem, proc = proc)
-
-#	return render_template('dash.html')
->>>>>>> Stashed changes
 	tpl = getsysteminfo()
 	(cpu,mem,proc) = tpl['data']
 	return render_template('dash.html', cpu = cpu, mem = mem, proc = proc)
@@ -62,7 +50,9 @@ def listUserAndGroups():
 def getInfoUser(uname):
 	infouser = getuser(uname)
 	shells = getshells()
-	return render_template('info-user.html', infouser = infouser, shells = shells)
+	nogroups = getusernotgroups(uname)
+	groupsuser = getusergroups(uname)
+	return render_template('info-user.html', infouser = infouser, shells = shells, nogroups = nogroups, groupsuser=groupsuser)
 
 @app.route('/updateShell', methods=['POST'])
 def updateShell():
@@ -81,6 +71,40 @@ def updateShell():
 	
 	return redirect(url_for('listUserAndGroups'))
 	#return render_template('info-user.html', log = log)
+
+@app.route('/addUserGroup', methods=['POST'])
+def addUserGroup():
+	error = None
+	uname = request.form['unameAdd'];
+	moreGr = request.form['moreGroups'];
+	if moreGr == '-- Seleziona uno o più dei seguenti gruppi --':
+		flash('Opzione non valida')
+	else:
+		log = addusertogroups(uname, moreGr)
+		if(log['returncode'] != 0):
+			flash(log['stderr'])
+			flash(log['command'])
+		else:
+			flash('User aggiunto correttamente al/i gruppo/i')
+	
+	return redirect(url_for('listUserAndGroups'))
+
+@app.route('/removeUserGroup', methods=['POST'])
+def removeUserGroup():
+	error = None
+	uname = request.form['unameRem'];
+	moreGr = request.form['moreGroups'];
+	if moreGr == '-- Seleziona uno o più dei seguenti gruppi --':
+		flash('Opzione non valida')
+	else:
+		log = removeuserfromgroups(uname, moreGr)
+		if(log['returncode'] != 0):
+			flash(log['stderr'])
+			flash(log['command'])
+		else:
+			flash('User eliminato correttamente dal/i gruppo/i')
+	
+	return redirect(url_for('listUserAndGroups'))
 
 ##### FUNZIONALITÀ apps.py #####
 
