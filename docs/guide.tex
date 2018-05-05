@@ -543,7 +543,7 @@ Questa funzione restituisce tutti le informazioni di un utente così come lette 
 \paragraph{Parametri}
 Accetta l'unico \texttt{user} che è il nome utente dell'utente di cuisi vogliono le informazioni. Questo utente deve esistere nel sistema e deve
 quindi essere presente nel file \texttt{/etc/passwd}. È possibile ottenere la lista di utenti che possono essere usati per questa funzione
-leggendo il campo \texttt{uname} dal dizionario restituito dalla funzione \nameref{getusers}.
+leggendo i valori del dizionario restituito dalla funzione \nameref{getusers}.
 \paragraph{Funzionamento}
 \begin{lstlisting}
     try:
@@ -622,22 +622,215 @@ def getusers():
         passwd = opened.read().splitlines()
 
 
-    users = list()
+    users = dict()
     for line in passwd:
         line = line.split(':', 3)
-        users.append({
-    	    'uname': line[0],
-    	    'uid': line[2]
-        })
+        uname = line[0]
+        uid = line[2]
+        users[uid] = uname
 
     return command_success( data=users )
 \end{lstlisting}
-Questa funzione nasce
+Questa funzione nasce per ottenere la lista utenti presente nel sistema.
+\paragraph{Parametri}
+La funzione non prende parametri
+\paragraph{Funzionamento}
+\begin{lstlisting}
+    with open('/etc/passwd', 'r') as opened:
+        passwd = opened.read().splitlines()
+\end{lstlisting}
+Siccome si cerca di limitare il più possobile l'utilizzo delle funzioni della libreria \texttt{subprocess} gli utenti vengono letti
+dal file \texttt{/etc/passwd} con questa open; le righe di questo file vengono quindi divise ed inserite
+nella variabile \texttt{passwd} che diventa quindi una lista di stringhe.
+\begin{lstlisting}
+    users = dict()
+    for line in passwd:
+        line = line.split(':', 3)
+        uname = line[0]
+        uid = line[2]
+        users[uid] = uname
 
+    return command_success( data=users )
+\end{lstlisting}
+Eseguito questo passaggio si itera sulle linee del dizionario \texttt{passwd}; ogni riga viene splittata di tre elementi in quanto
+\texttt{uname} si trova nel primo campo mentre \texttt{uid} si trova nel terzo, e vengono inserite in dizionario in cui la chiave
+è l'uid mentre il valore è lo uname. Questo è il dizionario da essere restituito all'utente, che viene quindi passato alla funzione
+di uscita \texttt{command\_success}.
+\paragraph{Return}
+Restituisce il dizionario costruito in cui per ogni utente la chiave è l'uid mentre il valore è lo uname.
 
 \subsubsection{getgroups}\label{getgroups}
+\begin{lstlisting}
+def getgroups(namesonly=False):
+
+    with open('/etc/group', 'r') as opened:
+        etcgroup = opened.read().splitlines()
+
+
+    groups = list()
+    if namesonly:
+        groups = list(map( lambda line: line.split(':')[0], etcgroup ))
+    else:
+        for line in etcgroup:
+            line = line.split(':')
+            groups.append({
+                'gname': line[0],
+                'gid': line[2],
+                'members': line[3].split(',')
+            })
+    
+    return command_success( data=groups )
+\end{lstlisting}
+Questa funzione agisce nello stesso modo di \texttt{getusers()} restituendo però i gruppi del sistema invece che gli utenti.
+
+\paragraph{Parametri}
+La funzione accetta un unico parametro \texttt{namesonly} che di base è \texttt{False} e che se impostato a \texttt{True}
+restutuisce il solo nome dei gruppi.
+\paragraph{Funzionamento}
+Agisce come \nameref{getusers} e cioè inizialmente legge la lista dei gruppi dal file \texttt{/etc/group}, lo divide
+nelle sue righe e lo memorizza nella variabile \texttt{etcgroup} che diventa quindi una lista di stringhe.
+\begin{lstlisting}
+    groups = list()
+    if namesonly:
+        groups = list(map( lambda line: line.split(':')[0], etcgroup ))
+\end{lstlisting}
+Eseguito questo passaggio dichiara la lista \texttt{groups} che andrà ritornata e verifica il valore della variabile \texttt{namesonly}.
+Se questo è \texttt{True} applica una funzione inline \texttt{lambda} e per ogni elemento della lista creata
+applica uno split dei suoi campi e ne memorizza il primo valore nella lista da restituire \texttt{groups}. In questo modo
+quindi \texttt{groups} sarà una lista di stringhe in cui ogni stringa è il nome di un gruppo.
+\begin{lstlisting}
+else:
+    for line in etcgroup:
+        line = line.split(':')
+        groups.append({
+            'gname': line[0],
+            'gid': line[2],
+            'members': line[3].split(',')
+        })
+
+return command_success( data=groups )
+\end{lstlisting}
+Se invece \texttt{namesonly} è \texttt{False} si entra in un for in cui per ogni riga del dizionario \texttt{etcgroup}:
+\begin{enumerate}
+	\item{la riga stessa viene splittata nei suoi campi che vengono memorizzati nella variabile \texttt{line}}
+	\item{Viene creato un dizionario che contiene nome, identificativo, e membri appartenenti al gruppo}
+	\item{La lista di dizionari creata (\texttt{groups}) viene passata alla funzione di ritorno \texttt{command\_success}}
+\end{enumerate}
+\paragraph{Return}
+Restituisce il dizionario costruito che contiene, per ogni gruppo del file \texttt{/etc/group}:
+\begin{itemize}
+	\item{gname: il nome del gruppo}
+	\item{gid: l'identificativo del gruppo}
+	\item{members: una lista di stringhe che contiene tutti i membri del gruppo. Notare che nel codice questa lista
+		è stata creata splittando il componente numero 3 della riga per la virgola}
+\end{itemize}
+
 \subsubsection{getusergroups}\label{getusergroups}
+\begin{lstlisting}
+def getusergroups(user):
+
+    command = ['groups', user]
+    
+    try:
+        usergroups = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
+    except CalledProcessError as e:
+        command_error( e, command )
+
+#                   .------Removing username from list
+#                   |                       .----------.
+#                   V                       V          | 
+    usergroups = re.sub('^.*: ', '', usergroups[0]) #Only first line contains the groups
+    usergroups = usergroups.split(' ')
+
+    return command_success( data=usergroups )
+\end{lstlisting}
+Restituisce la lista di gruppi di cui l'utente fa parte.
+\paragraph{Parametri}
+L'unico parametro che prende è \texttt{user} che è il nome utente di cui si vogliono conoscere i gruppi.
+\paragraph{Funzionamento}
+\begin{lstlisting}
+    command = ['groups', user]
+    
+    try:
+        usergroups = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
+    except CalledProcessError as e:
+        command_error( e, command )
+\end{lstlisting}
+In questa prima parte viene composto e lanciato il comando \texttt{groups} che restituisce la lista di gruppi
+di cui l'utente fa parte. Con la funzione \texttt{splitlines()} viene poi diviso l'output in righe in quanto
+nell'infausto caso il comando genera più righe a noi server solamente la prima.\\
+Viene generata così una lista di dizionari che viene memorizzata in \texttt{usergroups}.\\
+Siccome a noi interessa l'output del comando viene lanciata la funzione \texttt{check\_output} invece di \texttt{check\_call}.\\
+Anche in questo caso viene controllato che non venga generata una eccezione \texttt{CalledProcessError}.
+\begin{lstlisting}
+    usergroups = re.sub('^.*: ', '', usergroups[0]) #Only first line contains the groups
+    usergroups = usergroups.split(' ')
+
+    return command_success( data=usergroups )
+\end{lstlisting}
+L'output di \texttt{groups} include prima della lista lo username dell'utente, quindi prima di proseguire
+deve essere rimosso. Questo viene fatto con la libreria sub che con un espressione regolare elimina
+tutto quello che c'è prima e lo spazio che c'è dopo il due punti.\\
+Fatta questa operazione basta quindi splittare la stringa restituita che divide i gruppi con uno spazio
+e chiamare la funzione \texttt{command\_success} passadogli la lista di gruppi
+\paragraph{Return}
+Una lista di stringhe in cui ogni stringa in cui ogni stringa è un gruppo di cui l'utente \texttt{user} fa parte.
+
 \subsubsection{getusernotgroups}\label{getusernotgroups}
+\begin{lstlisting}
+def getusernotgroups(user):
+    
+    #Getting all system groups
+    groups = getgroups(namesonly=True)
+    if groups['returncode'] is 0:
+        groups = groups['data']
+    else:
+        return groups
+
+    #Getting user specific groups
+    usergroups = getusergroups(user)
+    if usergroups['returncode'] is 0:
+        usergroups = usergroups['data']
+    else:
+        return usergroups
+
+    usernotgroup = list(filter( lambda group: not any(s in group for s in usergroups), groups ))
+
+    return command_success( data=usernotgroup )
+\end{lstlisting}
+Nasce per completare la funzione \nameref{getusergroups} e al contrario di questa restituisce tutti i gruppi di cui
+l'utente non fa parte.
+\paragraph{Parametri}
+Prende l'unico parametro \texttt{user} che è il nome utente da usare per ricavare la lista dei gruppi di cui l'utente stesso
+non fa parte.
+\paragraph{Funzionamento}
+\\~\\
+\begin{lstlisting}
+    #Getting all system groups
+    groups = getgroups(namesonly=True)
+    if groups['returncode'] is 0:
+        groups = groups['data']
+    else:
+        return groups
+
+    #Getting user specific groups
+    usergroups = getusergroups(user)
+    if usergroups['returncode'] is 0:
+        usergroups = usergroups['data']
+    else:
+        return usergroups
+
+\end{lstlisting}
+Per ricavare la lista di gruppi di cui l'utente non fa parte si è eseguita la sottrazione tra tutti i gruppi 
+del sistema e tutti i gruppi di cui l'utente fa parte.\\
+In questa prima parte quindi chiamando le funzioni \texttt{getgroups()} e \texttt{getusergroups()} si ricavano
+rispettivamente tutti i gruppi di sistema e tutti i gruppi di cui l'utente fa parte.
+Sul dizionario restituito si effettuano delle verifiche per vedere se l'operazione è andata a buon fine.
+\begin{lstlisting}
+\end{lstlisting}
+
+\paragraph{Return}
+
 \subsubsection{addusertogroups}\label{addusertogroups}
 \subsubsection{removeuserfromgroups}\label{removeuserfromgroups}
 \subsubsection{updatepass}\label{updatepass}

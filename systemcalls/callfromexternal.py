@@ -12,7 +12,7 @@ import sys
 
 
 
-data = getusers()
+data = ifacestat()
 if data['returncode'] is 0:
     print(data['data'])
 else:
