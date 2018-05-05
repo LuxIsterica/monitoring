@@ -202,7 +202,7 @@ def addusertogroups(user, *groups):
     logid = mongolog( locals(), userinfo )
     ...
 \end{lstlisting}
-si è deciso che prima di aggiungere un utente a dei nuovi gruppi si va a memorizzare in mongo non solo \texttt{locals()} e quindi
+Si è deciso che prima di aggiungere un utente a dei nuovi gruppi si va a memorizzare in mongo non solo \texttt{locals()} e quindi
 \texttt{user} e \texttt{*groups} ma anche le informazioni sull'utente ricavate attraverso la funzione \texttt{getuser()} e passate
 a \texttt{mongolog()} come secondo parametro.
 \\~\\
@@ -228,6 +228,12 @@ def mongologstatuserr(logid, status='error'):
 def mongologstatussuc(logid, status='success'):
     return mongologstatus(logid, status)
 \end{lstlisting}
+\paragraph{Parametri}
+Accetta 2 parametri:
+\begin{itemize}
+	\item{\texttt{logid}: è il logid del documento di mongo a cui aggiungere o modificare il campo status}
+	\item{\texttt{status='error'}: è lo stato da assegnare la log individuato da \texttt{logid}}
+\end{itemize}
 Questa funzione è intesa per aggiungere o modificare il campo \texttt{status} di un log di MongoDB. Le funzioni di nomodo (come è giusto che sia)
 creano un documento di mongo per memorizzare le informazioni sull'operazione prima di procedere all'operazione stessa.
 In caso un'operazione non andasse nel modo aspettato bisognerebbe quindi marcare il documento appena creato in mongo in modo da avvisare l'utente
@@ -257,12 +263,6 @@ Ecco un esempio che mostra lo stato di un log appena aggiunto (senza il campo \t
 > db.log.find()
 { "_id" : ObjectId("5ae596d4bf3bd205c1aeea25"), "parameters" : { "shell" : "/bin/bash", "user" : "giuseppe2", "password" : "test" }, "funname" : "adduser", "date" : ISODate("2018-04-29T09:56:36.627Z"), "status" : "success" }
 \end{lstlisting}
-\paragraph{Parametri}
-Come menzionato accetta 2 parametri:
-\begin{itemize}
-	\item{\texttt{logid}: è il logid del documento di mongo a cui aggiungere o modificare il campo status}
-	\item{\texttt{status='error'}: è lo stato da assegnare la log individuato da \texttt{logid}}
-\end{itemize}
 \paragraph{Return}
 Restituisce un oggetto della classe 
 
@@ -283,21 +283,21 @@ def command_success( data=None, logid=None, returncode=0 ):
 La funzione \texttt{command\_success} fondamentalmente costruisce il dizionario da restituire all'utente quando una funzione del backend
 ha finito le sue opoerazioni e non ci sono stati errori durante l'esecuzione.
 Insieme alla sorella \nameref{command\string_error} sono le uniche due funzioni chiamate al termine di una funzione del backend.
-\paragraph{Funzionamento}
-La prima operazione eseguita è la chiamata a\texttt{mongologstatussuc()} per aggiungere al log di mongo il campo \texttt{status},
-questo solo in caso il parametro \texttt{logid} sia non nullo e quindi la funzione chiamante ha dovuto memorizzare un mongolog.
-Successivamente va a costruire il dizionario da restituire formato dal codice di ritorno, i dati voluti dall'utente (se disponibili,
-altrimenti \texttt{None}), e il \textit{logid} dell'operazione.
 \paragraph{Parametri}
 Accetta tre parametri:
 \begin{itemize}
 	\item{\texttt{data=None}: Sono i dati da restituire all'utente se la funzione che l'ha chiamata li genera. Di base è \texttt{None}}
 	\item{\texttt{logid}: Il logid a cui aggiungere il campo \texttt{status} e da restituire all'utente nel dizionario come campo del dizionario.
-		Di base è \texttt{None} in quanto il chiamante potrebbe non avere necessità di generare un mongolog}
+		Di base è \texttt{None} in quanto il chiamante potrebbe non aver generato un mongolog per l'operazione che ha effettuato}
 	\item{\texttt{returncode}: È il codice di ritorno che verrà inserito nel dizionario.
 		Essendo questa funzione invocata ogni qualvolta il chiamante esegue tutte le operazioni senza errore di base questo parametro è 0
 		ad indicare successo e può quindi essere omesso, ma può essere personalizzato passandolo alla chiamata}
 \end{itemize}
+\paragraph{Funzionamento}
+La prima operazione eseguita è la chiamata a\texttt{mongologstatussuc()} per aggiungere al log di mongo il campo \texttt{status},
+questo solo in caso il parametro \texttt{logid} sia non nullo e quindi la funzione chiamante ha dovuto memorizzare un mongolog.
+Successivamente va a costruire il dizionario da restituire formato dal codice di ritorno, i dati voluti dall'utente (se disponibili,
+altrimenti \texttt{None}), e il \textit{logid} dell'operazione.
 \paragraph{Return}
 Restituisce il dizionario contenente i parametri passati alla funzione o i loro valori di default se non vengono passati.
 Da utilizzare come spiegato in sezione \ref{frontendinterface}.
@@ -317,18 +317,40 @@ def command_error( e=None, command=None, logid=None, returncode=1, stderr='No me
     })
 \end{lstlisting}
 \texttt{command\_error} è l'opposto di \texttt{command\_success}. Come visto in sezione \ref{subprocess} viene invocato quando
-un comando lanciato attraverso la libreria \texttt{subprocess} fallisce nell'esecuzione.
+un comando lanciato attraverso la libreria \texttt{subprocess} fallisce nell'esecuzione. Può essere però anche usato per
+generare un dizionario di errore personalizzato.
 \paragraph{Parametri}
-Accetta 2 parametri di cui:
+Accetta 5 parametri:
 \begin{itemize}
-	\item{Il primo è l'oggetto creato al lancio dell'eccezione \texttt{CalledProcessError}}
-	\item{Il secondo è il comando che è andato in errore}
+	\item{\texttt{e=None}: è l'oggetto creato nel caso in cui venga lanciata l'eccezione \texttt{CalledProcessError}}
+	\item{\texttt{command=None}: è il comando la cui esecuzione ha generato l'eccezione}
+	\item{\texttt{logid}: Il logid a cui aggiungere il campo \texttt{status} e da restituire all'utente nel dizionario come campo del dizionario.
+		Di base è \texttt{None} in quanto il chiamante potrebbe non aver generato un mongolog per l'operazione che ha effettuato}
+	\item{\texttt{returncode=1}: Un codice di ritorno personalizzato da inserire nel dizionario in caso il parametro \texttt{e} sia nullo}
+	\item{\texttt{stderr='No messages defined for this error'}: È il messaggio di errore da inserire nel dizionario in caso il parametro \texttt{e}
+		sia nullo}
 \end{itemize}
 \paragraph{Funzionamento}
-Costruisce il dizionario da restituire inserendovi il \texttt{returncode} dell'eccezione lanciata, il comando che ha causato l'eccezione
-unito in una sola stringa usando il comando \texttt{join} e il messaggio di errore così come restituito dall'eccezione
+La funzione costruisce un dizionario da restituire all'utente contenente le varie informazioni sull'errore che è accaduto, ossia
+il codice di ritrorno, il messaggio di errore, il comando che ha generato l'errore (da passare in input) e il logid del documento
+in mongo che riguarda il comando/operazione.
+\\~\\
+Distinguiamo 2 casi:
+\begin{itemize}
+	\item{Viene generato un oggetto del tipo \texttt{CalledProcessError} appartenente a subprocess: in questo caso si passa alla funzione
+		l'oggetto generato e il comando che ha causato l'errore. La funzione ricava automaticamente da questo oggetto il codice
+		e il messaggio di erroree lo inserisce nel dizionario insieme al comando di \texttt{subprocess} che ha causato l'errore.
+		È quindi in questo caso necessario passare almeno questo oggetto e il comando (che non è però strettamente necessario)}
+	\item{Si vuole generare un errore personalizzato: in questo caso invece i parametri \texttt{e} e \texttt{command} non devono essere passati,
+		e al loro posto vengono passati \texttt{returncode} e \texttt{stderr} che verranno inseriti nel dizionario da restituire.}
+	\item{Si vuole generare un errore di default: in quest'ultimo caso basta chiamare la funzione senza passare alcun parametro e viene
+		generato un errore di base in cui i valori del codice di ritorno saranno quelli assegnati di default e che si può vedere
+		nella sezione \textit{Parameters}}
+\end{itemize}
+Oltre a restituire il dizionario di errore questa funzione, se il parametro \texttt{logid} è non nullo agisce come \nameref{command\string_success} 
+aggiungendo quindi al log dell'operazione il campo \texttt{status} col valore \texttt{error}.
 \paragraph{Return}
-Restituisce il dizionario creato come descritto nel funzionamento.
+Restituisce il dizionario creato come descritto nel funzionamento e come si può vedere nel codice.
 
 \subsubsection{filedit}\label{filedit}
 \subsubsection{filediff}\label{filediff}
