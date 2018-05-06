@@ -799,7 +799,12 @@ def getusernotgroups(user):
     return command_success( data=usernotgroup )
 \end{lstlisting}
 Nasce per completare la funzione \nameref{getusergroups} e al contrario di questa restituisce tutti i gruppi di cui
-l'utente non fa parte.
+l'utente non fa parte.\\
+\textit{A cosa può mai servire questa funzione?}
+Durante l'aggiunta di un utente ad un gruppo si deve avere la necessità di sapere l'utente di quali gruppi
+fa parte e di quali non fa part per rendere l'interfaccia puù chiara ed agevole, più facile da usare e anche
+per garantire il corretto funzionamento dell'applicativo, riducendo le situazioni di eccezione in caso di
+situazioni che non avevamo programmato.
 \paragraph{Parametri}
 Prende l'unico parametro \texttt{user} che è il nome utente da usare per ricavare la lista dei gruppi di cui l'utente stesso
 non fa parte.
@@ -821,17 +826,107 @@ non fa parte.
         return usergroups
 
 \end{lstlisting}
-Per ricavare la lista di gruppi di cui l'utente non fa parte si è eseguita la sottrazione tra tutti i gruppi 
+Per ricavare la lista di gruppi di cui l'utente non fa parte si è esegue la sottrazione tra tutti i gruppi 
 del sistema e tutti i gruppi di cui l'utente fa parte.\\
 In questa prima parte quindi chiamando le funzioni \texttt{getgroups()} e \texttt{getusergroups()} si ricavano
 rispettivamente tutti i gruppi di sistema e tutti i gruppi di cui l'utente fa parte.
-Sul dizionario restituito si effettuano delle verifiche per vedere se l'operazione è andata a buon fine.
+Sul dizionario restituito si effettuano delle verifiche per vedere se l'operazione è andata a buon fine.\\
+
 \begin{lstlisting}
+    usernotgroup = list(filter( lambda group: not any(s in group for s in usergroups), groups ))
+
+    return command_success( data=usernotgroup )
 \end{lstlisting}
+Per la sottrazione utilizziamo la funzione \texttt{filter}. Questa funzione valuta l'espressione che gli si da,
+se questa restituisce \texttt{True} allora inserisce l'oggetto nella lista che sta costruendo, altrimenti lo omette.
+Ad es. in questo caso per ogni \texttt{group} oggetto di \texttt{groups} e per ogni gruppo \texttt{s} in \texttt{usergroups}
+se \texttt{s} è uguale a \texttt{group} (si è usato \texttt{in} in questo caso) viene restituito \texttt{True}
+che viene negato a \texttt{False} e quindi il \texttt{group} non viene inserito nella lista che la funzione sta costruendo.\\
+Le funzioni usate sono quindi le seguenti:
+\begin{itemize}
+	\item{f\texttt{filter}: filtra i risultati in base all'espressione che gli si da. Se \texttt{True} li inserisce nella lista
+		che sta costruendo, altrimenti li omette}
+	\item{\texttt{any}: restituisce \texttt{True} se almeno una delle espressioni al suo interno restituisce \texttt{True}. 
+		In questo caso se almeno uno dei gruppi dell'utente coincide col gruppo \texttt{s}. Questa espressione viene negata
+		usando \texttt{not}, quindi si ricavano tutti i gruppi che sono nella lista dei gruppi di sistema \texttt{groups}
+		ma non nella lista dei gruppi dell'utente}
+\end{itemize}
+Una volta effettuata la sottrazione chiama la funzione di ritorno che indica \textit{successo} \texttt{command\_success}
+passandogli la lista dei gruppi ricavati.
+
 
 \paragraph{Return}
+Restituisce una lista di stringhe in cui ogni stringa è il nome di un gruppo di cui l'utente non fa parte.
 
 \subsubsection{addusertogroups}\label{addusertogroups}
+\begin{lstlisting}
+def addusertogroups(user, *groups):
+
+    userinfo = getuser(user)
+    if userinfo['returncode'] is 0:
+        userinfo = userinfo['data']
+    else:
+        return userinfo
+
+    logid = mongolog( locals(), userinfo )
+    
+    try:
+    	for group in groups:
+            command = ['adduser', user, group],
+            check_call(command)
+    except CalledProcessError as e:
+        return command_error( e, command, logid )
+    
+    
+    return command_success( logid=logid )
+\end{lstlisting}
+La funzione nasce per aggiungere un utente ad uno o più gruppi di sistema. Ovviamente l'utente 
+non deve appartenere al/ai gruppo/i a cui si sta aggiungendo. È possibile ricavare una lista di questi gruppi
+utilizzando la funzione \nameref{getusernotgroups}.
+\paragraph{Parametri}
+\begin{itemize}
+	\item{\texttt{user}: la prima non poteva che essere l'utente che si vuole aggiungere ai gruppi}
+	\item{\texttt{*groups}: la seconda è una variabile accumulativa di Python, ciò significa che
+		dopo aver passato \texttt{user} si possono passare quanti gruppo si vuole e verranno sempre unificati
+		in questa variabile, per poi essere scorsi un pò alla volta. Questo ci da la possibilità di poter
+		aggiungere l'utente a quanti gruppi si vuole chiamando questa funzione una sola volta}
+\end{itemize}
+\paragraph{Funzionamento}
+\begin{lstlisting}
+    userinfo = getuser(user)
+    if userinfo['returncode'] is 0:
+        userinfo = userinfo['data']
+    else:
+        return userinfo
+
+    logid = mongolog( locals(), userinfo )
+\end{lstlisting}
+Essendo questa una opoerazione sensibile che va a modificare una parte del sistema si va prima di tutto a memorizzare
+un mongolog  per tenere traccia dell'operazione. In questo caso oltre a memorizzare i parametri con cui è stata
+chiamata (ricavati usando la funzione \texttt{locals()}) si ricavano le informazioni sull'utente chiamando
+la funzione \nameref{getuser()} e si inseriscono nel log.
+\begin{lstlisting}
+    try:
+    	for group in groups:
+            command = ['adduser', user, group],
+            check_call(command)
+    except CalledProcessError as e:
+        return command_error( e, command, logid )
+    
+    
+    return command_success( logid=logid )
+\end{lstlisting}
+L'aggiunta dell'utente ai gruppi avviene in un ciclo \texttt{for} dove per ogni gruppo passato a \texttt{*groups}
+viene lanciato il comando \texttt{adduser} tramite una \texttt{check\_call}. Notare che in questo caso non ci interessa
+l'output del comando ma solo il suo codice di ritorno, è per questo che usiamo \texttt{check\_call}.
+Se l'operazione va in eccezione come sempre di chiama la funzione \texttt{command\_error} mentre se va a buon fine
+si chiama \texttt{command\_success}, questa volta passandogli il solo logid. Il dizionario restituito all'utente
+avrà quindi la variabile \texttt{Data} a \texttt{None}, mentre la variabile \texttt{logid} conterrà il l'object id
+dell'operazione.
+\paragraph{Return}
+Non restituisce niente in output, la variabile \texttt{logid} invece sarà allocata e conterrà l'object id
+dell'operazione effettuata.
+
 \subsubsection{removeuserfromgroups}\label{removeuserfromgroups}
 \subsubsection{updatepass}\label{updatepass}
 \subsubsection{getshells}\label{getshells}
@@ -852,20 +947,6 @@ Frontend
 
 \section{Utility}
 \subsection{\href{https://developers.redhat.com/products/developertoolset/overview/}{Red Hat Developer Toolset}}
-
-\subsection{kerberos5}
-\begin{enumerate}
-	\item{Copiare il file \texttt{/etc/krb5.conf} da uno dei nodi di cresco 4}
-	\item{Abilitare kerberos come tipologia di autenticazione:\newline\texttt{authconfig --enablekrb5 --updateall}}
-	\item{Utilizzare klog.krb5 come klog di default:}
-		\begin{itemize}
-			\item{\texttt{mv /usr/bin/klog /usr/bin/klog.orig}}
-			\item{\texttt{ln -s /usr/bin/klog.krb5 /usr/bin/klog}}
-		\end{itemize}
-	\item{Copiare il keytab da cresco-inst1:\newline\texttt{cp /afs/enea.it/system/arc/keytab/services/host/cresco4x002.portici.enea.it /etc/krb5.keytab}}
-	\item{Link simbolici alle shell? Discuterne con Guido}
-	\item{Creare un link simbolico per pagsh:\newline\texttt{ln -s /usr/bin/pagsh /usr/afsws/bin/pagsh}}
-\end{enumerate}
 
 \subsection{Rimossi tra CentOS 6 e 7 e le cui alternative non presenti su CRESCO 6}
 La seguente lista contiene i pacchetti che erano presenti su CRESCO 4 (Centos 6) e la cui alternativa per Centos 7 non è presente

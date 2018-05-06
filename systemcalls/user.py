@@ -141,7 +141,8 @@ def addusertogroups(user, *groups):
     try:
     	for group in groups:
             command = ['adduser', user, group],
-            check_output(command, stderr=PIPE, universal_newlines=True)
+            check_call(command)
+#            check_output(command, stderr=PIPE, universal_newlines=True)
     except CalledProcessError as e:
         return command_error( e, command, logid )
     
