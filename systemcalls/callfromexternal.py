@@ -12,6 +12,9 @@ import sys
 
 
 
+print( updateusershell( user="giuseppe2", shell="") )
+
+exit()
 data = ifacestat()
 if data['returncode'] is 0:
     print(data['data'])

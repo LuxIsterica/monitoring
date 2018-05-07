@@ -52,21 +52,39 @@
 \contentsline {paragraph}{Parametri}{20}{section*.35}
 \contentsline {paragraph}{Funzionamento}{21}{lstlisting.-33}
 \contentsline {paragraph}{Return}{21}{section*.37}
-\contentsline {subsubsection}{\numberline {2.2.7}removeuserfromgroups}{22}{subsubsection.2.2.7}
-\contentsline {subsubsection}{\numberline {2.2.8}updatepass}{22}{subsubsection.2.2.8}
-\contentsline {subsubsection}{\numberline {2.2.9}getshells}{22}{subsubsection.2.2.9}
-\contentsline {subsubsection}{\numberline {2.2.10}updateusershell}{22}{subsubsection.2.2.10}
-\contentsline {subsubsection}{\numberline {2.2.11}adduser}{22}{subsubsection.2.2.11}
-\contentsline {subsubsection}{\numberline {2.2.12}removeuser}{22}{subsubsection.2.2.12}
-\contentsline {subsection}{\numberline {2.3}Network}{22}{subsection.2.3}
-\contentsline {subsection}{\numberline {2.4}Cron}{22}{subsection.2.4}
-\contentsline {subsection}{\numberline {2.5}Sistema}{22}{subsection.2.5}
-\contentsline {subsection}{\numberline {2.6}apache}{22}{subsection.2.6}
-\contentsline {subsection}{\numberline {2.7}Database}{22}{subsection.2.7}
-\contentsline {subsection}{\numberline {2.8}File}{22}{subsection.2.8}
-\contentsline {subsection}{\numberline {2.9}Logs}{22}{subsection.2.9}
-\contentsline {section}{\numberline {3}Frontend}{22}{section.3}
-\contentsline {section}{\numberline {4}Utility}{22}{section.4}
-\contentsline {subsection}{\numberline {4.1}\href {https://developers.redhat.com/products/developertoolset/overview/}{Red Hat Developer Toolset}}{22}{subsection.4.1}
-\contentsline {subsection}{\numberline {4.2}Rimossi tra CentOS 6 e 7 e le cui alternative non presenti su CRESCO 6}{22}{subsection.4.2}
-\contentsline {subsection}{\numberline {4.3}Rimossi da Centos 6 e 7 e le cui alternative sono presenti su CRESCO 6}{24}{subsection.4.3}
+\contentsline {subsubsection}{\numberline {2.2.7}removeuserfromgroups}{21}{subsubsection.2.2.7}
+\contentsline {paragraph}{Parametri}{22}{section*.38}
+\contentsline {paragraph}{Funzionamento}{22}{lstlisting.-36}
+\contentsline {paragraph}{Return}{22}{section*.40}
+\contentsline {subsubsection}{\numberline {2.2.8}updatepass}{23}{subsubsection.2.2.8}
+\contentsline {paragraph}{Parametri}{23}{section*.41}
+\contentsline {paragraph}{Funzionamento}{23}{lstlisting.-39}
+\contentsline {paragraph}{Return}{24}{section*.43}
+\contentsline {subsubsection}{\numberline {2.2.9}getshells}{24}{subsubsection.2.2.9}
+\contentsline {paragraph}{Parametri}{24}{section*.44}
+\contentsline {paragraph}{Funzionamento}{24}{section*.45}
+\contentsline {paragraph}{Return}{25}{section*.46}
+\contentsline {subsubsection}{\numberline {2.2.10}updateusershell}{25}{subsubsection.2.2.10}
+\contentsline {paragraph}{Parametri}{25}{section*.47}
+\contentsline {paragraph}{Funzionamento}{25}{lstlisting.-43}
+\contentsline {paragraph}{Return}{26}{section*.49}
+\contentsline {subsubsection}{\numberline {2.2.11}adduser}{26}{subsubsection.2.2.11}
+\contentsline {paragraph}{Parametri}{26}{section*.50}
+\contentsline {paragraph}{Funzionamento}{26}{lstlisting.-46}
+\contentsline {paragraph}{Return}{27}{section*.52}
+\contentsline {subsubsection}{\numberline {2.2.12}removeuser}{27}{subsubsection.2.2.12}
+\contentsline {paragraph}{Parametri}{28}{section*.53}
+\contentsline {paragraph}{Funzionamento}{28}{lstlisting.-49}
+\contentsline {paragraph}{Return}{28}{section*.55}
+\contentsline {subsection}{\numberline {2.3}Network}{29}{subsection.2.3}
+\contentsline {subsection}{\numberline {2.4}Cron}{29}{subsection.2.4}
+\contentsline {subsection}{\numberline {2.5}Sistema}{29}{subsection.2.5}
+\contentsline {subsection}{\numberline {2.6}apache}{29}{subsection.2.6}
+\contentsline {subsection}{\numberline {2.7}Database}{29}{subsection.2.7}
+\contentsline {subsection}{\numberline {2.8}File}{29}{subsection.2.8}
+\contentsline {subsection}{\numberline {2.9}Logs}{29}{subsection.2.9}
+\contentsline {section}{\numberline {3}Frontend}{29}{section.3}
+\contentsline {section}{\numberline {4}Utility}{29}{section.4}
+\contentsline {subsection}{\numberline {4.1}\href {https://developers.redhat.com/products/developertoolset/overview/}{Red Hat Developer Toolset}}{29}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Rimossi tra CentOS 6 e 7 e le cui alternative non presenti su CRESCO 6}{29}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.3}Rimossi da Centos 6 e 7 e le cui alternative sono presenti su CRESCO 6}{31}{subsection.4.3}

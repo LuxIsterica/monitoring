@@ -155,12 +155,19 @@ def addusertogroups(user, *groups):
 def removeuserfromgroups(user, *groups):
 
     #Logging operation to mongo first
-    logid = mongolog( locals(), getuser(user) )
+    userinfo = getuser(user)
+    if userinfo['returncode'] is 0:
+        userinfo = userinfo['data']
+    else:
+        return userinfo
+
+    logid = mongolog( locals(), userinfo )
     
     try:
     	for group in groups:
                 command = ['gpasswd', '-d', user, group]
-                check_output(command, stderr=PIPE, universal_newlines=True)
+                check_call(command)
+#                check_output(command, stderr=PIPE, universal_newlines=True)
     except CalledProcessError as e:
         return command_error(e, command, logid)
     
@@ -213,14 +220,15 @@ def updateusershell(user, shell):
 	
     logid = mongolog( locals() )
     
-    #TODO
     if not shell:
-    	raise SyntaxError("La stringa contenente il nome della shell non può essere vuota")
+        return command_error( returncode=200, stderr="La stringa contenente il nome della shell non può essere vuota")
+
 
     command = ['chsh', user, '-s', shell]
     
     try:
-        check_output(command, stderr=PIPE, universal_newlines=True)
+        check_call(command)
+#        check_output(command, stderr=PIPE, universal_newlines=True)
     except CalledProcessError as e:
         return command_error( e, command, logid )
 
@@ -234,11 +242,8 @@ def adduser(user, password, shell="/bin/bash"):
 	
     logid = mongolog( locals() )
     
-    input("Press any button to continue")
-
-    #TODO
     if not shell:
-    	raise SyntaxError("La stringa contenente il nome della shell non può essere vuota")
+    	return command_error( returncode=200, stderr="La stringa contenente il nome della shell non può essere vuota" )
     
     try:
         command = ['useradd', '-m', '-p', password, '-s', shell, user]
@@ -250,9 +255,15 @@ def adduser(user, password, shell="/bin/bash"):
     return command_success( logid=logid )
 
 
-def removeuser(user, removehome=None):
+def removeuser(user, removehome=False):
 	
-    logid = mongolog( locals(), getuser(user) )
+    userinfo = getuser(user)
+    if userinfo['returncode'] is 0:
+        userinfo = userinfo['data']
+    else:
+        return userinfo
+
+    logid = mongolog( locals(), userinfo )
     
 
     try:

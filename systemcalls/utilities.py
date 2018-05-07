@@ -71,7 +71,7 @@ def command_success( data=None, logid=None, returncode=0 ):
 
 #Called when a CalledProcessError is raised
 #Returns a dict containing exception info
-def command_error( e=None, command=None, logid=None, returncode=1, stderr='No messages defined for this error' ):
+def command_error( e=None, command=[], logid=None, returncode=1, stderr='No messages defined for this error' ):
 
     if logid:
         mongologstatuserr( logid )

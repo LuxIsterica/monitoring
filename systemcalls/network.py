@@ -165,7 +165,7 @@ def addroute(gw, net, netmask, default=False):
         command = command + ['default', 'gw', gw]
     #If default in False "net" and "netmask" must be set
     elif net is None or netmask is None:
-        raise ValueError('On non-default route you must enter "net" and "netmask" parameters') #TODO
+        command_error( stderr=201, stderr='On non-default route you must enter "net" and "netmask" parameters' )
     else:
         command = command + ['-net', net, 'netmask', netmask, 'gw', gw]
 
@@ -187,7 +187,7 @@ def delroute(route):
     logid = mongolog( locals() )
 
     if not type(route) is type(dict()):
-        raise ValueError('delroute function can only accept a dictionary as argument')
+        command_error( returncode=202, stderr='delroute function can only accept a dictionary as argument' )
 
     command = [ 'route', 'del', '-net', route['Destination'], 'netmask', route['Genmask'], 'gw', route['Gateway'] ]
 

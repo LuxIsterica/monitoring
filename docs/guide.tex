@@ -135,7 +135,7 @@ except CalledProcessError as e:
 return command_success( output )
 \end{lstlisting}
 Tutte le funzioni di nomodo ritornano o con un \texttt{ \nameref{command\string_success}} in caso l'operazione sia andata a buon fine
-o con un \texttt{ \nameref{commmand\string_error} } in caso il comando non vada a buon fine e venga lanciata l'eccezione \texttt{CalledProcessError}.
+o con un \texttt{ \nameref{command\string_error} } in caso il comando non vada a buon fine e venga lanciata l'eccezione \texttt{CalledProcessError}.
 In entrambi i casi viene restituito il dizionario menzionato in sezione \ref{frontendinterface}.
 Un esempio di comando che non restituisce output è il seguente:
 \begin{lstlisting}
@@ -305,7 +305,7 @@ Da utilizzare come spiegato in sezione \ref{frontendinterface}.
 
 \subsubsection{command\_error}\label{command\string_error}
 \begin{lstlisting}
-def command_error( e=None, command=None, logid=None, returncode=1, stderr='No messages defined for this error' ):
+def command_error( e=None, command=[], logid=None, returncode=1, stderr='No messages defined for this error' ):
 
     if logid:
         mongologstatuserr( logid )
@@ -324,7 +324,7 @@ generare un dizionario di errore personalizzato.
 Accetta 5 parametri:
 \begin{itemize}
 	\item{\texttt{e=None}: è l'oggetto creato nel caso in cui venga lanciata l'eccezione \texttt{CalledProcessError}}
-	\item{\texttt{command=None}: è il comando la cui esecuzione ha generato l'eccezione}
+	\item{\texttt{command=[]}: è il comando la cui esecuzione ha generato l'eccezione. Lista vuota di default}
 	\item{\texttt{logid}: Il logid a cui aggiungere il campo \texttt{status} e da restituire all'utente nel dizionario come campo del dizionario.
 		Di base è \texttt{None} in quanto il chiamante potrebbe non aver generato un mongolog per l'operazione che ha effettuato}
 	\item{\texttt{returncode=1}: Un codice di ritorno personalizzato da inserire nel dizionario in caso il parametro \texttt{e} sia nullo}
@@ -904,7 +904,7 @@ utilizzando la funzione \nameref{getusernotgroups}.
 Essendo questa una opoerazione sensibile che va a modificare una parte del sistema si va prima di tutto a memorizzare
 un mongolog  per tenere traccia dell'operazione. In questo caso oltre a memorizzare i parametri con cui è stata
 chiamata (ricavati usando la funzione \texttt{locals()}) si ricavano le informazioni sull'utente chiamando
-la funzione \nameref{getuser()} e si inseriscono nel log.
+la funzione \nameref{getuser} e si inseriscono nel log.
 \begin{lstlisting}
     try:
     	for group in groups:
@@ -928,11 +928,353 @@ Non restituisce niente in output, la variabile \texttt{logid} invece sarà alloc
 dell'operazione effettuata.
 
 \subsubsection{removeuserfromgroups}\label{removeuserfromgroups}
+\begin{lstlisting}
+def removeuserfromgroups(user, *groups):
+
+    userinfo = getuser(user)
+    if userinfo['returncode'] is 0:
+        userinfo = userinfo['data']
+    else:
+        return userinfo
+
+    logid = mongolog( locals(), userinfo )
+    
+    try:
+    	for group in groups:
+                command = ['gpasswd', '-d', user, group]
+                check_call(command)
+    except CalledProcessError as e:
+        return command_error(e, command, logid)
+    
+    
+    return command_success( logid=logid )
+\end{lstlisting}
+Questa funzione funzione esattamente al contrario di \nameref{addusertogroups}, ossia permette di specificare
+uno i più gruppi da cui l'utente deve essere rimosso. È possibile ricavare una lista di questi gruppi
+utilizzando la funzione \nameref{getusergroups}.
+\paragraph{Parametri}
+\begin{itemize}
+	\item{\texttt{user}: l'utente che si vuole aggiungere ai gruppi}
+	\item{\texttt{*groups}: è una variabile accumulativa di Python, ciò significa che
+		dopo aver passato \texttt{user} si possono passare quanti gruppo si vuole e verranno sempre unificati
+		in questa variabile, per poi essere scorsi un pò alla volta. Questo ci da la possibilità di poter
+		rimuovere l'utente da quanti gruppi si vuole chiamando questa funzione una sola volta}
+\end{itemize}
+\paragraph{Funzionamento}
+\begin{lstlisting}
+    userinfo = getuser(user)
+    if userinfo['returncode'] is 0:
+        userinfo = userinfo['data']
+    else:
+        return userinfo
+
+    logid = mongolog( locals(), userinfo )
+\end{lstlisting}
+Essendo questa una opoerazione sensibile che va a modificare una parte del sistema si va prima di tutto a memorizzare
+un mongolog  per tenere traccia dell'operazione. In questo caso oltre a memorizzare i parametri con cui è stata
+chiamata (ricavati usando la funzione \texttt{locals()}) si ricavano le informazioni sull'utente chiamando
+la funzione \nameref{getuser} e si inseriscono nel log.
+\begin{lstlisting}
+    try:
+    	for group in groups:
+                command = ['gpasswd', '-d', user, group]
+                check_call(command)
+    except CalledProcessError as e:
+        return command_error(e, command, logid)
+    
+    
+    return command_success( logid=logid )
+\end{lstlisting}
+La rimozione dell'utente dai gruppi avviene in un ciclo \texttt{for} dove per ogni gruppo passato a \texttt{*groups}
+viene lanciato il comando \texttt{gpasswd} tramite una \texttt{check\_call}. Notare che in questo caso non ci interessa
+l'output del comando ma solo il suo codice di ritorno, è per questo che usiamo \texttt{check\_call}.
+Se l'operazione va in eccezione come sempre di chiama la funzione \texttt{command\_error} mentre se va a buon fine
+si chiama \texttt{command\_success}, questa volta passandogli il solo logid. Il dizionario restituito all'utente
+avrà quindi la variabile \texttt{Data} a \texttt{None}, mentre la variabile \texttt{logid} conterrà il l'object id
+dell'operazione.
+\paragraph{Return}
+Non restituisce niente in output, la variabile \texttt{logid} invece sarà allocata e conterrà l'object id
+dell'operazione effettuata.
+
 \subsubsection{updatepass}\label{updatepass}
+\begin{lstlisting}
+def updateuserpass(user, password):
+
+    localsvar = locals()
+    del localsvar['password']
+    logid = mongolog( localsvar )
+    
+    try:
+        command = ['echo', user + ':' + password]
+        p1 = Popen(command, stdout=PIPE)
+        command = ['/usr/sbin/chpasswd']
+        p2 = Popen(command, stdin=p1.stdout)
+        p1.stdout.close()
+    
+    except CalledProcessError as e:
+        return command_error(e, command, logid)
+    
+    
+    return command_success( logid=logid )
+\end{lstlisting}
+La funzione nasce per aggiornare la password dell'utente indicato.
+\paragraph{Parametri}
+\begin{itemize}
+	\item{\texttt{user}: Il nome utente dell'utente a cui cambiare la password}
+	\item{\texttt{password}: La nuova password dell'utente. Notare che non serve la vecchia password
+		in quanto l'applilcativo opera con privilegi di root}
+\end{itemize}
+\paragraph{Funzionamento}
+\begin{lstlisting}
+    localsvar = locals()
+    del localsvar['password']
+    logid = mongolog( localsvar )
+\end{lstlisting}
+Essendo questa una operazione sensibile si deve prima di tutto creare un mongolog per tenere traccia dell'operazione.
+In questo caso però non possiamo memorizzare il parametro \texttt{password} in mongolog ne in chiaro e ne criptato
+in quanto sui sistemi unix-based anche se l'utenza root ha i privilegi per modificare le password di tutti gli utenti
+non può e non deve conoscere le password di questi. Quindi come prima cosa eliminiamo si crea una lista
+con i parametri chiamando la funzione \texttt{locals()} e poi si crea il mongolog.
+\begin{lstlisting}
+    try:
+        command = ['echo', user + ':' + password]
+        p1 = Popen(command, stdout=PIPE)
+        command = ['/usr/sbin/chpasswd']
+        p2 = Popen(command, stdin=p1.stdout)
+        p1.stdout.close()
+    
+    except CalledProcessError as e:
+        return command_error(e, command, logid)
+
+
+    return command_success( logid=logid )
+\end{lstlisting}
+Dopo la memorizzazione del momgolog si passa all'esecuzione dei comando necessari. Il comando per cambiare
+la password di un utente in modo non interattivo prevede l'utilizzo di una pipe. Con la prima esecuzione
+quindi si stampa sullo STDOUT la stringa \texttt{<username>:<password>'}, tale stringa viene poi catturata dal
+comando \texttt{/usr/sbin/chpasswd} tramite la direttiva \texttt{stdin=p1.stdout} che la parsa e cambia
+la password dell'utente.\\
+Se si va in eccezione (ad esempio si passa un utente non esistente) viene creato il dizionario di 
+\nameref{command\string_error} e resttuito all'utente, mentre se l'operazione termina correttamemnte
+viene creato il dizionario di \nameref{command\string_success} e restituito all'utente.
+\paragraph{Return}
+Viene restituito il dizionario di \texttt{command\_success} con il campo \texttt{Data} a \texttt{None}
+e il campo \texttt{logid} contente l'object id del mongolog.
+
 \subsubsection{getshells}\label{getshells}
+\begin{lstlisting}
+def getshells():
+
+    with open('/etc/shells') as opened:
+        shells = opened.read().splitlines()
+
+    #Removing comment lines
+    shells = list( filter( lambda shell: not shell.startswith('#'), shells) )
+
+    #Manually Appending dummy shells
+    shells = shells + ['/usr/sbin/nologin', '/bin/false']
+
+    return command_success( data=shells )
+\end{lstlisting}
+Alcuni delle funzioni del modulo di nomodo \texttt{user} richiedono che gli sia passata il percorso di una shell
+come parametro. Per portare al minimo gli errori si è creata questa funzione che non fa altro che restituire
+la lista delle shell installate nel sistema, in modo che l'utente non debba immettere manualmente la shell
+ma deve selezionarla da una lista. Un esempio è quando si chiama la funzione \texttt{updateusershell}.
+Evitiamo così sia errori volontari che errori di scrittura.
+\paragraph{Parametri}
+La funzione nella sua semplicità non prende parametri.
+\paragraph{Funzionamento}
+\begin{itemize}
+	\item{Apre il file che contiene le shell \texttt{/etc/shells} in lettura, ne legge il contenuto,
+		lo divide per linee creando una lista e inserisce tale lista nella variabile \texttt{shells}}
+	\item{In una funzione \texttt{filter} legge le righe una alla volta e se una riga inizia per \string# (cancelletto)
+		la rimuove dalla lista. La verifica è effettuata tramite la funzione \texttt{startswith} che
+		restituisce \texttt{True} se una stringa inizia col carattere passato come argomento}
+	\item{Nella terza parte del codice allla lista delle shells aggiunge le shell dummy utilizzate
+		per impedire l'accesso con l'utente che ha quella shell assegnata. Queste shell vengono
+		usate per utenti di servizio, come l'utente \texttt{www-data}}
+	\item{Restituisce le shell nella solita funzione di successo \texttt{command\_success}}
+\end{itemize}
+\paragraph{Return}
+Restituisce una lista dove ogni elemento è il percorso di una delle shell installate nel sistema.
+
 \subsubsection{updateusershell}\label{updateusershell}
+\begin{lstlisting}
+def updateusershell(user, shell):
+	
+    logid = mongolog( locals() )
+    
+    if not shell:
+        return command_error( returncode=200, stderr="La stringa contenente il nome della shell non puo' essere vuota")
+
+
+    command = ['chsh', user, '-s', shell]
+    
+    try:
+        check_call(command)
+    except CalledProcessError as e:
+        return command_error( e, command, logid )
+
+    
+    return command_success( logid=logid )
+\end{lstlisting}
+La funzione nasce per aggiornare la shell assegnata ad un utente. \paragraph{Parametri}
+\begin{itemize}
+	\item{\texttt{user}: è lo username dell'utente a cui verrà cambiata la shell}
+	\item{\texttt{shell}: è la nuova shell da assegnare all'utente. La lista delle shell che si possono utilizzare
+		può essere ricavata dalla funzione \nameref{getshells}}
+\end{itemize}
+\paragraph{Funzionamento}
+\begin{lstlisting}
+    logid = mongolog( locals() )
+    
+    if not shell:
+        return command_error( returncode=200, stderr="La stringa contenente il nome della shell non puo' essere vuota")
+\end{lstlisting}
+L'operazione risulta \textit{sensibile}, viene quindi prima di tutto memorizzato un mongolog con le informazioni
+sull'operazione.\\
+Viene poi controllato che il parametro \texttt{shell} non sia una stringa vuota, per evitare errori con la bash.
+\begin{lstlisting}
+    command = ['chsh', user, '-s', shell]
+    
+    try:
+        check_call(command)
+    except CalledProcessError as e:
+        return command_error( e, command, logid )
+
+    
+    return command_success( logid=logid )
+\end{lstlisting}
+Viene poi lanciato il comando \texttt{chsh} specificando nome utente e shell usando \texttt{check\_call} e verificando
+che non sia generata una eccezione. Dopo il cambio delle shell se l'operazione è andata a buon fine quindi si chiama
+la funzione di successo \texttt{command\_success} passandogli l'object id del mongolog.
+\paragraph{Return}
+Restituisce il dizionario di successo con la variabile \texttt{Data} a \texttt{None} e \texttt{logid} contenente
+l'object id del log su mongo contenente le informazioni sull'operazione appena effettuata.
+
 \subsubsection{adduser}\label{adduser}
+\begin{lstlisting}
+def adduser(user, password, shell="/bin/bash"):
+	
+    logid = mongolog( locals() )
+    
+    if not shell:
+    	return command_error( returncode=200, stderr="La stringa contenente il nome della shell non puo' essere vuota" )
+    
+    try:
+        command = ['useradd', '-m', '-p', password, '-s', shell, user]
+        check_output(command, stderr=PIPE, universal_newlines=True)
+    except CalledProcessError as e:
+        return command_error( e, command, logid )
+    
+
+    return command_success( logid=logid )
+\end{lstlisting}
+Serve ad aggiungere nuovi utenti al sistema.
+\paragraph{Parametri}
+\begin{itemize}
+	\item{\texttt{user}: è il nome utente del nuovo utente che si sta creando. Deve essere univoco nel sistema}
+	\item{\texttt{password}: la password di accesso del nuovo utente}
+	\item{\texttt{shell="/bin/bash"}: è la shell che verrà assegnata all'utente all'atto di creazione.
+		Se questo parametro non viene passato viene assegnata la shell di default di sistema che è \texttt{bash}}
+\end{itemize}
+\paragraph{Funzionamento}
+\begin{lstlisting}
+    logid = mongolog( locals() )
+    
+    if not shell:
+    	return command_error( returncode=200, stderr="La stringa contenente il nome della shell non puo' essere vuota" )
+\end{lstlisting}
+Viene creato un mongolog in quanto operazione sensibile che va a modificare il sistema e potrebbe compromettere
+la sicurezza dello stesso. Come in \ref{updateusershell} viene verificato che il parametro \texttt{shell} non sia
+una stringa vuota per evitare errori con la bash.
+\begin{lstlisting}
+    try:
+        command = ['useradd', '-m', '-p', password, '-s', shell, user]
+        check_output(command, stderr=PIPE, universal_newlines=True)
+    except CalledProcessError as e:
+        return command_error( e, command, logid )
+    
+
+    return command_success( logid=logid )
+\end{lstlisting}
+Viene poi composto il comando \texttt{useradd} definendo tutte le specifiche dell'utente ed indicando di creare
+una home col parametro \texttt{-m}, viene eseguito e viene controllato che non venga lanciata nessuna eccezione.\\
+Se tutto va a buon fine viene invocata la funzione di successo \texttt{command\_success} passandogli l'object id
+del documento mongo creato contenente le informazioni sull'operazione di creazione dell'utente.
+\paragraph{Return}
+Restituisce il dizionario di successo generato da \texttt{command\_success} con la chiave \texttt{Data} a \texttt{None}
+e la chiave \texttt{logid} contenente l'object id del documento creato e contenente le informazioni sull'operazione
+eseguita.
+
 \subsubsection{removeuser}\label{removeuser}
+\begin{lstlisting}
+def removeuser(user, removehome=False):
+	
+    userinfo = getuser(user)
+    if userinfo['returncode'] is 0:
+        userinfo = userinfo['data']
+    else:
+        return userinfo
+
+    logid = mongolog( locals(), userinfo )
+    
+
+    try:
+        command = ['deluser', user]
+        if removehome: command.append('--remove-home') 
+
+        check_output( command, stderr=PIPE, universal_newlines=True )
+    except CalledProcessError as e:
+        return command_error( e, command, logid )
+    
+    
+    return command_success( logid=logid )
+\end{lstlisting}
+È la funzione opposta a \nameref{adduser} e serve a rimuovere un utente dal sistema.
+\paragraph{Parametri}
+\begin{itemize}
+	\item{\texttt{user}: è il nome utente dell'utente da eliminare dal sistema}
+	\item{\texttt{removehome=False}: se \texttt{True} indica di rimuovere anche la home dell'utente oltre
+		all'utente stesso. Di default è \texttt{False} in quanto la home degli utenti potrebbero contenere
+		dati importanti che non si vuole perdere}
+\end{itemize}
+\paragraph{Funzionamento}
+\begin{lstlisting}
+    userinfo = getuser(user)
+    if userinfo['returncode'] is 0:
+        userinfo = userinfo['data']
+    else:
+        return userinfo
+
+    logid = mongolog( locals(), userinfo )
+\end{lstlisting}
+La rimozione di un utente è una operazione molto importante, viene quindi generato un mongolog contenente,
+oltre ai parametri con cui è chiamata la funzione, anche le informazioni sull'utente che sta per essere rimosso,
+ricavate invocando la funzione \texttt{getuser()}.
+\begin{lstlisting}
+    try:
+        command = ['deluser', user]
+        if removehome: command.append('--remove-home') 
+
+        check_output( command, stderr=PIPE, universal_newlines=True )
+    except CalledProcessError as e:
+        return command_error( e, command, logid )
+    
+    
+    return command_success( logid=logid )
+\end{lstlisting}
+All'atto del lancio del comando \texttt{deluser} viene quindi verificato il parametro \texttt{removehome};
+se questo risulta essere \texttt{True} viene aggiunto al comando \texttt{deluser <user>} anche il parametro
+\texttt{--remove-home} istruendo quindi lo stesso a rimuovere anche la cartella \texttt{/home/<user>/}.\\
+Viene controllato quindi che non venga generata l'eccezione \texttt{CalledProcessError} e se tutto va a buon fine
+viene invocata la funzione di successo \texttt{command\_success} passandogli l'object id del documento mongo
+che tiene traccia delle informazioni dell'operazione.
+\paragraph{Return}
+Restituisce il dizionario di successo generato da \texttt{command\_success} con la key \texttt{Data} a \texttt{None}
+e la key \texttt{logid} contenente l'object id del documento mongo creato e che tiene traccia delle informazioni
+sull'operazione.
+
 
 \subsection{Network}
 \subsection{Cron}
@@ -944,6 +1286,21 @@ dell'operazione effettuata.
 
 \section{Frontend}\label{frontend}
 Frontend
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \section{Utility}
 \subsection{\href{https://developers.redhat.com/products/developertoolset/overview/}{Red Hat Developer Toolset}}
