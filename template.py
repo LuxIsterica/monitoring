@@ -2,7 +2,7 @@ import sys
 sys.path.append('systemcalls')
 from user import getusers, getuser, getgroups, getshells, updateusershell, getusernotgroups, getusergroups
 from apps import listinstalled, aptsearch
-from systemfile import locate
+from systemfile import locate,updatedb
 from system import getsysteminfo, hostname
 from network import ifacestat
 from flask import Flask, render_template, flash, request, redirect, url_for
@@ -35,6 +35,7 @@ def dash():
 # http://localhost:5000/listUser/
 @app.route('/listUserAndGroups')
 def listUserAndGroups():
+	error = None
 	users = getusers()
 	groups = getgroups()
 
@@ -134,12 +135,23 @@ def findFile():
 	error = None
 	fs = request.form['fileSearch'];
 	if not fs:
-		flash('Operazione errata')
+		flash(u'Operazione errata','error')
 	else:
 		pathFileFound = locate(fs);
 		return render_template('file.html', pathFileFound = pathFileFound)
 		
 	return redirect(url_for('file'))
+
+@app.route('/updateDbFile', methods=['POST'])
+def updateDbFile():
+	error = None
+	log = updatedb()
+	if(log['returncode'] != 0):
+		error = log['command']
+	else:
+		flash("Aggiornato!")
+		return redirect(url_for('file'))
+	return render_template('file.html', error=error)
 
 ##### FUNZIONALITÀ system.py #####
 @app.route('/param')
