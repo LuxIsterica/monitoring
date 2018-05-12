@@ -1277,7 +1277,7 @@ sull'operazione.
 
 
 \subsection{Network}
-\subsubsection{ifacestat}
+\subsubsection{ifacestat}\label{ifacestat}
 \begin{lstlisting}
 def ifacestat(iface="", namesonly=False):
 
@@ -1415,16 +1415,90 @@ passandogli nel parametro \texttt{data} il dizionario appena creato \texttt{ifac
 		mentre il valore sono le informazioni sulla stessa, come ad esempio indirizzo IPv4 e IPv6, MAC address, stato ecc.}
 \end{itemize}
 
-\subsubsection{getnewifacealiasname}
-\subsubsection{ifacedown}
-\subsubsection{ifaceup}
-\subsubsection{createalias}
-\subsubsection{destroyalias}
-\subsubsection{editiface}
-\subsubsection{getroutes}
-\subsubsection{addroute}
-\subsubsection{defaultroute}
-\subsubsection{delroute}
+\subsubsection{getnewifacealiasname}\label{getnewifacealiasname}
+\begin{lstlisting}
+def getnewifacealiasname(iface):
+    
+    ifaces = ifacestat( namesonly=True )
+    if ifaces['returncode'] is 0:
+        ifaces = ifaces['data']
+
+    
+    aliasid = 0
+    for item in ifaces:
+        if item.startswith( iface + ':' ):
+            item = int(re.sub('.*:', '', item))
+            if aliasid is item: aliasid += 1
+            else: break
+
+    return command_success( data = iface + ':' + str(aliasid) )
+\end{lstlisting}
+Questa funzione non fa altro che restituire al chiamante il possibile nome di una nuova interfaccia alias
+data un'interfaccia fisica esistente. È intesa per essere usata come titolo della pagina in cui l'utente
+andrà ad inserire le specifiche della nuova interfaccia e per essere passata alla funzione \nameref{createalias}
+per la creazione dell'interfaccia virtuale.
+\paragraph{Parametri}
+Prende un solo parametro \texttt{iface} che è l'interfaccia a cui fare riferimento per la creazione del nuovo alias.
+\paragraph{Funzionamento}
+La funzione si basa su queste 3 considerazioni:
+\begin{enumerate}
+	\item{Il nome di una interfaccia alias è costitita dal nome dell'interfaccia più un due punti più
+		un identificativo numero per l'alias stesso che parta da 0}
+	\item{Data una interfaccia, ad es. \texttt{ens1}, se per questa interfaccia sono già presenti degli alias, ad es.
+		\texttt{ens1:1} e \texttt{ens1:2}, deve essere restituito all'utente il nome alias \texttt{ens1:3}}
+	\item{Per evitare un numero sempre crescente per i nomi alias un nuovo nome dovrà riempire
+		il buco lasciato da un interfaccia che sia stata eliminata. Ad es. se abbiamo \texttt{ens1:0} e \texttt{ens1:2}
+		la nuova interfaccia dovrà avere il nome \texttt{ens1:1}}
+\end{enumerate}
+Si discutono i metodi utilizzati per soddisfare tali principi.
+\begin{lstlisting}
+    ifaces = ifacestat( namesonly=True )
+    if ifaces['returncode'] is 0:
+        ifaces = ifaces['data']
+\end{lstlisting}
+Viene chiamata la funzione \nameref{ifacestat} con il parametro \texttt{namesonly} impostato a \texttt{True}
+così da ottenere i nomi di tutte le interfacce del sistema; viene inoltre fatto un controllo
+sul codice di ritorno della funzione.
+\begin{lstlisting}
+    aliasid = 0
+    for item in ifaces:
+        if item.startswith( iface + ':' ):
+            item = int(re.sub('.*:', '', item))
+            if aliasid is item: aliasid += 1
+            else: break
+
+    return command_success( data = iface + ':' + str(aliasid) )
+\end{lstlisting}
+Si inizializza quindi una variabile \texttt{aliasid} al primo numero possibile per gli identificativi alias,
+cioè 0 (ad esempio \texttt{ens1:0}).\\
+Per capire quanto a seguire bisogna tenere in mente che l'output di ifconfig ordina gli alias di
+un'interfaccia; ad esempio con \texttt{ens1} l'ordine sarà \texttt{ens1, ens1:0, ens1:2}
+e mai ad esempio \texttt{ens1, ens1:2, ens1:0}\\
+Con tale considerazione si inizia iterando sui nomi delle interfacce. Se questa è un alias dell'interfaccia
+passata come parametro, cioè se il suo nome inizia (\texttt{startswith}) con il nome dell'interfaccia \texttt{iface}
+seguita dal due punti si entra nell'if che si vede in codice. In questo \texttt{if}
+si elimina il nome dell'interfaccia ed i due punti (ad esempio  \texttt{ens0:1} diventa semplicemente 1) ottenendo
+il numero identificativo della prima interfaccia alias; si confronta quindi questo numero con \texttt{aliasid}.
+Se questi sono uguali l'interfaccia alias con identificativo \texttt{aliasid} è sicuramente occupata,
+quindi si itera e si tenta nuovamente con il prossimo alias; se invece \texttt{aliasid} non coincide
+col numero identificativo del primo alias allora il posto è libero e si esce dal ciclo con un break.\\
+Dopodichè basta chiamare la funzione di successo \texttt{command\_success} passandogli nel campo \texttt{data}
+il nome della nuova interfaccia, che non è altro che il nome della stessa seguita dal 2 punti e dal numero identificativo
+dell'alias contenuto nella variabile \texttt{aliasid}.
+\paragraph{Return}
+Restituisce il nome del nuovo alias dell'interfaccia \texttt{iface} da utilizzare come titolo della pagina in cui l’utente
+andrà ad inserire le specifiche della nuova interfaccia o per essere passata alla funzione \nameref{createalias} per
+la creazione dell’interfaccia virtuale.
+
+\subsubsection{ifacedown}\label{ifacedown}
+\subsubsection{ifaceup}\label{ifaceup}
+\subsubsection{createalias}\label{createalias}
+\subsubsection{destroyalias}\label{destroyalias}
+\subsubsection{editiface}\label{editiface}
+\subsubsection{getroutes}\label{getroutes}
+\subsubsection{addroute}\label{addroute}
+\subsubsection{defaultroute}\label{defaultroute}
+\subsubsection{delroute}\label{delroute}
 
 
 \subsection{Cron}

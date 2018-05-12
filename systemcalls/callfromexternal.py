@@ -12,15 +12,7 @@ import sys
 
 
 
-print( updateusershell( user="giuseppe2", shell="") )
-
-exit()
-data = ifacestat()
-if data['returncode'] is 0:
-    print(data['data'])
-else:
-    print(data['stderr'])
-
+print( getnewifacealiasname('eth0')['data'] )
 
 exit()
 data = getsysteminfo()

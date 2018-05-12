@@ -2,12 +2,15 @@
 from subprocess import DEVNULL, PIPE, STDOUT, check_output, check_call, CalledProcessError
 from utilities import mongolog, command_success, command_error
 import inspect
+import re
 #import urllib.parse
 
 
-#Returns dict
-# @iface: if set only returns the stat of such interface
-# @namesonly is needed in order to let "getnewifacealiasname" work properly
+'''
+@iface: if set only returns the stat of such interface
+@namesonly is needed in order to let "getnewifacealiasname" work properly
+>Returns dict
+'''
 def ifacestat(iface="", namesonly=False):
 
     command = ['ifconfig', '-a']
@@ -63,26 +66,34 @@ def ifacestat(iface="", namesonly=False):
     return command_success( data=ifaces )
 
 
-#Returns a string containing an alias name that fit to be used as alias for "iface" interface
-# @iface interface name
-# @Returns string
+'''
+@iface interface name
+>Returns a string containing an alias name that fit to be used as alias for "iface" interface
+'''
 def getnewifacealiasname(iface):
     
-    ifaces = ifacestat( iface=iface, namesonly=True )
+    ifaces = ifacestat( namesonly=True )
     if ifaces['returncode'] is 0:
         ifaces = ifaces['data']
 
-    occurrences = 0
+    
+    aliasid = 0
     for item in ifaces:
-        if item.startswith(iface):
-            occurrences += 1
+        if item.startswith( iface + ':' ): #By default aliases will be parsed in numeric ascending order due to ifconfig output
+            item = int(re.sub('.*:', '', item))
+            if aliasid is item: aliasid += 1
+            else: break
 
-    return command_success( data=iface + ':' + str(occurrences) )
+    return command_success( data = iface + ':' + str(aliasid) )
+    
 
 
 
-# Bring interface down or destroy alias
-# @Returns logid
+'''
+Bring interface down or destroy alias
+@iface interface name to bring down
+>Returns logid
+'''
 def ifacedown( iface ):
     
     logid = mongolog( locals() )
@@ -165,7 +176,7 @@ def addroute(gw, net, netmask, default=False):
         command = command + ['default', 'gw', gw]
     #If default in False "net" and "netmask" must be set
     elif net is None or netmask is None:
-        command_error( stderr=201, stderr='On non-default route you must enter "net" and "netmask" parameters' )
+        command_error( returncode=201, stderr='On non-default route you must enter "net" and "netmask" parameters' )
     else:
         command = command + ['-net', net, 'netmask', netmask, 'gw', gw]
 
