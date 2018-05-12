@@ -53,7 +53,7 @@ def ifacestat(iface="", namesonly=False):
                 i += 1
                 #Removing leading and trailing spaces
                 iface[index] = iface[index].strip()
-                if iface[index].startswith('UP'): break
+                if iface[index].startswith('UP') or iface[index].startswith('DOWN'):  break
 
 
             #A dictionary where the key is the interface name and the value is part of the lines related to such interface

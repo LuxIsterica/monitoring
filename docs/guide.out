@@ -23,14 +23,25 @@
 \BOOKMARK [3][-]{subsubsection.2.2.11}{adduser}{subsection.2.2}% 23
 \BOOKMARK [3][-]{subsubsection.2.2.12}{removeuser}{subsection.2.2}% 24
 \BOOKMARK [2][-]{subsection.2.3}{Network}{section.2}% 25
-\BOOKMARK [2][-]{subsection.2.4}{Cron}{section.2}% 26
-\BOOKMARK [2][-]{subsection.2.5}{Sistema}{section.2}% 27
-\BOOKMARK [2][-]{subsection.2.6}{apache}{section.2}% 28
-\BOOKMARK [2][-]{subsection.2.7}{Database}{section.2}% 29
-\BOOKMARK [2][-]{subsection.2.8}{File}{section.2}% 30
-\BOOKMARK [2][-]{subsection.2.9}{Logs}{section.2}% 31
-\BOOKMARK [1][-]{section.3}{Frontend}{}% 32
-\BOOKMARK [1][-]{section.4}{Utility}{}% 33
-\BOOKMARK [2][-]{subsection.4.1}{Red Hat Developer Toolset}{section.4}% 34
-\BOOKMARK [2][-]{subsection.4.2}{Rimossi tra CentOS 6 e 7 e le cui alternative non presenti su CRESCO 6}{section.4}% 35
-\BOOKMARK [2][-]{subsection.4.3}{Rimossi da Centos 6 e 7 e le cui alternative sono presenti su CRESCO 6}{section.4}% 36
+\BOOKMARK [3][-]{subsubsection.2.3.1}{ifacestat}{subsection.2.3}% 26
+\BOOKMARK [3][-]{subsubsection.2.3.2}{getnewifacealiasname}{subsection.2.3}% 27
+\BOOKMARK [3][-]{subsubsection.2.3.3}{ifacedown}{subsection.2.3}% 28
+\BOOKMARK [3][-]{subsubsection.2.3.4}{ifaceup}{subsection.2.3}% 29
+\BOOKMARK [3][-]{subsubsection.2.3.5}{createalias}{subsection.2.3}% 30
+\BOOKMARK [3][-]{subsubsection.2.3.6}{destroyalias}{subsection.2.3}% 31
+\BOOKMARK [3][-]{subsubsection.2.3.7}{editiface}{subsection.2.3}% 32
+\BOOKMARK [3][-]{subsubsection.2.3.8}{getroutes}{subsection.2.3}% 33
+\BOOKMARK [3][-]{subsubsection.2.3.9}{addroute}{subsection.2.3}% 34
+\BOOKMARK [3][-]{subsubsection.2.3.10}{defaultroute}{subsection.2.3}% 35
+\BOOKMARK [3][-]{subsubsection.2.3.11}{delroute}{subsection.2.3}% 36
+\BOOKMARK [2][-]{subsection.2.4}{Cron}{section.2}% 37
+\BOOKMARK [2][-]{subsection.2.5}{Sistema}{section.2}% 38
+\BOOKMARK [2][-]{subsection.2.6}{apache}{section.2}% 39
+\BOOKMARK [2][-]{subsection.2.7}{Database}{section.2}% 40
+\BOOKMARK [2][-]{subsection.2.8}{File}{section.2}% 41
+\BOOKMARK [2][-]{subsection.2.9}{Logs}{section.2}% 42
+\BOOKMARK [1][-]{section.3}{Frontend}{}% 43
+\BOOKMARK [1][-]{section.4}{Utility}{}% 44
+\BOOKMARK [2][-]{subsection.4.1}{Red Hat Developer Toolset}{section.4}% 45
+\BOOKMARK [2][-]{subsection.4.2}{Rimossi tra CentOS 6 e 7 e le cui alternative non presenti su CRESCO 6}{section.4}% 46
+\BOOKMARK [2][-]{subsection.4.3}{Rimossi da Centos 6 e 7 e le cui alternative sono presenti su CRESCO 6}{section.4}% 47

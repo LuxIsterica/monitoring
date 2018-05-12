@@ -1277,6 +1277,156 @@ sull'operazione.
 
 
 \subsection{Network}
+\subsubsection{ifacestat}
+\begin{lstlisting}
+def ifacestat(iface="", namesonly=False):
+
+    command = ['ifconfig', '-a']
+    if iface: command.append(iface)
+
+    try:
+        output = check_output(command, stderr=PIPE, universal_newlines=True)
+    except CalledProcessError as e:
+        return command_error( e, command )
+
+
+    output = output.split('\n\n')
+    del output[-1]
+
+
+    ifaces = list() if namesonly else dict()
+    for iface in output:
+
+        iface = iface.splitlines()
+        firstline = iface.pop(0).split(None, maxsplit=1)
+
+
+        if namesonly:
+            ifaces.append( firstline[0] )
+        else:
+            iface.insert(0, firstline[1])
+
+            i = 0
+            for index, value in enumerate(iface):
+                i += 1
+                iface[index] = iface[index].strip()
+                if iface[index].startswith('UP') or iface[index].startswith('DOWN'):  break
+
+            ifaces.update({ firstline[0]: iface[:i] })
+
+    return command_success( data=ifaces )
+\end{lstlisting}
+La funzione serve ad ottenere uno sommario sullo stato delle interfacce di rete attualmente installate su sistema.
+\paragraph{Parametri}
+\begin{itemize}
+	\item{\texttt{iface=""}: Se non nullo (come di defaut) questo parametro serve a farsi restituire dalla funzione
+		lo stato della sola interfaccia indicata. Questa variabile deve contenere il nome esatto dell'interfaccia
+		di cui si vogliono le informazioni (es. "ens1")}
+	\item{\texttt{namesonly=False}: se a \texttt{True} restituisce i soli nomi dell'interfaccia
+		invece di tutte le informazioni}
+\end{itemize}
+\paragraph{Funzionamento}
+\begin{lstlisting}
+    command = ['ifconfig', '-a']
+    if iface: command.append(iface)
+
+    try:
+        output = check_output(command, stderr=PIPE, universal_newlines=True)
+    except CalledProcessError as e:
+        return command_error( e, command )
+\end{lstlisting}
+Il comando che restituisce l'output più adatto è \texttt{ifconfig}, viene quindi lanciato usando \texttt{check\_call()}
+e l'output conservato nella variabile \texttt{output}.
+Notare che ad \texttt{ifconfig} si è aggiunto il parametro \texttt{-a} in quanto vogliamo ottenere le informazioni
+su tutte le interfacce e non solo sulle interfacce attualemente abilitate.
+Se il parametro \texttt{iface} è non nullo questa stringa viene aggiunta al comando così da ottenere solo le info
+di questa interfaccia.\footnote{\label{ifconfignoproblem}Anche se \texttt{iface} è settato non viene comunque rimosso
+il parametro \texttt{-a} in quanto non interferisce con la buona esecuzione del comando}
+\begin{lstlisting}
+    output = output.split('\n\n')
+    del output[-1]
+
+    ifaces = list() if namesonly else dict()
+\end{lstlisting}
+\texttt{ifconfig} divide le informazioni sulle interfacce con una linea vuota e la fine dell'output con due linee vuote.
+Dividiamo quindi l'output splittando per \texttt{"\textbackslash n\textbackslash n"} ottenendo una lista di N+1 stringhe
+dove N è il numero delle interfacce del sistema e 1 è la stringa vuota che eliminiamo lanciando il secondo comando (\texttt{del}).\\
+Viene poi creata la variabile \texttt{ifaces} che conterrà le informazioni da restituire all'utente.
+Se il parametro \texttt{namesonly} è settato a \texttt{True} viene inizializzata come lista (una lista di nomi),
+come dizionario altrimenti.
+\begin{lstlisting}
+    for iface in output:
+
+        iface = iface.splitlines()
+        firstline = iface.pop(0).split(None, maxsplit=1)
+
+        if namesonly:
+            ifaces.append( firstline[0] )
+        else:
+            iface.insert(0, firstline[1])
+            i = 0
+            for index, value in enumerate(iface):
+                i += 1
+                iface[index] = iface[index].strip()
+                if iface[index].startswith('UP') or iface[index].startswith('DOWN'):  break
+
+	ifaces.update({ firstline[0]: iface[:i] })
+
+    return command_success( data=ifaces )
+\end{lstlisting}
+Andiamo quindi ad iterare su queste interfacce che abbiamo ricavato.
+Per ogni intrefaccia ricavata:
+\begin{itemize}
+	\item{Si dividono le informazioni sulle interfacce per riga (splitlines())}
+	\item{La prima riga contiene il nome dell'interfaccia più alcune informazioni divisi da uno spazio (il primo spazio della riga);
+		si va quindi a rimovere questa riga (pop(0)), e la si divide per il primo spazio ottenendo \texttt{firstline}
+		che è una lista dove il primo elemento è il nome dell'interfaccia mentre il secondo è la prima riga
+		di informazioni}
+	\item{Se \texttt{namesonly} è \texttt{True} si vogliono solo i nomi delle interfacce e si inserisce in \texttt{ifaces}
+		(usata come lista) il nome dell'interfaccia contenuta in \texttt{firstline[0]} per poi passare alla prossima iterazione}
+	\item{Se invece \texttt{namesonly} è \texttt{False}, \texttt{ifaces} è un dizionario. Questo dizionario verrà creato in modo
+		che la chiave sia il nome dell'interfaccia mentre il valore siano le sue informazioni.
+		Andiamo quindi prima di tutto ad inserire la prima riga di informazioni (contenuta in \texttt{firstline[1]}
+		nella variabile \texttt{iface} in modo che questa variabile contenga  nuovamente la lista completa delle informazioni
+		sull'interfaccia}
+	\item{L'output di \texttt{ifconfig} porta con se delle informazioni che attualmente a noi non servono.
+		Per eliminare queste informazioni che risiedono nelle ultime righe della variabile \texttt{iface} si esesegue questo secondo ciclo for.
+		Il ciclo viene eseguito usando \texttt{enumerate} in quanto abbiamo bisogno di modificare la variabile \texttt{iface} originale
+		e non una sua copia, per motivi in seguito spiegati.\\
+		Si costituisce un indice \texttt{i} che indica la riga su cui stiamo iterando e:
+		\begin{itemize}
+			\item{Viene incrementato l'indice che identifica la riga sulla quale si sta iterando}
+			\item{Vengono rimossi gli spazi iniziali e finali della riga. Da qui l'uso di \texttt{enumerate}}
+			\item{Se la riga inizia per \textit{UP} oppure \textit{DOWN} allora abbiamo raggiunto l'ultima riga che contiene informazioni
+				a noi utili. Si lancia quindi un break uscendo dal ciclo; la varibile \texttt{i} a questo punto
+				contiene l'esatta riga dove fermarsi  e potrà essere sfruttata per tagliare le righe che non ci servono}
+		\end{itemize}}
+	\item{Usciti dal ciclo non ci resta che tagliare le righe che non ci servono ed inserire nel dizionario \texttt{ifaces}
+		la chiave e il valore. Viene quindi lanciato \texttt{ifacea.update()} dove si passa come chiave \texttt{firstline[0]} che è il nome
+		dell'interfaccia e come valore \texttt{iface[:i]} che solo le informazioni sulla stessa tagliate fino alla riga \texttt{i}}
+\end{itemize}
+Alla fine del parsing, come solito per le funzioni di nomodo, viene chiamata la funzione di successo \texttt{command\_success}
+passandogli nel parametro \texttt{data} il dizionario appena creato \texttt{ifaces}.
+\paragraph{Return}
+\begin{itemize}
+	\item{Se \texttt{namesonly} è \texttt{True} restituisce una lista di stringhe dove ogni stringa è il nome di una intrefaccia
+		presente nel sistema}
+	\item{Se \texttt{namesonly} è \texttt{False} restituisce un dizionario dove la chiave è il nome delle interfacce di sistema
+		mentre il valore sono le informazioni sulla stessa, come ad esempio indirizzo IPv4 e IPv6, MAC address, stato ecc.}
+\end{itemize}
+
+\subsubsection{getnewifacealiasname}
+\subsubsection{ifacedown}
+\subsubsection{ifaceup}
+\subsubsection{createalias}
+\subsubsection{destroyalias}
+\subsubsection{editiface}
+\subsubsection{getroutes}
+\subsubsection{addroute}
+\subsubsection{defaultroute}
+\subsubsection{delroute}
+
+
 \subsection{Cron}
 \subsection{Sistema}
 \subsection{apache}
