@@ -135,10 +135,10 @@ def ifaceup( iface, address="", netmask="", broadcast="" ):
 Functions to create or destroy alias. This functions use "ifaceup" and "ifacedown"
 iface must be defined using "getnewifacealiasname" function
 """
-def createalias( newaliasname, address, netmask="", broadcast="" ):
+def createalias( aliasname, address, netmask="", broadcast="" ):
 
     #Turning alias name into main interface name
-    iface = re.sub(':.*', '', newaliasname)
+    iface = re.sub(':.*', '', aliasname)
 
     #Check wether "iface" is a real interface
     aliases = ifacestat( namesonly=True )
@@ -148,11 +148,11 @@ def createalias( newaliasname, address, netmask="", broadcast="" ):
     else:
         return aliases
 
-    return ifaceup( iface=newaliasname, address=address, netmask=netmask, broadcast=broadcast )
+    return ifaceup( iface=aliasname, address=address, netmask=netmask, broadcast=broadcast )
 
 
-def destroyalias( iface ):
-    return ifacedown( iface )
+def destroyalias( aliasname ):
+    return ifacedown( aliasname )
 def editiface( iface, address="", netmask="", broadcast="" ):
     return ifaceup( iface=iface, address=address, netmask=netmask, broadcast=broadcast ) 
 
