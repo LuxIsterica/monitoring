@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.4.11)  12 MAY 2018 14:49
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.4.11)  12 MAY 2018 15:41
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -772,13 +772,13 @@ LaTeX Font Warning: Font shape `OMS/cmtt/m/n' undefined
 (Font)              using `OMS/cmsy/m/n' instead
 (Font)              for symbol `textbackslash' on input line 1352.
 
-[30] [31] [32] [33] [34] [35]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1600.
- [36]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1600.
+[30] [31] [32] [33] [34] [35] [36]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1671.
+ [37]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1671.
  (./guide.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1600.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1600.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1671.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1671.
 
 Package rerunfilecheck Info: File `guide.out' has not changed.
 (rerunfilecheck)             Checksum: 5CB4EBF9F28ABE871482720CB58063BD;3233.
@@ -786,13 +786,16 @@ Package rerunfilecheck Info: File `guide.out' has not changed.
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1600.
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1671.
  ) 
 Here is how much of TeX's memory you used:
- 8698 strings out of 493029
- 121915 string characters out of 6136234
+ 8739 strings out of 493029
+ 122496 string characters out of 6136234
  345594 words of memory out of 5000000
- 11319 multiletter control sequences out of 15000+600000
+ 11323 multiletter control sequences out of 15000+600000
  10757 words of font info for 38 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  34i,12n,43p,255b,1818s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -809,10 +812,10 @@ fonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm
 0.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb>
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/
 share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.pfb>
-Output written on guide.pdf (38 pages, 358082 bytes).
+Output written on guide.pdf (39 pages, 364886 bytes).
 PDF statistics:
- 1464 PDF objects out of 1728 (max. 8388607)
- 1396 compressed objects within 14 object streams
- 861 named destinations out of 1000 (max. 500000)
+ 1514 PDF objects out of 1728 (max. 8388607)
+ 1444 compressed objects within 15 object streams
+ 898 named destinations out of 1000 (max. 500000)
  377 words of extra memory for PDF output out of 10000 (max. 10000000)
 

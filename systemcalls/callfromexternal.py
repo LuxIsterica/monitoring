@@ -12,7 +12,9 @@ import sys
 
 
 
-print( getnewifacealiasname('eth0')['data'] )
+new = createalias( newaliasname='eth0:0', address='10.100.10.188')
+print(new)
+
 
 exit()
 data = getsysteminfo()

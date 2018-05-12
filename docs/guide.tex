@@ -1443,7 +1443,7 @@ Prende un solo parametro \texttt{iface} che è l'interfaccia a cui fare riferime
 La funzione si basa su queste 3 considerazioni:
 \begin{enumerate}
 	\item{Il nome di una interfaccia alias è costitita dal nome dell'interfaccia più un due punti più
-		un identificativo numero per l'alias stesso che parta da 0}
+		un identificativo numerico per l'alias stesso che parta da 0}
 	\item{Data una interfaccia, ad es. \texttt{ens1}, se per questa interfaccia sono già presenti degli alias, ad es.
 		\texttt{ens1:1} e \texttt{ens1:2}, deve essere restituito all'utente il nome alias \texttt{ens1:3}}
 	\item{Per evitare un numero sempre crescente per i nomi alias un nuovo nome dovrà riempire
@@ -1477,7 +1477,8 @@ e mai ad esempio \texttt{ens1, ens1:2, ens1:0}\\
 Con tale considerazione si inizia iterando sui nomi delle interfacce. Se questa è un alias dell'interfaccia
 passata come parametro, cioè se il suo nome inizia (\texttt{startswith}) con il nome dell'interfaccia \texttt{iface}
 seguita dal due punti si entra nell'if che si vede in codice. In questo \texttt{if}
-si elimina il nome dell'interfaccia ed i due punti (ad esempio  \texttt{ens0:1} diventa semplicemente 1) ottenendo
+si elimina il nome dell'interfaccia ed i due punti utilizzand la libreria \texttt{re}
+(ad esempio  \texttt{ens0:1} diventa semplicemente 1), ottenendo
 il numero identificativo della prima interfaccia alias; si confronta quindi questo numero con \texttt{aliasid}.
 Se questi sono uguali l'interfaccia alias con identificativo \texttt{aliasid} è sicuramente occupata,
 quindi si itera e si tenta nuovamente con il prossimo alias; se invece \texttt{aliasid} non coincide
@@ -1491,7 +1492,77 @@ andrà ad inserire le specifiche della nuova interfaccia o per essere passata al
 la creazione dell’interfaccia virtuale.
 
 \subsubsection{ifacedown}\label{ifacedown}
+\begin{lstlisting}
+def ifacedown( iface ):
+    
+    logid = mongolog( locals() )
+
+    command = ['ifconfig', iface, 'down']
+
+    try:
+        check_call(command)
+    except CalledProcessError as e:
+        return command_error( e, command, logid )
+
+    return command_success( logid=logid )
+\end{lstlisting}
+La funzione è intesa per disattivare un'interfaccia di rete.
+\paragraph{Parametri}
+Prender un solo parametro che è l'interfaccia di rete da disattivare.
+\paragraph{Funzionamento}
+Essendo un'operazione sensibile prima di tutto crea un mongolog e ne memorizza l'object id nella variabile \texttt{logid}.\\
+Poi semplicemente costruisce il comando in questo modo: \texttt{ifconfig <nome\_interfaccia> down} e lo lancia usando 
+\texttt{check\_call} (in quanto non è restituiuto output) e verifica che non siano avvenute eccezioni. Chiama all fine
+la funzione di successo \texttt{command\_success} passandoli nel campo \texttt{logid} l'object id del documento mongo
+creato e contenenti le specifiche dell'operazione appena eseguita.
+\paragraph{Return}
+Restituisce il dizionario di successo con il campo \texttt{data} a \texttt{None} e il campo \texttt{logid} contenente
+l'object id del documento mongo che contiene le specifiche dell'operazione eseguita.
+
 \subsubsection{ifaceup}\label{ifaceup}
+\begin{lstlisting}
+def ifaceup( iface, address="", netmask="", broadcast="" ):
+    
+    logid = mongolog( locals() )    
+
+    command = ['ifconfig', iface]
+    if address: command.append(address)
+    if netmask: command = command + ['netmask', netmask]
+    if broadcast: command = command + ['broadcast', broadcast]
+    command.append('up')
+
+    try:
+        check_output = check_call(command, stderr=PIPE, universal_newlines=True)
+    except CalledProcessError as e:
+        return command_error( e, command, logid )
+
+    return command_success( logid=logid )
+\end{lstlisting}
+È l'opposto della funzione \nameref{ifacedown} e serve ad abilitare un'intrefaccia di rete attualmente disabilitata.
+\paragraph{Parametri}
+Prende 4 parametri:
+\begin{itemize}
+	\item{\texttt{iface}: il nome dell'interfaccia da tirare sù}
+	\item{\texttt{address=""}: è l'indirizzo da assegnare all'interfaccia. Non è obbligatorio in quanto l'interfaccia
+		potrebbe già avere un indirizzo assegnato}
+	\item{\texttt{netmask=""}: è la maschera di rete da assegnare all'interfaccia. Non è obbligatorio in quanto l'interfaccia
+		potrebbe già avere una maschera di rete settata}
+	\item{\texttt{broadcast=""}: è l'indirizzo facente parte della stessa rete dell'interfaccia, sulla quale i pacchetti
+		vengono inviati in broadcast a tutti gli host della rete stessa. Non è obbligatorio in quanto l'interfaccia
+		potrebbe già avere un indirizzo broadcast settata}
+\end{itemize}
+\paragraph{Funzionamento}
+Si memorizza prima di tutto un mongolog per tenere traccia dell'operazione.\\
+Durante la fase di costruzione del comando semplicemente di controlla ad uno ad uno se è stato assegnato un valore ai parametri;
+in tale caso si appende al comando da lanciare. Uno volta controllati tutti i parametri si appende la parola \texttt{up}
+(che indica che l'interfaccia va abilitata) e si lancia il comando in una \texttt{check\_call} (nessun output generato)
+controllando che non si sia verificata un'eccezione.\\
+Se tutto è andato a buon fine si chiama la funzione di successo \texttt{command\_success} passandogli l'object id
+del documento mongo creato.
+\paragraph{Return}
+Il dizionario di successo della funzione \texttt{command\_success} col campo \texttt{data} a \texttt{None} e il campo
+\texttt{logid} contenente l'object id del documento mongo creato e contenente le specifiche dell'operazione appena effettuata.
+
 \subsubsection{createalias}\label{createalias}
 \subsubsection{destroyalias}\label{destroyalias}
 \subsubsection{editiface}\label{editiface}
