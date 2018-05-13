@@ -12,8 +12,7 @@ import sys
 
 
 
-new = createalias( aliasname='eth0:0', address='10.100.10.188')
-print(new)
+pprint( getroutes()['data'] )
 
 
 exit()

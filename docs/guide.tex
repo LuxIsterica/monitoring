@@ -1564,9 +1564,192 @@ Il dizionario di successo della funzione \texttt{command\_success} col campo \te
 \texttt{logid} contenente l'object id del documento mongo creato e contenente le specifiche dell'operazione appena effettuata.
 
 \subsubsection{createalias}\label{createalias}
+\begin{lstlisting}
+def createalias( aliasname, address, netmask="", broadcast="" ):
+
+    iface = re.sub(':.*', '', aliasname)
+
+    aliases = ifacestat( namesonly=True )
+    if aliases['returncode'] is 0:
+        if not iface in aliases['data']:
+            return command_error( returncode=197, stderr="No interface found with such name: " + iface )
+    else:
+        return aliases
+
+    return ifaceup( iface=aliasname, address=address, netmask=netmask, broadcast=broadcast )
+\end{lstlisting}
+Nasce per consentire la creazione di una interfaccia alias dal pannello web di nomodo.
+Utilizza la funzione \nameref{ifaceup}.
+\paragraph{Parametri}
+Accetta gli stessi parametri di \texttt{ifaceup}, che sono i seguenti:
+\begin{itemize}
+	\item{\texttt{aliasname}: È  il nome della nuova interfaccia alias da creare. Può essere ricavata usando
+		la funzione \nameref{getnewifacealiasname}}
+	\item{\texttt{address}: L'indirizzo della nuova interfaccia. È l'unico parametro obbligatorio
+		insieme al nome dell'alias}
+	\item{\texttt{netmask=""}: La maschera di rete per la nuova interfaccia. Non è obbligatorio e se
+		non passato viene calcolata dal sistema}
+	\item{\texttt{broadcast=""}: L'indirizzo di broadcast su cui l'interfaccia invia i pacchetti destinati
+		a tutti gli host della rete. Non è obbligatorio e se non passato viene calcolato dal sistema}
+\end{itemize}
+\paragraph{Funzionamento}
+Il nome dell'interfaccia da creare può essere ottenuto chiamando la funzione \nameref{getnewifacealiasname}
+ma è comunque data la possibilità all'utente di scegliere un nome personalizzato. A causa di ciò a differenza
+delle altre funzioni in \texttt{createalias} bisogna verificare almeno se l'interfaccia di cui si vuole
+creare l'alias esiste.\\
+Viene quindi estratta dal parametro \texttt{aliasname} il nome dell'interfaccia principale, eliminando
+il due punti e l'identificativo dell'alias, usando la libreria per le espressioni regolari \texttt{re}.
+Ad esempio se \texttt{aliasname} è \texttt{ens1:0} si elimina \texttt{:0} ottenendo \texttt{ens1}.\\
+Dopodichè si chiama la funzione \nameref{ifacestat} col parametro \texttt{namesonly} settato a \texttt{True}
+per ottenere i nomi di tutte le interfacce del sistema.\\
+Viene ovviamente verificato che le operazioni della funzione chiamata non abbiano generato errori verificare
+la chiave \texttt{returncode} del dizionario ottenuto da tale funzione; se \texttt{returncode} è diverso
+da 0 viene restituito il dizionario di errore così come è stato ottenuto al chiamante.
+Se invece l'operazione è andata a buon fine si verifica che l'interfaccia ottenuta dal precedente \texttt{re.sub}
+sia presente nella lista di interfacce del sistema. Se non presenta viene generato un errore personalizzato
+chiamando la funzione \texttt{command\_error}, mentre se presente semplicemente viene chiamata la funzione
+precedentemente discussa \nameref{ifaceup} che passandogli paripari i parametri inseriti dalll'utente.
+Con la sua sintassi questa funzione riesce anche a creare una interfaccia alias.
+\paragraph{Return}
+Restistuisce il dizionario di ritorno generato dalla funzione \nameref{ifaceup}.
+
 \subsubsection{destroyalias}\label{destroyalias}
+\begin{lstlisting}
+def destroyalias( aliasname ):
+    return ifacedown( aliasname )
+\end{lstlisting}
+È l'inverso della funzione \nameref{createalias} e serve per rimuovere una interfaccia alias dal sistema.
+\paragraph{Parametri}
+Accetta un solo parametro \texttt{aliasname} che è il nome dell'interfaccia alias da distruggere.
+\paragraph{Funzionamento}
+A differenza della funzione \nameref{createalias} qui non c'è bisogno di verificare se l'interfaccia
+esista in quanto all'utente non è data la possibilità di definire una interfaccia alias personalizzata
+da distruggere ma semmplicemente ne sceglie una da una lista di intrefacce presenti nel sistema.\\
+Viene quindi semplicemente chiamata la funzione \nameref{ifacedown} passandogli il nome dell'interfaccia.
+\paragraph{Return}
+Restituisce il dizionario di ritorno generato dalla funzione \nameref{ifacedown}.
+
 \subsubsection{editiface}\label{editiface}
+\begin{lstlisting}
+def editiface( iface, address="", netmask="", broadcast="" ):
+    return ifaceup( iface=iface, address=address, netmask=netmask, broadcast=broadcast ) 
+\end{lstlisting}
+La funzione consente di modificare dei parametri dell'interfaccia, quali indirizzo,
+maschera di rete e indirizzo di broadcast.
+\paragraph{Parametri}
+Prende fino a 4 parametri:
+\begin{itemize}
+	\item{\texttt{iface}: è il nome dell'interfaccia da modificare}
+	\item{\texttt{address=""}: non è obbligatorio e se passato indica il nuovo indirizzo che
+		l'interfaccia \texttt{iface} deve avere}
+	\item{\texttt{netmask=""}: non è obbligatorio e se passato indica la nuova maschera di rete
+		che l'interfaccia \texttt{iface} deve avere}
+	\item{\texttt{broadcast=""}: non è obbligatorio e se passato indica il nuovo indirizzo di broadcast
+		che l'interfaccia \texttt{iface} deve avere}
+\end{itemize}
+\paragraph{Funzionamento}
+Non è obbligatorio verificare se l'interfaccia \texttt{iface} è presente nel sistema (così come fa
+\nameref{createalias}) in quanto l'utente non ha la possibilità di specificare a mano l'interfaccia
+da modificare ma semplicemente la sceglie da una lista.\\
+Semplicemenete chiama la funzione \nameref{ifaceup} passandogli tutti i parametri che ha ricevuto;
+a causa della sua sintassi generica questa funzione consente anche la modifica di interfacce.
+\paragraph{Return}
+Restituisce il dizionario di ritorno generato dalla funzione \nameref{ifaceup}.
+
 \subsubsection{getroutes}\label{getroutes}
+\begin{lstlisting}
+def getroutes():
+    
+    command = ['route', '-n']
+
+    try:
+        output = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
+    except CalledProcessError as e:
+        return command_error( e, command )
+
+
+    output.pop(0)
+    header = output.pop(0).split()
+    routes = list( map( lambda route: dict(zip(header, route.split())), output ) )
+
+
+    return command_success( data=routes )
+\end{lstlisting}
+La funzione serve ad ottenere la lista di tutte le rotte utilizzate dal sistema per uscire sulla rete.
+\paragraph{Parametri}
+Non prende parametri.
+\paragraph{Funzionamento}
+\begin{lstlisting}
+    command = ['route', '-n']
+
+    try:
+        output = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
+    except CalledProcessError as e:
+        return command_error( e, command )
+\end{lstlisting}
+Nella prima parte del codice viene costruito il comando da lanciare per ottenere le rotte.
+Si è usato il comando \texttt{route} passandogli il parametro \texttt{-n} in modo da ottenere
+la lista delle rotte senza che gli indirizzi di rete vengano risolti.\\
+Una voilta costruito il comando viene lanciato usando la funzione \texttt{check\_output} che
+oltre ad eseguirlo restituisce anche l'output dello stesso. In caso venga generata l'eccezione
+\texttt{CalledProcessError} questa viene catturata e passata al comando \nameref{command\string_error}
+che crea un dizionario di errore che viene restituito all'utente.
+\begin{lstlisting}
+    output.pop(0)
+    header = output.pop(0).split()
+    routes = list( map( lambda route: dict(zip(header, route.split())), output ) )
+
+    return command_success( data=routes )
+\end{lstlisting}
+Nella seconda parte prima di tutto viene eliminato la prima riga del comando che solitamente contiene
+la stringa \textit{Kernel IP routing table} (a noi non utile) usando la funzione \texttt{pop()}.\\
+Viene poi rimosso dall'output e splittato l'header; questo header contiene la descrizione breve
+dei campi della tabella di routing, e solitamente è il seguente:
+\begin{lstlisting}
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+\end{lstlisting}
+Nell'ultima parte usando la funzione \texttt{map()} viene creata una lista di dizionari
+in cui:
+\begin{itemize}
+	\item{Ogni elemento delle lista contiene un dizionario con le specifiche di una rotta}
+	\item{Ogni dizionario ha tanti campi quanti ne ha l'header, e ogni campo contine
+		come chiave un elemento dell'header e come valore il valore della rotta inerente
+		a quell'elemento header}
+\end{itemize}
+Un esempio vale più di mille parole, quindi ecco un esempio del dizionario generato su un sistema
+Ubuntu Server 16.04 che gira su un container LXD:
+\begin{lstlisting}
+[{'Destination': '0.0.0.0',
+  'Flags': 'UG',
+  'Gateway': '10.100.10.1',
+  'Genmask': '0.0.0.0',
+  'Iface': 'eth0',
+  'Metric': '0',
+  'Ref': '0',
+  'Use': '0'},
+{'Destination': '10.0.0.0',
+  'Flags': 'U',
+  'Gateway': '0.0.0.0',
+  'Genmask': '255.0.0.0',
+  'Iface': 'eth0',
+  'Metric': '0',
+  'Ref': '0',
+  'Use': '0'},
+{'Destination': '10.100.10.0',
+  'Flags': 'U',
+  'Gateway': '0.0.0.0',
+  'Genmask': '255.255.255.0',
+  'Iface': 'eth0',
+  'Metric': '0',
+  'Ref': '0',
+  'Use': '0'}]
+\end{lstlisting}
+Alla fine viene chiamata la funzione di successo \texttt{command\_success} passandogli il dizionario
+delle rotte nel campo data.
+\paragraph{Return}
+Restituisce il dizionario di successo, con il campo \texttt{data} contenente il dizionario delle rotte
+descritto nel paragrafo \textbf{funzionamento}.
+
 \subsubsection{addroute}\label{addroute}
 \subsubsection{defaultroute}\label{defaultroute}
 \subsubsection{delroute}\label{delroute}
