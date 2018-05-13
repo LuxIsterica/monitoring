@@ -199,14 +199,14 @@ def addroute(gw, net, netmask, default=False):
     except CalledProcessError as e:
         return command_error( e, command, logid )
 
-    return command_success( data=logid )
+    return command_success( logid=logid )
 
 
 #Calls addroute with "default" paramemters on "True" and "None" on "net" and "netmask"
 def defaultroute(gw): return addroute(gw, net=None, netmask=None, default=True) 
 
 
-#TODO: Continue from here
+#route dict() must contain same keys of the dict() returned by getroutes() function
 def delroute(route):
 
     logid = mongolog( locals() )

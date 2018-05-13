@@ -1751,9 +1751,118 @@ Restituisce il dizionario di successo, con il campo \texttt{data} contenente il 
 descritto nel paragrafo \textbf{funzionamento}.
 
 \subsubsection{addroute}\label{addroute}
-\subsubsection{defaultroute}\label{defaultroute}
-\subsubsection{delroute}\label{delroute}
+\begin{lstlisting}
+def addroute(gw, net, netmask, default=False):
 
+    logid = mongolog( locals() )
+
+    command = ['route', 'add']
+    if default:
+        command = command + ['default', 'gw', gw]
+    elif net is None or netmask is None:
+        command_error( returncode=201, stderr='On non-default route you must enter "net" and "netmask" parameters' )
+    else:
+        command = command + ['-net', net, 'netmask', netmask, 'gw', gw]
+
+    try:
+        check_call(command)
+    except CalledProcessError as e:
+        return command_error( e, command, logid )
+
+    return command_success( logid=logid )
+\end{lstlisting}
+La funzione nasce per aggiungere una rotta alle rotte già presenti nel sistema, visualizzabili chiamando
+la funzione \nameref{getroutes}.
+\paragraph{Parametri}
+Accetta 4 parametri di cui la maggior parte obbligatori:
+\begin{itemize}
+	\item{\texttt{gw}: è l'indirizzo su cui uscire sulla rete \texttt{net}}
+	\item{\texttt{net}: rappresenta la rete a di destinazione a cui la rotta fa riferimento}
+	\item{\texttt{netmask}: è la maschera di rete della rete di destinazione, identificata dal parametro \texttt{net}}
+	\item{\texttt{default=False}: se \texttt{True} indica di creare un default gateway} 
+\end{itemize}
+\paragraph{Funzionamento}
+La maggior parte della funzione si basa sulla costruzione del comando. Le prime due keyword sono predenfinite
+e sono \texttt{route add} che indicano la creazione di una nuova rotta. Entrando nell'\texttt{if} distinguiamo
+tre situazioni:
+\begin{itemize}
+	\item{Il parametro \texttt{default} è \texttt{True}: si vuole creare un default gateway, si ha quindi solo
+		bisogno del gateway identificato dal parametro \texttt{gw}. Il comando viene costruito inserendo
+		questo unico parametro}
+	\item{\texttt{default} è \texttt{False} ma i parametri sono \texttt{None} o stringhe vuote: c'è stato un
+		errore nella chiamata, se \texttt{default} è \texttt{False} per costruire la rotta c'è bisogno
+		di tutti e tre i parametri \texttt{gw}, \texttt{net} e \texttt{netmask}}
+	\item{\texttt{default} è \texttt{False} e si hanno tutti i parametri: si vuole creare una nuova rotta,
+		e il comando viene costruito inserendo tutti questi parametri}
+\end{itemize}
+Dopo la costruzione del comando lo si lancia usando la \texttt{check\_call} (in quanto non viene restituito
+output) e si chiama la funzione di errore o di successo a secondo del risultato.
+Alla funzione di successo viene passato l'object id del documento mongo creato.
+\paragraph{Return}
+Restituisce il dizionario di successo con la chiave \texttt{data} a \texttt{None} (nessun output restituito)
+e la chiave \texttt{logid} contenente l'object id del mongolog creato contenente le informazioni
+sull'operazione eseguita.
+
+\subsubsection{defaultroute}\label{defaultroute}
+\begin{lstlisting}
+def defaultroute(gw): return addroute(gw, net=None, netmask=None, default=True) 
+\end{lstlisting}
+La funzione è definita come \textit{Funzione alias} in quanto basata quasi completamente su un'altar funzione.
+Prende in carico di creare un default gateway chiamando la funzione \nameref{addroute} con i giusti parametri.
+\paragraph{Parametri}
+Prende un solo parametro che è il gateway da assegnare.
+\paragraph{Funzionamento}
+Semplicemente chiamta la funzione \nameref{addroute} passandogli il gateway nel parametro \texttt{gw}, settando
+la variabile \texttt{default} a \texttt{True} e le altre variabili a \texttt{None}.
+\paragraph{Return}
+Restituisce il dizionario di ritorno della funzione \nameref{addroute}.
+
+\subsubsection{delroute}\label{delroute}
+\begin{lstlisting}
+def delroute(route):
+
+    logid = mongolog( locals() )
+
+    if not type(route) is type(dict()):
+        command_error( returncode=202, stderr='delroute function can only accept a dictionary as argument' )
+
+    command = [ 'route', 'del', '-net', route['Destination'], 'netmask', route['Genmask'], 'gw', route['Gateway'] ]
+
+    try:
+        check_call(command)
+    except CalledProcessError as e:
+        return command_error( e, command, logid )
+
+    return command_success( logid=logid )
+\end{lstlisting}
+La funzione nasce per cancellare una delle rotte presenti nel sistema.\\
+ATTENZIONE: leggere attentamente il paragrafo \textit{Prametri} prima di utilizzarla, in quanto è l'unica
+che si comporta direttamente sulla questione "parametri in ingresso".
+\paragraph{Parametri}
+Accetta un solo parametro che è un dizionario contenente le specifiche della rotta da eliminare. Questo dizionario deve
+essere lo stesso che si ottiene chiamando la funzione \nameref{getroutes}. Ad esempio prendendo come riferimento l'esempio
+in sezione \ref{getroutes} al paragrafo \textit{Funzionamento} volendo cancellare l'ultima rotta dovrei prendere il seguente
+dizionario (che è il terzo) e passarlo per intero al questa funzione:
+\begin{lstlisting}
+{'Destination': '10.100.10.0',
+  'Flags': 'U',
+  'Gateway': '0.0.0.0',
+  'Genmask': '255.255.255.0',
+  'Iface': 'eth0',
+  'Metric': '0',
+  'Ref': '0',
+  'Use': '0'}]
+\end{lstlisting}
+\paragraph{Funzionamento}
+L'opreazione è classificata "sensibile" viene quindi creato un mongolog contenente le informazioni sull'operazione.
+Viene poi controllato il tipo di parametro in ingresso, e se non è un dizionario viene generato un errore personalizzato
+usando la funzione \nameref{commadn\string_error}.\\
+La costruzione del comando avviene come si vede in codice, mixando le direttive alle informazioni contenute
+nel dizionario in input. Infine viene lanciato il comando, verificato che non sono successe eccezioni e se tutto
+è andato a buon fine viene chiamata la funzione di successo passandogli l'object id del documento mongo creato.
+\paragraph{Return}
+Restituisce il dizionario di successo senza dati (\texttt{data=None}) ma con l'object id del mongolog creato
+alla chiave \texttt{logid}.
 
 \subsection{Cron}
 \subsection{Sistema}
