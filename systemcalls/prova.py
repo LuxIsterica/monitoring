@@ -12,12 +12,11 @@ import sys
 
 
 
-data = getsysteminfo()
+data = getvhosts()
 #data = writeusercrontab('giuseppe', 'nuovociaone')
 if data['returncode'] is 0:
-    (cpu,mem,proc) = data['data']
-
-pprint(proc)
+    #(cpu,mem,proc) = data['data']
+	pprint(data)
 
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments

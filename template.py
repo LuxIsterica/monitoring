@@ -4,7 +4,8 @@ from user import getusers, getuser, getgroups, getshells, updateusershell, getus
 from apps import listinstalled, aptsearch
 from systemfile import locate,updatedb
 from system import getsysteminfo, hostname
-from network import ifacestat
+#from network import ifacestat
+from apache import getvhosts
 from flask import Flask, render_template, flash, request, redirect, url_for
 from flask_bootstrap import Bootstrap
 from collections import defaultdict
@@ -149,7 +150,7 @@ def updateDbFile():
 	if(log['returncode'] != 0):
 		error = log['command']
 	else:
-		flash("Aggiornato!")
+		flash(u'Aggiornato!','success')
 		return redirect(url_for('file'))
 	return render_template('file.html', error=error)
 
@@ -185,10 +186,21 @@ def newHostname():
 ##### FUNZIONALITÀ systemfile.py #####
 
 ##### FUNZIONALITÀ network.py #####
-@app.route('/network')
-def network():
-	facestat = ifacestat()
-	return render_template('net.html', facestat=facestat)
+#@app.route('/network')
+#def network():
+#	facestat = ifacestat()
+#	return render_template('network.html', facestat=facestat)
+
+##### FUNZIONALITÀ apache.py #####
+@app.route('/getVHosts')
+def getVHosts():
+	error=None
+	vhost=getvhosts()
+	if(vhost['returncode'] != 0):
+		flash(vhost['stderr'])
+		flash(vhost['command'])
+	else:
+		return render_template('apache.html', vhost=vhost)
 
 if __name__ == '__main__':
 	app.run(debug = True)

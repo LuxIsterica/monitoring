@@ -8,11 +8,20 @@
   	<form id="form" action="/updateDbFile" role="form" method = "POST">
   		<input type = "submit" value = "Aggiorna" id="updateDbFile" name="updateDbFile" class="btn btn-info"/>
   	</form>
-  	<!-- popup alert ok-ko -->
+  	<!-- popup alert -->
   	{% if error %}
-    	<p class=error><strong>Error:</strong> {{ error }}
+    	<p class=error><strong>Error:</strong> {{ error }} </p>
   	{% endif %}
   </div>
+  {% with msg = get_flashed_messages(category_filter=["success"]) %}
+  {% if msg %}
+    <ul class=flashes>
+    {% for m in msg %}
+      <li>{{ m }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
 </div>
 
 <h2>Trova file</h2>

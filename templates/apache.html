@@ -1,0 +1,16 @@
+{% extends "index.html" %}
+{% block page_content %}
+
+<div class="container">
+  <div class="row">
+  	{% for v in vhost.data %}
+    <div class="col-sm-4"><h3>DocumentRoot:</h3> {{v['DocumentRoot']}}</div>
+    <div class="col-sm-4"><h3>filename:</h3> {{v['filename']}}</div>
+    <div class="col-sm-4"><h3>active:</h3> {{v['active']}}</div>
+    <!--<div class="col-sm-4">.col-sm-4</div>
+    <div class="col-sm-4">.col-sm-4</div>-->
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}
