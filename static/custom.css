@@ -255,6 +255,41 @@ table.systeminfo {
     border: 1px solid black;
 }
 
+h1.title {
+    text-align: center;
+}
+
+h2.title {
+    text-align: center;
+}
+
+h3.title {
+    text-align: center;
+    background-color: #dddccc
+}
+
+div.button-style {
+    background-color: white;
+    margin-top: 12px;
+    padding-top: 10px;
+    margin-left: -3px;
+    margin-right: -4px;
+}
+
+.nav-tabs>li {
+    width: 170px;
+}
+
+button.b-round-g {
+    background-color: lawngreen;
+    border-radius: 60%;
+    padding: 10px;
+}
+button.b-round-r {
+    background-color: red;
+    border-radius: 60%;
+    padding: 10px;
+}
 /* ---------------------------------------
                 MEDIAQUERIES
 ------------------------------------------ */

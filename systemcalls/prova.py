@@ -16,7 +16,9 @@ data = getvhosts()
 #data = writeusercrontab('giuseppe', 'nuovociaone')
 if data['returncode'] is 0:
     #(cpu,mem,proc) = data['data']
-	pprint(data)
+	#pprint(data['data'][1]['filename'][:-5])
+	for k in data['data'][0]:
+		print("key: "+ k)
 
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments

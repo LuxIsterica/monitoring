@@ -1,16 +1,65 @@
 {% extends "index.html" %}
 {% block page_content %}
+<h1 class="title">APACHE</h1>
+<div class="page-header button-style">
+	<ul class="nav nav-pills" style="display: flex;justify-content: space-between;">
+	  <li role="presentation"><a href="#" style="background-color: limegreen;width: 200px;text-align: center;" >Start</a></li>
+	  <li role="presentation"><a href="#" style="background-color: sandybrown;width: 200px;text-align: center;">Stop</a></li>
+	  <li role="presentation"><a href="#" style="background-color: skyblue;width: 200px;text-align: center;" >Restart</a></li>
+	  <li role="presentation"><a href="#" style="background-color: greenyellow;width: 200px;text-align: center;" >Reload</a></li>
+	  <li role="presentation"><a href="#" style="background-color: cyan;width: 200px;text-align: center;">Status</a></li>
+	</ul>
+</div>
 
 <div class="container">
-  <div class="row">
-  	{% for v in vhost.data %}
-    <div class="col-sm-4"><h3>DocumentRoot:</h3> {{v['DocumentRoot']}}</div>
-    <div class="col-sm-4"><h3>filename:</h3> {{v['filename']}}</div>
-    <div class="col-sm-4"><h3>active:</h3> {{v['active']}}</div>
-    <!--<div class="col-sm-4">.col-sm-4</div>
-    <div class="col-sm-4">.col-sm-4</div>-->
-    {% endfor %}
+
+  <ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#size">Size</a></li>
+    <li><a data-toggle="tab" href="#modules">Modules</a></li>
+    <li><a data-toggle="tab" href="#configurations">Configurations</a></li>
+  </ul>
+
+  <div class="tab-content">
+    <div id="size" class="tab-pane fade in active">
+      <h3 class="title">Size</h3>
+      {% for v in vhost.data %}
+      <div class="row">
+        	<div class="col-md-6"> 
+	        	<h2 style="text-align: center;">{{v['filename'][:-5]}}</h2>
+	      	</div>
+	        <div class="col-md-4"> 
+	          <table>
+	            <tr>
+	             <td> Site Folder (DocumentRoot): </td>
+	             <td> {{v['DocumentRoot']}} </td>
+	            </tr>
+	            <tr>
+	             <td> filename: </td>
+	             <td> {{v['filename']}} </td>
+	            </tr>
+	            <tr>
+	             <td> active: </td>
+	             {% if v['active'] == 1 %}
+	             <td><button class="button b-round-g"></button></td>
+	             {% else %}
+	             <td><button class="button b-round-r"></button></td>
+	             {% endif %}
+	            </tr> 
+	        </table>
+	      </div>		
+      </div>
+      {% endfor %}
+    </div>
+    <div id="modules" class="tab-pane fade">
+      <h3 class="title">Modules</h3>
+      <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+    </div>
+    <div id="configurations" class="tab-pane fade">
+      <h3 class="title">Configurations</h3>
+      <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.</p>
+    </div>
   </div>
 </div>
+
 
 {% endblock %}
