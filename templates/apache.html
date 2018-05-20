@@ -9,7 +9,7 @@
 	  <li role="presentation" id="reloadButton"><a href="#" style="background-color: greenyellow;width: 200px;text-align: center;" >Reload</a></li>
 	  <li role="presentation" id="statusButton" ><a href="#" style="background-color: cyan;width: 200px;text-align: center;">Status</a></li>
 	</ul>
-	<p id="pText" hidden>Text show</p>
+	<p id="pText" hidden>To activate new settings you must restart or reload apache</p>
 </div>
 
 <div class="container">
@@ -41,9 +41,9 @@
 	            <tr>
 	             <td> active: </td>
 	             {% if v['active'] == 1 %}
-	             <td><button class="button b-round-g" id="buttonClick"><a href="/activateVHost"></a></button></td>
+	             <td><button class="button b-round-g" id="buttonClickActiv"><a href="/activateVHost"></a></button></td>
 	             {% else %}
-	             <td><button class="button b-round-r" id="buttonClick"><a href="/deactivateVHost"></a></button></td>
+	             <td><button class="button b-round-r" id="buttonClickDeactiv"><a href="/deactivateVHost"></a></button></td>
 	             {% endif %}
 	            </tr> 
 	        </table>

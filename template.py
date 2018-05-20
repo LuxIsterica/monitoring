@@ -146,12 +146,15 @@ def findFile():
 @app.route('/updateDbFile', methods=['POST'])
 def updateDbFile():
 	error = None
-	log = updatedb()
-	if(log['returncode'] != 0):
-		error = log['command']
+	if request.form['updateDbFile'] == 'Aggiorna DB File':
+		log = updatedb()
+		if(log['returncode'] != 0):
+			error = log['command']
+		else:
+			flash(u'Aggiornato!','info')
+			return redirect(url_for('file'))
 	else:
-		flash(u'Aggiornato!','success')
-		return redirect(url_for('file'))
+		error = 'Non funzica' 
 	return render_template('file.html', error=error)
 
 ##### FUNZIONALITÀ system.py #####

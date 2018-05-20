@@ -5,16 +5,23 @@
 
 <div class="row">
   <div class="col-md-12 col-sm-12">
-  	<form id="form" action="/updateDbFile" role="form" method = "POST">
+  	<!--
+    PROVA1- <form id="form" action="/updateDbFile" role="form" method = "POST">
   		<input type = "submit" value = "Aggiorna" id="updateDbFile" name="updateDbFile" class="btn btn-info"/>
-      <!-- prova BOTTONE con href interno che chiama la funzione!-->
-  	</form>
+      prova BOTTONE con href interno che chiama la funzione!
+  	</form> 
+    PROVA2- <a href="/updateDbFile" class="btn btn-info">Aggiorna</a></li>
+  -->
+    <form id="updateDbFile" action="/updateDbFile" role="form" method="POST">
+       <input type = "submit" value = "Aggiorna DB File" id="updateDbFile" name="updateDbFile" class="btn btn-info"/>
+    </form>
+
   	<!-- popup alert -->
   	{% if error %}
     	<p class=error><strong>Error:</strong> {{ error }} </p>
   	{% endif %}
   </div>
-  {% with msg = get_flashed_messages(category_filter=["success"]) %}
+{% with msg = get_flashed_messages(category_filter=["info"]) %}
   {% if msg %}
     <ul class=flashes>
     {% for m in msg %}
@@ -55,18 +62,6 @@
 {% endwith %}
 
 {% if pathFileFound|length > 0 %}
-<!-- <div id="pathFileFound">
-	<ol>
-		{% for pff in pathFileFound.data %}
-			<li><button class="accordion"> {{ pff }} </button>
-				<div class="panel">
-					<button type="button" class="btn btn-warning">Modifica</button>
-					<button type="button" class="btn btn-danger">Elimina</button>
-				</div>
-			</li>
-		{% endfor %}
-	</ol>
-</div> -->
 
 <div class="container" style="top: 15px;">
   <div class="panel-group" id="accordion">
