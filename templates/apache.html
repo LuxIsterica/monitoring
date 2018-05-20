@@ -3,12 +3,13 @@
 <h1 class="title">APACHE</h1>
 <div class="page-header button-style">
 	<ul class="nav nav-pills" style="display: flex;justify-content: space-between;">
-	  <li role="presentation"><a href="#" style="background-color: limegreen;width: 200px;text-align: center;" >Start</a></li>
-	  <li role="presentation"><a href="#" style="background-color: sandybrown;width: 200px;text-align: center;">Stop</a></li>
-	  <li role="presentation"><a href="#" style="background-color: skyblue;width: 200px;text-align: center;" >Restart</a></li>
-	  <li role="presentation"><a href="#" style="background-color: greenyellow;width: 200px;text-align: center;" >Reload</a></li>
-	  <li role="presentation"><a href="#" style="background-color: cyan;width: 200px;text-align: center;">Status</a></li>
+	  <li role="presentation" id="startButton"><a href="#" style="background-color: limegreen;width: 200px;text-align: center;" >Start</a></li>
+	  <li role="presentation" id="stopButton"><a href="#" style="background-color: sandybrown;width: 200px;text-align: center;">Stop</a></li>
+	  <li role="presentation" id="restartButton"><a href="#" style="background-color: skyblue;width: 200px;text-align: center;" >Restart</a></li>
+	  <li role="presentation" id="reloadButton"><a href="#" style="background-color: greenyellow;width: 200px;text-align: center;" >Reload</a></li>
+	  <li role="presentation" id="statusButton" ><a href="#" style="background-color: cyan;width: 200px;text-align: center;">Status</a></li>
 	</ul>
+	<p id="pText" hidden>Text show</p>
 </div>
 
 <div class="container">
@@ -40,9 +41,9 @@
 	            <tr>
 	             <td> active: </td>
 	             {% if v['active'] == 1 %}
-	             <td><button class="button b-round-g"></button></td>
+	             <td><button class="button b-round-g" id="buttonClick"><a href="/activateVHost"></a></button></td>
 	             {% else %}
-	             <td><button class="button b-round-r"></button></td>
+	             <td><button class="button b-round-r" id="buttonClick"><a href="/deactivateVHost"></a></button></td>
 	             {% endif %}
 	            </tr> 
 	        </table>

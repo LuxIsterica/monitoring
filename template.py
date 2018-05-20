@@ -202,5 +202,11 @@ def getVHosts():
 	else:
 		return render_template('apache.html', vhost=vhost)
 
+#@app.route('/activateVHost', methods=['POST'])
+#def activateVHost():
+
+#@app.route('/deactivateVHost', methods=['POST'])
+#def deactivateVHost():
+
 if __name__ == '__main__':
 	app.run(debug = True)
