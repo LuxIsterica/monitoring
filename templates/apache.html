@@ -9,7 +9,7 @@
 	  <li role="presentation" id="reloadButton"><a href="#" style="background-color: greenyellow;width: 200px;text-align: center;" >Reload</a></li>
 	  <li role="presentation" id="statusButton" ><a href="#" style="background-color: cyan;width: 200px;text-align: center;">Status</a></li>
 	</ul>
-	<p id="pText" hidden>To activate new settings you must restart or reload apache</p>
+	<p id="pText" hidden> To activate new settings you must restart or reload apache </p>
 </div>
 
 <div class="container">
@@ -23,33 +23,41 @@
   <div class="tab-content">
     <div id="size" class="tab-pane fade in active">
       <h3 class="title">Size</h3>
-      {% for v in vhost.data %}
-      <div class="row">
-        	<div class="col-md-6"> 
-	        	<h2 style="text-align: center;">{{v['filename'][:-5]}}</h2>
-	      	</div>
-	        <div class="col-md-4"> 
-	          <table>
-	            <tr>
-	             <td> Site Folder (DocumentRoot): </td>
-	             <td> {{v['DocumentRoot']}} </td>
-	            </tr>
-	            <tr>
-	             <td> filename: </td>
-	             <td> {{v['filename']}} </td>
-	            </tr>
-	            <tr>
-	             <td> active: </td>
-	             {% if v['active'] == 1 %}
-	             <td><button class="button b-round-g" id="buttonClickActiv"><a href="/activateVHost"></a></button></td>
-	             {% else %}
-	             <td><button class="button b-round-r" id="buttonClickDeactiv"><a href="/deactivateVHost"></a></button></td>
-	             {% endif %}
-	            </tr> 
-	        </table>
-	      </div>		
-      </div>
-      {% endfor %}
+      {% if vhost|length > 0 %}
+	      {% for v in vhost.data %}
+	      <div class="row">
+	        	<div class="col-md-6"> 
+		        	<h2 style="text-align: center;">{{v['filename'][:-5]}}</h2>
+		      	</div>
+		        <div class="col-md-4"> 
+		          <table>
+		            <tr>
+		             <td> Site Folder (DocumentRoot): </td>
+		             <td> {{v['DocumentRoot']}} </td>
+		            </tr>
+		            <tr>
+		             <td> filename: </td>
+		             <td> {{v['filename']}} </td>
+		            </tr>
+		            <tr>
+		             <td> active: </td>
+		             {% if v['active'] == 1 %}
+		             <td>
+			             <form id="activateVHost" action="/activateVHost" role="form" method="POST">
+			             	<input type="hidden" value="{{v['filename']}}">
+		       			 	<button class="button b-round-g" id="buttonClickActiv" name="buttonClickActiv"></button>
+		    			 </form>
+	    			 </td>
+		             <!--<td><button class="button b-round-g" value="" id="buttonClickActiv"></button></td>-->
+		             {% else %}
+		             <td><button class="button b-round-r" id="buttonClickDeactiv"><a href="/deactivateVHost"></a></button></td>
+		             {% endif %}
+		            </tr> 
+		        </table>
+		      </div>		
+	      </div>
+	      {% endfor %}
+      {% endif %}
     </div>
     <div id="modules" class="tab-pane fade">
       <h3 class="title">Modules</h3>

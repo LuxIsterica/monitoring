@@ -5,7 +5,7 @@ from apps import listinstalled, aptsearch
 from systemfile import locate,updatedb
 from system import getsysteminfo, hostname
 #from network import ifacestat
-from apache import getvhosts
+from apache import getvhosts, activatevhost, deactivatevhost
 from flask import Flask, render_template, flash, request, redirect, url_for
 from flask_bootstrap import Bootstrap
 from collections import defaultdict
@@ -205,8 +205,19 @@ def getVHosts():
 	else:
 		return render_template('apache.html', vhost=vhost)
 
-#@app.route('/activateVHost', methods=['POST'])
-#def activateVHost():
+#creating a view function without returning a response in Flask
+@app.route('/activateVHost', methods=['POST'])
+def activateVHost():
+	filename = request.form['buttonClickActiv']
+	if filename:
+		logAVHost=activatevhost(filename)
+		if(logAVHost['returncode'] != 0):
+			flash(logAVHost['stderr'])
+			flash(logAVHost['command'])
+			#return redirect(url_for('getVHosts'))
+			return '',204
+	#return redirect(url_for('getVHosts'))
+	return '',204 #ritorno senza reindirizzamento con flask
 
 #@app.route('/deactivateVHost', methods=['POST'])
 #def deactivateVHost():
