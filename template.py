@@ -5,7 +5,7 @@ from apps import listinstalled, aptsearch
 from systemfile import locate,updatedb
 from system import getsysteminfo, hostname
 #from network import ifacestat
-from apache import getvhosts, activatevhost, deactivatevhost
+from apache import apachestart, apachestop, apacherestart, apachereload, apachestatus, getvhosts, activatevhost, deactivatevhost
 from flask import Flask, render_template, flash, request, redirect, url_for
 from flask_bootstrap import Bootstrap
 from collections import defaultdict
@@ -14,7 +14,7 @@ app = Flask(__name__, template_folder = "templates", static_folder = "static", s
 app.secret_key = 'random string'
 bootstrap = Bootstrap(app)
 
-##### FUNZIONALITÀ user.py #####
+########## FUNZIONALITÀ user.py ##########
 
 #http://localhost:5000/dash
 # definizione base dash con componente fissa navbar
@@ -108,7 +108,7 @@ def removeUserGroup():
 	
 	return redirect(url_for('listUserAndGroups'))
 
-##### FUNZIONALITÀ apps.py #####
+########## FUNZIONALITÀ apps.py ##########
 
 # http://localhost:5000/listInstalled
 @app.route('/listInstalled')
@@ -126,7 +126,7 @@ def findPkgInstalled():
 	appFound = aptsearch(pkg)
 	return render_template('find-pkg-installed.html', appFound = appFound)
 
-##### FUNZIONALITÀ file.py #####
+########## FUNZIONALITÀ file.py ##########
 @app.route('/file')
 def file():
 	return render_template('file.html')
@@ -157,7 +157,8 @@ def updateDbFile():
 		error = 'Non funzica' 
 	return render_template('file.html', error=error)
 
-##### FUNZIONALITÀ system.py #####
+########## FUNZIONALITÀ system.py ##########
+
 @app.route('/param')
 def param():
 	error = None
@@ -186,15 +187,66 @@ def newHostname():
 	
 	return redirect(url_for('param'))
 
-##### FUNZIONALITÀ systemfile.py #####
+########## FUNZIONALITÀ systemfile.py ##########
 
-##### FUNZIONALITÀ network.py #####
+########## FUNZIONALITÀ network.py ##########
 #@app.route('/network')
 #def network():
 #	facestat = ifacestat()
 #	return render_template('network.html', facestat=facestat)
 
-##### FUNZIONALITÀ apache.py #####
+########## FUNZIONALITÀ apache.py ##########
+@app.route('/startApache', methods=['POST'])
+def startApache():
+	error = None
+	if request.form['b-start-a'] == 'Start':
+		log = apachestart()
+		if(log['returncode'] != 0):
+			error = "Errore start apache"
+		else:
+			flash("Apache startato correttamente")
+			return redirect(url_for('getVHosts'))
+	else:
+		error = 'Non funzica' 
+	return render_template('apache.html', error=error)
+
+@app.route('/stopApache', methods=['POST'])
+def stopApache():
+	error = None
+	if request.form['b-stop-a'] == 'Stop':
+		log = apachestop()
+		if(log['returncode'] != 0):
+			error = "Errore stop apache"
+		else:
+			flash("Apache stoppato correttamente")
+			return redirect(url_for('getVHosts'))
+	else:
+		error = 'Non funzica' 
+	return render_template('apache.html', error=error)
+
+# return HTTP/1.1" 302
+@app.route('/restartApache', methods=['POST'])
+def restartApache():
+	error = None
+	if request.form['b-restart-a'] == 'Restart':
+		log = apacherestart()
+		if(log['returncode'] != 0):
+			error = "Errore restart apache"
+		else:
+			flash("Restart Apache avvenuto correttamente")
+			return redirect(url_for('getVHosts'))
+	else:
+		error = 'Non funzica' 
+	return render_template('apache.html', error=error)
+
+@app.route('/reloadApache', methods=['POST'])
+def reloadApache():
+	pass
+
+@app.route('/statusApache', methods=['POST'])
+def statusApache():
+	pass
+
 @app.route('/getVHosts')
 def getVHosts():
 	error=None
@@ -206,9 +258,10 @@ def getVHosts():
 		return render_template('apache.html', vhost=vhost)
 
 #creating a view function without returning a response in Flask
+# return HTTP/1.1" 204
 @app.route('/activateVHost', methods=['POST'])
 def activateVHost():
-	filename = request.form['buttonClickActiv']
+	filename = request.form['clickActiv']
 	if filename:
 		logAVHost=activatevhost(filename)
 		if(logAVHost['returncode'] != 0):
@@ -219,8 +272,18 @@ def activateVHost():
 	#return redirect(url_for('getVHosts'))
 	return '',204 #ritorno senza reindirizzamento con flask
 
-#@app.route('/deactivateVHost', methods=['POST'])
-#def deactivateVHost():
+@app.route('/deactivatevhost', methods=['POST'])
+def deactivatevhost():
+	filename = request.form['clickDeactiv']
+	if filename:
+		logAVHost=deactivatevhost(filename)
+		if(logAVHost['returncode'] != 0):
+			flash(logAVHost['stderr'])
+			flash(logAVHost['command'])
+			#return redirect(url_for('getVHosts'))
+			return '',204
+	#return redirect(url_for('getVHosts'))
+	return '',204 #ritorno senza reindirizzamento con flask
 
 if __name__ == '__main__':
 	app.run(debug = True)

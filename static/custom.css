@@ -291,6 +291,46 @@ button.b-round-r {
     padding: 10px;
 }
 
+#buttonStartApache{
+    background-color: limegreen;
+    width: 200px;
+    height: 40px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+#buttonRestartApache{
+    background-color: skyblue;
+    width: 200px;
+    height: 40px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+#buttonStopApache{
+    background-color: sandybrown;
+    width: 200px;
+    height: 40px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+#buttonReloadApache{
+    background-color: greenyellow;
+    width: 200px;
+    height: 40px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+#buttonStatusApache{
+    background-color: cyan;
+    width: 200px;
+    height: 40px;
+    border-radius: 5px;
+    text-align: center;
+}
+
 /* ---------------------------------------
                 MEDIAQUERIES
 ------------------------------------------ */

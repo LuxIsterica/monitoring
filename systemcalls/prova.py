@@ -17,8 +17,9 @@ data = getvhosts()
 if data['returncode'] is 0:
     #(cpu,mem,proc) = data['data']
 	#pprint(data['data'][1]['filename'][:-5])
-	for k in data['data'][0]:
-		print("key: "+ k)
+	#for k in data['data'][0]:
+	#	print("key: "+ k)
+	print (data)
 
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments
