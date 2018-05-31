@@ -77,9 +77,9 @@ def command_error( e=None, command=[], logid=None, returncode=1, stderr='No mess
         mongologstatuserr( logid )
     
     return dict({
-        'returncode': e.returncode if e else returncode,
+        'returncode': e.returncode if e and hasattr(e, 'returncode') else returncode,
         'command': ' '.join(command),
-        'stderr': e.stderr if e else stderr,
+        'stderr': e.stderr if e and hasattr(e, 'stderr')  else stderr,
         'logid': logid
     })
 
@@ -164,3 +164,11 @@ def filediff(filea, fileb):
     output = Popen(command, stdout=PIPE, universal_newlines=True).communicate()[0]
 
     return {'filediff': output }
+
+
+
+def delfile(path):
+    try:
+        os.remove( path )
+    except FileNotFoundError:
+        return command_error( returncode=10, stderr='File to remove not found: "'+path+'"' )

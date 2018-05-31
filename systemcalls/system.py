@@ -130,7 +130,8 @@ def getsysteminfo( getall=True, getproc=False, getcpu=False, getmem=False ):
         #Removing headers from the output of top command
         i = 0
         while 'PID' not in procraw[i]: i+=1
-        proc = procraw[i:]
+        procraw = procraw[i:]
+        proc = list(map( lambda line: line.split(), procraw ))
         toreturn = toreturn + (proc,)
 #           |_____________________________________________________________________ Real Value
 

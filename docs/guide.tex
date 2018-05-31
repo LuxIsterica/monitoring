@@ -503,7 +503,7 @@ così chiaramente e in modo così adatto da essere inserito in un database.\\
 \paragraph{Return}
 Restituisce un dizionario con la sola chiave \texttt{filediff} dove il valore è il diff generato.
 
-\subsection{Utenti}
+\subsection{Utenti}\label{utenti}
 \subsubsection{getuser}\label{getuser}
 \begin{lstlisting}
 def getuser(user):
@@ -1276,7 +1276,9 @@ e la key \texttt{logid} contenente l'object id del documento mongo creato e che 
 sull'operazione.
 
 
-\subsection{Network}
+\subsection{Network}\label{network}
+La sezione network raccoglie tutte le funzioni utili per la gestione della rete, quali creazione e distruzione
+di interfacce, cambio indirizzo, settaggio rotte ecc.
 \subsubsection{ifacestat}\label{ifacestat}
 \begin{lstlisting}
 def ifacestat(iface="", namesonly=False):
@@ -1865,11 +1867,46 @@ Restituisce il dizionario di successo senza dati (\texttt{data=None}) ma con l'o
 alla chiave \texttt{logid}.
 
 \subsection{Cron}
-\subsection{Sistema}
-\subsection{apache}
-\subsection{Database}
-\subsection{File}
-\subsection{Logs}
+Il cron è l'applicazione inclusa di base in tutte le distribuzioni Linux based che copre il compito di eseguire
+detereminati task (definiti dall'utente) con una certa frequenza e a specifici giorni e orari.\\
+Un esempio di task ricorrente può essere ad esempio l'aggiornamento del database dei file per
+la ricerca indicizzata.\\
+Il cron può essere di sistema o specifico di un utente; abbiamo deciso in questa libreria di lavorare solo sui
+cron dell'utente in quanto i cron di sistema possono essere modificati o aggiunti creando o modificando i file
+dalla sezione \nameref{file}. Non sono tuttavia da sottovalutare le possibilità di questo approccio in quanto
+è possibile modificare anche il cron dell'utente \texttt{root} consentendo quindi l'esecuzione di qualsiasi
+operazione.
+\subsubsection{getusercron}
+Restituisce al chiamante il contenuto del file di cron dell'utente.
+\begin{lstlisting}
+def getusercron(user):
+    
+    crontab = '/var/spool/cron/crontabs/' + user
+
+    #On file 
+    if not os.path.isfile( crontab ):
+        return command_error( returncode=42, data='No crontab found for the user "' + user + '"' )
+
+    command = ['crontab', '-l']
+
+    try:
+        output = check_output(command, stderr=PIPE, universal_newlines=True)
+    except CalledProessError as e:
+        return command_error( e, command )
+
+    return command_success( data=output )
+\end{lstlisting}
+\paragraph{Parametri}
+Prende un solo parametro che è il nome dell'utente di cui si vuole vedere il crontab.
+\paragraph{Funzionamento}
+Il crontab dell'utente viene creato la prima volta che dal terminale 
+\paragraph{Return}
+
+\subsection{Sistema}\label{sistema}
+\subsection{apache}\label{apache}
+\subsection{Database}\label{database}
+\subsection{File}\label{file}
+\subsection{Logs}\label{logs}
 
 \section{Frontend}\label{frontend}
 Frontend

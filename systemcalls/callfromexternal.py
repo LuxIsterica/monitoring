@@ -6,26 +6,11 @@ from apache import getvhosts, getmods, getconf, activatevhost, deactivatevhost, 
 from pprint import pprint
 from utilities import filediff, filedit
 from network import ifacestat, getnewifacealiasname, ifacedown, ifaceup, editiface, createalias, destroyalias, getroutes, addroute, defaultroute, delroute
-from cron import getusercron, writeusercrontab
+from cron import listcrontabs, getcrontabcontent
 import os
 import sys
 
 
-
-pprint( getroutes()['data'] )
-
-
-exit()
-data = getsysteminfo()
-if data['returncode'] is 0:
-    (cpu, mem, proc) = data['data']
-
-pprint(cpu)
-
-
-#TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments
-exit()
-for i in listinstalled( summary=True ):
-    print(i)
-
-removeuser('temp', removehome=True)
+data = getcrontabcontent('/etc/con.daily')
+#data = getcrontab('/etc/cron.daily/apt-show-versions')
+pprint( data['data'] if data['returncode'] is 0 else data['stderr'] )
