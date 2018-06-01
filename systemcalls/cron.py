@@ -1,9 +1,10 @@
 # coding=utf-8
 from subprocess import DEVNULL, PIPE, STDOUT, check_output, check_call, CalledProcessError
-from utilities import mongolog, command_success, command_error, filedit
+from utilities import mongolog, command_success, command_error, writefile
 from user import getuser
 import os
 import inspect
+import datetime
 #import urllib.parse
 
 
@@ -22,20 +23,60 @@ def listcrontabs():
 
 
 
-def getcrontabcontent(path):
+def getcrontabcontent(cronpath):
 
     try:
-        with open(path, 'r') as content:
+        with open(cronpath, 'r') as content:
             return command_success( data=content.read() )
     except FileNotFoundError:
-        return command_error( returncode=10, stderr='No cron file found: "'+path+'"' )
+        return command_error( returncode=10, stderr='No cron file found: "'+cronpath+'"' )
 
 
-def editcrontab(path):
-    pass
+#Not called directly from frontend or final user
+def getcronname(): return 'nomodo-' + datetime.datetime.now().strftime('%Y%m%d%H%M%S')
 
-def newcrontab():
-    pass
+
+# New cron line gets executed every minute by default
+def addcron( command, name="", user="root", minute='*', hour='*', dom='*', month='*', dow='*' ):
+
+    cronspath = '/etc/cron.d/' 
+
+    #New cron gets a random name if user did not provide it
+    if not name: name = getcronname()
+
+    logid = mongolog( locals() )
+
+    with open(cronspath + name, 'w') as newcron:
+        newcron.write( minute + ' ' + hour + ' ' + dom + ' ' + month + ' ' + dow + ' ' + user + ' ' + command + '\n' )
+
+    return command_success( logid=logid )
+
+
+#in such a case "command" must be a bash script
+def addefaultcron(command, cronspath, name):
+
+    #New cron gets a random name if user did not provide it
+    if not name: name=getcronname()
+
+    logid = mongolog( locals() )
+
+    with open(cronspath + name, 'w') as newcron:
+        newcron.write( command + '\n' )
+
+    return command_success( logid=logid )
+
+
+def addhourlycron(command, name=""): return addefaultcron( name=name, command=command, cronspath='/etc/cron.hourly/' )
+def adddailycron(command, name=""): return addefaultcron( command=command, cronspath='/etc/cron.daily/' )
+def addweeklycron(command, name=""): return addefaultcron( command=command, cronspath='/etc/cron.weekly/' )
+def addmonthlyycron(command, name=""): return addefaultcron( command=command, cronspath='/etc/cron.monthly/' )
+
+
+def writecron( cronpath, newcontent ):
+    return writefile( filepath=cronpath, newcontent=newcontent+'\n' )
+
+
+
 
 
 

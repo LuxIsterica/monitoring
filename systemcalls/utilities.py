@@ -85,27 +85,30 @@ def command_error( e=None, command=[], logid=None, returncode=1, stderr='No mess
 
 
 
-#If towrite has no value (is None) then return the file content
-#else if force is True write "towrite" into the file without check for changes else
+#If newcontent has no value (is None) then return the file content
+#else if force is True write "newcontent" into the file without check for changes else
 #else if new and old content md5sum are different write new content into the file
 #else let user know that file has not been written because no changes has been made
-def filedit(filename, towrite=None, force=False):
+def writefile(filepath, newcontent=None, force=False):
 
-    if not towrite:
-        with open(filename, 'r') as opened:
-            return opened.read()
+    if not newcontent:
+        try:
+            with open(filepath, 'r') as content:
+                return content.read()
+        except FileNotFoundError:
+            return command_error( returncode=10, stderr='No file found on path : "'+filepath+'"' )
 
     if not force:
         #If force is not specified then calculate md5sum to check whether the file has changed.
         #If file hasn't changed it is not written
         md5new = hashlib.md5()
 
-        #(Referring encode()) To calculate md5sum string 'towrite' needs to be converted into 'bite' format
-        md5new.update( towrite.encode() )
+        #(Referring encode()) To calculate md5sum string 'newcontent' needs to be converted into 'bite' format
+        md5new.update( newcontent.encode() )
         md5new = md5new.hexdigest()
 
         #old file content md5sum 
-        md5old = hashlib.md5( open( filename, 'rb' ).read() ).hexdigest()
+        md5old = hashlib.md5( open( filepath, 'rb' ).read() ).hexdigest()
 
         if md5new == md5old:
             return command_error( returncode=2, stderr='Nothing to write(no changes from original file). You can force writing using the parameter "force=True"' )
@@ -115,14 +118,14 @@ def filedit(filename, towrite=None, force=False):
     ##This code will get executed on either Force==True or md5new != md5old
 
     #Better insert the diff between the 2 files instead of full content, thus
-    #we need to remove the parameter "towrite" from "locals()" and pass the dict() returned by the filediff() function to mongolog()
+    #we need to remove the parameter "newcontent" from "locals()" and pass the dict() returned by the filediff() function to mongolog()
     localsvar = locals()
-    del localsvar['towrite']
-    logid = mongolog( localsvar, filediff(filename, towrite) )
+    del localsvar['newcontent']
+    logid = mongolog( localsvar, filediff(filepath, newcontent) )
 
-    #Writing new content to "filename" file
-    opened = open(filename, 'w')
-    opened.write(towrite)
+    #Writing new content to "filepath" file
+    opened = open(filepath, 'w')
+    opened.write(newcontent)
     opened.close()
 
     return command_success( logid=logid )
