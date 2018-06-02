@@ -272,14 +272,14 @@ def activateVHost():
 	#return redirect(url_for('getVHosts'))
 	return '',204 #ritorno senza reindirizzamento con flask
 
-@app.route('/deactivatevhost', methods=['POST'])
-def deactivatevhost():
+@app.route('/deactivateVHost', methods=['POST'])
+def deactivateVHost():
 	filename = request.form['clickDeactiv']
 	if filename:
-		logAVHost=deactivatevhost(filename)
-		if(logAVHost['returncode'] != 0):
-			flash(logAVHost['stderr'])
-			flash(logAVHost['command'])
+		logDAVHost=deactivatevhost(filename)
+		if(logDAVHost['returncode'] != 0):
+			flash(logDAVHost['stderr'])
+			flash(logDAVHost['command'])
 			#return redirect(url_for('getVHosts'))
 			return '',204
 	#return redirect(url_for('getVHosts'))
