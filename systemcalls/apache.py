@@ -90,7 +90,7 @@ def manageapache(op):
             toreturn = Popen(command, stdout=PIPE, universal_newlines=True).communicate()[0].splitlines()
 
             #Filtering useless lines
-            linestomantain = ['active', 'memory', 'cpu']
+            linestomantain = ['loaded', 'active', 'memory', 'cpu']
             toreturn = list( filter( lambda line: any(s in line.lower() for s in linestomantain), toreturn ) )
             #Formatting output
             toreturn = dict( map(lambda line: line.lstrip().split(':', maxsplit=1), toreturn ) )

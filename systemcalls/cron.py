@@ -23,7 +23,7 @@ def listcrontabs():
 
 
 
-def getcrontabcontent(cronpath):
+def getcroncontent(cronpath):
 
     try:
         with open(cronpath, 'r') as content:
@@ -32,7 +32,6 @@ def getcrontabcontent(cronpath):
         return command_error( returncode=10, stderr='No cron file found: "'+cronpath+'"' )
 
 
-#Not called directly from frontend or final user
 def getcronname(): return 'nomodo-' + datetime.datetime.now().strftime('%Y%m%d%H%M%S')
 
 
@@ -49,11 +48,11 @@ def addcron( command, name="", user="root", minute='*', hour='*', dom='*', month
     with open(cronspath + name, 'w') as newcron:
         newcron.write( minute + ' ' + hour + ' ' + dom + ' ' + month + ' ' + dow + ' ' + user + ' ' + command + '\n' )
 
-    return command_success( logid=logid )
+    return command_success( data=cronspath+name, logid=logid )
 
 
 #in such a case "command" must be a bash script
-def addefaultcron(command, cronspath, name):
+def adddefaultcron(command, cronspath, name):
 
     #New cron gets a random name if user did not provide it
     if not name: name=getcronname()
