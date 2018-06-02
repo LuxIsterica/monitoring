@@ -11,6 +11,13 @@ import os
 import sys
 
 
+
+
+data = listcrontabs()
+pprint( data['data'] if data['returncode'] is 0 else data['stderr'] )
+
+
+exit()
 data = writecron( cronpath='/etc/cron.hourly/nomodo-20180601190954', newcontent='newcontent')
 print( data['logid'] if data['returncode'] is 0 else data['stderr'] )
 

@@ -159,7 +159,7 @@ Nelle prossime sezioni verranno analizzate tutte le categorie e spiegato il funz
 
 \subsection{utilities}
 Questa categoria contiene per la maggior parte funzioni che non vengono mai richiamate direttamente dal frontend, ma vengono utilizzate
-dalle altre funzioni del backend. Fa eccezione la funzione \nameref{filedit} che oltre essere chiamata da queste funzioni può anche
+dalle altre funzioni del backend. Fa eccezione la funzione \nameref{writefile} che oltre essere chiamata da queste funzioni può anche
 essere chiamata direttamente, ed è utile alla modifica dei. \\
 Analizziamo le funzioni di questa libreria nelle prossime sezioni.
 \subsubsection{mongolog()}\label{mongolog}
@@ -353,41 +353,34 @@ aggiungendo quindi al log dell'operazione il campo \texttt{status} col valore \t
 \paragraph{Return}
 Restituisce il dizionario creato come descritto nel funzionamento e come si può vedere nel codice.
 
-\subsubsection{filedit}\label{filedit}
+\subsubsection{writefile}\label{writefile}
 \begin{lstlisting}
-def filedit(filename, towrite=None, force=False):
+def writefile(filepath, newcontent=None, force=False):
 
-    if not towrite:
-        with open(filename, 'r') as opened:
-            return opened.read()
+    if not newcontent:
+        try:
+            with open(filepath, 'r') as content:
+                return content.read()
+        except FileNotFoundError:
+            return command_error( returncode=10, stderr='No file found on path : "'+filepath+'"' )
 
     if not force:
-        #If force is not specified then calculate md5sum to check whether the file has changed.
-        #If file hasn't changed it is not written
         md5new = hashlib.md5()
 
-        #(Referring encode()) To calculate md5sum string 'towrite' needs to be converted into 'bite' format
-        md5new.update( towrite.encode() )
+        md5new.update( newcontent.encode() )
         md5new = md5new.hexdigest()
 
-        #old file content md5sum 
-        md5old = hashlib.md5( open( filename, 'rb' ).read() ).hexdigest()
+        md5old = hashlib.md5( open( filepath, 'rb' ).read() ).hexdigest()
 
         if md5new == md5old:
             return command_error( returncode=2, stderr='Nothing to write(no changes from original file). You can force writing using the parameter "force=True"' )
 
-
-    ##This code will get executed on either Force==True or md5new != md5old
-
-    #Better insert the diff between the 2 files instead of full content, thus
-    #we need to remove the parameter "towrite" from "locals()" and pass the dict() returned by the filediff() function to mongolog()
     localsvar = locals()
-    del localsvar['towrite']
-    logid = mongolog( localsvar, filediff(filename, towrite) )
+    del localsvar['newcontent']
+    logid = mongolog( localsvar, filediff(filepath, newcontent) )
 
-    #Writing new content to "filename" file
-    opened = open(filename, 'w')
-    opened.write(towrite)
+    opened = open(filepath, 'w')
+    opened.write(newcontent)
     opened.close()
 
     return command_success( logid=logid )
@@ -406,12 +399,16 @@ Sono 3 i paramentri accettati da questa funzione:
 \paragraph{Funzionamento}
 ~\\
 \begin{lstlisting}
-if not towrite:
-    with open(filename, 'r') as opened:
-        return opened.read()
+    if not newcontent:
+        try:
+            with open(filepath, 'r') as content:
+                return content.read()
+        except FileNotFoundError:
+            return command_error( returncode=10, stderr='No file found on path : "'+filepath+'"' )
 \end{lstlisting}
-Oltre a scrivere i file questa funzione è intesa anche per ritornare il contenuto di un file. Come si vede dal primo \texttt{if}
-se \texttt{towrite} è nulla semplicemente apre il file in lettura e restituisce il suo contenuto.
+Oltre a scrivere i file la funzione può essere utilizzata per restituire all'utente o al frontend il contenuto di un file.
+Come si vede dal primo \texttt{if} se il parametro \texttt{newcontent} è nullo semplicemente il file viene aperto in lettura
+e ne viene restituito il suo contenuto. Questa variabile dovrebbe contenere il nuovo contenuto del file.
 \\~\\
 \begin{lstlisting}
     if not force:
@@ -482,12 +479,12 @@ def filediff(filea, fileb):
 
     return {'filediff': output }
 \end{lstlisting}
-La funzione \texttt{filediff} come si intusice dal nome serve a generare un diff tra 2 file. È usata principalmente dalla funzione \nameref{filedit}
+La funzione \texttt{filediff} come si intusice dal nome serve a generare un diff tra 2 file. È usata principalmente dalla funzione \nameref{writefile}
 per le sue operazioni di log su mongo ma può anche essere chiamata direttamente dall'utente curioso o dal fontend.
 \paragraph{Parametri}
 Accetta 2 parametri. Questi non si differenziano l'uno dall'altro e possono essere un percorso ad un file sul sistema, o una stringa.
 È perfettamente legale che uno sia di un tipo e uno di un altro, ad es. \texttt{filea} può essere il percorso di un file mentre \texttt{fileb}
-una stringa che rappresenta il contenuto di un file, così come accade quando questa funzione viene chiamata da \texttt{filedit}.
+una stringa che rappresenta il contenuto di un file, così come accade quando questa funzione viene chiamata da \texttt{writefile}.
 \paragraph{Funzionamento}
 Innanzitutto nei primi due \texttt{if} la funzione controlla se i parametri contengono una stringa che identifica il percorso di un file sul sistema
 o un contenuto usando la libreria \texttt{os}. Se uno dei due parametri non contiene un percorso si prende in carico di scrivere la stringa che contiene
@@ -1871,36 +1868,40 @@ Il cron è l'applicazione inclusa di base in tutte le distribuzioni Linux based 
 detereminati task (definiti dall'utente) con una certa frequenza e a specifici giorni e orari.\\
 Un esempio di task ricorrente può essere ad esempio l'aggiornamento del database dei file per
 la ricerca indicizzata.\\
-Il cron può essere di sistema o specifico di un utente; abbiamo deciso in questa libreria di lavorare solo sui
-cron dell'utente in quanto i cron di sistema possono essere modificati o aggiunti creando o modificando i file
-dalla sezione \nameref{file}. Non sono tuttavia da sottovalutare le possibilità di questo approccio in quanto
-è possibile modificare anche il cron dell'utente \texttt{root} consentendo quindi l'esecuzione di qualsiasi
-operazione.
-\subsubsection{getusercron}
-Restituisce al chiamante il contenuto del file di cron dell'utente.
+Il cron di Linux può essere di sistema o dell'utente. Siccome usando il cron di sistema è possibile lanciare i processi
+utilizzando qualsiasi utente del sistema si è deciso di tralasciare il cron utente ed implementare in nomodo
+solo quello di sistema.
+\subsubsection{listcrontabs}
 \begin{lstlisting}
-def getusercron(user):
-    
-    crontab = '/var/spool/cron/crontabs/' + user
+def listcrontabs():
 
-    #On file 
-    if not os.path.isfile( crontab ):
-        return command_error( returncode=42, data='No crontab found for the user "' + user + '"' )
+    basedir = '/etc/'
+    paths = ['cron.d', 'cron.daily', 'cron.hourly', 'cron.monthly', 'cron.weekly']
 
-    command = ['crontab', '-l']
+    cronlist = dict()
+    for path in paths:
+        flist = os.listdir(basedir + path)
+        flist.remove('.placeholder') 
+        cronlist.update({ path: flist })
 
-    try:
-        output = check_output(command, stderr=PIPE, universal_newlines=True)
-    except CalledProessError as e:
-        return command_error( e, command )
-
-    return command_success( data=output )
+    return command_success( data=cronlist )
 \end{lstlisting}
+La funzione restituisce la lista di tutti i crontab installati nel sistema.
 \paragraph{Parametri}
-Prende un solo parametro che è il nome dell'utente di cui si vuole vedere il crontab.
+Non prende nessun parametro.
 \paragraph{Funzionamento}
-Il crontab dell'utente viene creato la prima volta che dal terminale 
+Definisce due variabili, \texttt{basedir} che è dove sono presenti le cartelle del cron e \texttt{paths} che è
+una lista contenente i nomi delle cartelle del cron. Notare che la lista delle cartelle non contiene il file
+\texttt{crontabs} che si è deciso di non utilizzare in quanto egregiamente sostituito dalla cartella \texttt{cron.d}.\\
+Entrando nel ciclo for costruisce il dizionario \texttt{cronslist} la cui chiave è il nome della cartella mentre
+il valore è la lista dei file presenti nella cartella stessa, che sarebbero quindi la lista dei crontab.
+Da questa lista viene eliminato il file \texttt{.placeholder} che è solo un file richiesto dal sistema e non
+utile all'utente finale.
 \paragraph{Return}
+Restitusice il dizionario di successo contenente nella variabile \texttt{data} il dizionario creato dalla funzione
+come spiegato nel funzionamento. Un esempio del dizionario è il seguente:
+\begin{lstlisting}
+\end{lstlisting}
 
 \subsection{Sistema}\label{sistema}
 \subsection{apache}\label{apache}
