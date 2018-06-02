@@ -1,0 +1,27 @@
+{% extends "index.html" %}
+{% block page_content %}
+<h2>Lista Job schedulati</h2>
+	{% if listCrontabs|length>0 %}
+		<div class="container">
+		  <div class="jumbotron">
+		  	<dl>
+		  		
+			    {% for key, value in listCrontabs.data.items() %}
+			      <dt><h2>{{ key }}</h2></dt>
+			      {% for v in value %}
+		      		<!--<dd style="margin-left: 60px;">{{ v }}</dd>-->
+		      		<dd style="margin-left: 60px;"><a href="{{ url_for('getContentCrontab', cronk = key, cronv = v ) }}" class="btn btn-link"> {{ v }} </a></dd>
+			      {% endfor %}
+			    {% endfor %}
+			    
+		    </dl>
+		  </div>     
+		</div>
+	{% endif %}
+	{% if content %}
+		<div class="form-group">
+		  <label for="content-textarea">content:</label>
+		  <textarea class="form-control" rows="8" id="content-textarea">{{ content.data }}</textarea>
+		</div>
+	{% endif %}
+{% endblock %}

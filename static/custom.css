@@ -331,6 +331,11 @@ button.b-round-r {
     text-align: center;
 }
 
+#content-textarea{
+    width: 60em;
+    margin-left: 3em;
+}
+
 /* ---------------------------------------
                 MEDIAQUERIES
 ------------------------------------------ */

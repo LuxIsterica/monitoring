@@ -6,7 +6,8 @@ from systemfile import locate,updatedb
 from system import getsysteminfo, hostname
 #from network import ifacestat
 from apache import apachestart, apachestop, apacherestart, apachereload, apachestatus, getvhosts, activatevhost, deactivatevhost
-from flask import Flask, render_template, flash, request, redirect, url_for
+from cron import listcrontabs, getcrontabcontent
+from flask import Flask, render_template, flash, request, redirect, url_for, send_file
 from flask_bootstrap import Bootstrap
 from collections import defaultdict
 
@@ -108,6 +109,20 @@ def removeUserGroup():
 	
 	return redirect(url_for('listUserAndGroups'))
 
+########## FUNZIONALITÀ cron.py ##########
+@app.route('/listCron')
+def listCron():
+	listCrontabs = listcrontabs()
+	return render_template("jobs.html",listCrontabs=listCrontabs)
+
+@app.route('/getContentCrontab/<string:cronk>/<string:cronv>')
+def getContentCrontab(cronk,cronv):
+	basedir='/etc/'
+	pathCron=basedir+cronk+'/'+cronv
+	content = getcrontabcontent(pathCron)
+	#return send_file(pathCron,attachment_filename=cronv) fa il download
+	return render_template("jobs.html", content=content)
+
 ########## FUNZIONALITÀ apps.py ##########
 
 # http://localhost:5000/listInstalled
@@ -203,7 +218,7 @@ def startApache():
 	if request.form['b-start-a'] == 'Start':
 		log = apachestart()
 		if(log['returncode'] != 0):
-			error = "Errore start apache"
+			error = log['stderr']
 		else:
 			flash("Apache startato correttamente")
 			return redirect(url_for('getVHosts'))
@@ -217,7 +232,7 @@ def stopApache():
 	if request.form['b-stop-a'] == 'Stop':
 		log = apachestop()
 		if(log['returncode'] != 0):
-			error = "Errore stop apache"
+			error = log['stderr']
 		else:
 			flash("Apache stoppato correttamente")
 			return redirect(url_for('getVHosts'))
@@ -232,7 +247,7 @@ def restartApache():
 	if request.form['b-restart-a'] == 'Restart':
 		log = apacherestart()
 		if(log['returncode'] != 0):
-			error = "Errore restart apache"
+			error = log['stderr']
 		else:
 			flash("Restart Apache avvenuto correttamente")
 			return redirect(url_for('getVHosts'))
@@ -242,11 +257,30 @@ def restartApache():
 
 @app.route('/reloadApache', methods=['POST'])
 def reloadApache():
-	pass
+	error = None
+	if request.form['b-reload-a'] == 'Reload':
+		log = apachereload()
+		if(log['returncode'] != 0):
+			error = log['stderr']
+		else:
+			flash("Reload Apache avvenuto correttamente")
+			return redirect(url_for('getVHosts'))
+	else:
+		error = 'Non funzica' 
+	return render_template('apache.html', error=error)
 
 @app.route('/statusApache', methods=['POST'])
 def statusApache():
-	pass
+	error = None
+	if request.form['b-status-a'] == 'Status':
+		logStatus = apachestatus()
+		if(logStatus['returncode'] != 0):
+			error = logStatus['stderr']
+		else:
+			return render_template('apache.html', logStatus=logStatus)
+	else:
+		error = 'Non funzica' 
+	return render_template('apache.html', error=error)
 
 @app.route('/getVHosts')
 def getVHosts():

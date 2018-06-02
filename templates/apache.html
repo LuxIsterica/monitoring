@@ -1,7 +1,6 @@
 {% extends "index.html" %}
 {% block page_content %}
 <h1 class="title">APACHE</h1>
-<div class="page-header button-style">
 	{% with messages = get_flashed_messages() %}
 	  {% if messages %}
 	    <ul class=flashes>
@@ -12,6 +11,14 @@
 	  {% endif %}
 	{% endwith %}
 	<br>
+	{% if logStatus|length > 0 %}
+		<ul>
+		{% for key,value in logStatus.data.items() %}
+			<li>{{ key }} : {{ value }}</li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+<div class="page-header button-style">
 	<ul class="nav nav-pills" style="display: flex;justify-content: space-between;">
 	  <!-- queste sono tutte form, non devo scendere su una nuova pagina -->
 	  <li role="presentation" id="startButton">
@@ -35,8 +42,8 @@
     	</form>
 	  </li>
 	  <li role="presentation" id="statusButton" >
-	  	<form id="restartApache" action="/restartApache" role="form" method="POST">
-       		<input type = "submit" value = "Restart" id="buttonRestartApache" name="b-status-a"/>
+	  	<form id="statusApache" action="/statusApache" role="form" method="POST">
+       		<input type = "submit" value = "Status" id="buttonStatusApache" name="b-status-a"/>
     	</form>
 	  </li>
 	</ul>
@@ -46,14 +53,14 @@
 <div class="container">
 
   <ul class="nav nav-tabs">
-    <li class="active"><a data-toggle="tab" href="#size">Size</a></li>
-    <li><a data-toggle="tab" href="#modules">Modules</a></li>
-    <li><a data-toggle="tab" href="#configurations">Configurations</a></li>
+    <li role="presentation" class="active"><a data-toggle="tab" href="#sites">Sites</a></li>
+    <li role="presentation"><a data-toggle="tab" href="#modules">Modules</a></li>
+    <li role="presentation"><a data-toggle="tab" href="#configurations">Configurations</a></li>
   </ul>
 
   <div class="tab-content">
-    <div id="size" class="tab-pane fade in active">
-      <h3 class="title">Size</h3>
+    <div id="sites" class="tab-pane fade in active">
+      <h3 class="title">Sites</h3>
       {% if vhost|length > 0 %}
 	      {% for v in vhost.data %}
 	      <div class="row">
@@ -64,11 +71,11 @@
 		          <table>
 		            <tr>
 		             <td> Site Folder (DocumentRoot): </td>
-		             <td> {{v['DocumentRoot']}} </td>
+		             <td> {{  v['DocumentRoot'] }} </td>
 		            </tr>
 		            <tr>
 		             <td> filename: </td>
-		             <td> {{v['filename']}} </td>
+		             <td> {{  v['filename'] }} </td>
 		            </tr>
 		            <tr>
 		             <td> active: </td>

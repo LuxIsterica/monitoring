@@ -24,4 +24,9 @@ $(document).ready(function () {
 		$("#pText").show();
 	});
 
+	$('#content-textarea').on('change',function(){
+		alert('text has been changed');
+	});
+
+
 });
