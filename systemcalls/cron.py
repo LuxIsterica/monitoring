@@ -76,6 +76,9 @@ def writecron( cronpath, newcontent ):
     return writefile( filepath=cronpath, newcontent=newcontent+'\n' )
 
 
+def removecron(cronpath): delfile( path=cronpath )
+
+
 
 
 

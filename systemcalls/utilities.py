@@ -171,6 +171,7 @@ def filediff(filea, fileb):
 
 
 def delfile(path):
+
     try:
         os.remove( path )
     except FileNotFoundError:
