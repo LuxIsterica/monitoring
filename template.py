@@ -196,6 +196,7 @@ def newHostname():
 #	return render_template('network.html', facestat=facestat)
 
 ########## FUNZIONALITÀ apache.py ##########
+
 @app.route('/startApache', methods=['POST'])
 def startApache():
 	error = None
