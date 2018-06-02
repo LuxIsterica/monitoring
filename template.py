@@ -8,6 +8,9 @@ from system import getsysteminfo, hostname
 from apache import apachestart, apachestop, apacherestart, apachereload, apachestatus, getvhosts, activatevhost, deactivatevhost
 from cron import listcrontabs, getcrontabcontent
 from flask import Flask, render_template, flash, request, redirect, url_for, send_file
+from network import ifacestat
+from flask import Flask, render_template, flash, request, redirect, url_for
+
 from flask_bootstrap import Bootstrap
 from collections import defaultdict
 
@@ -291,6 +294,12 @@ def getVHosts():
 		flash(vhost['command'])
 	else:
 		return render_template('apache.html', vhost=vhost)
+
+##### FUNZIONALITÀ system.py #####
+@app.route('/param')
+def param():
+	hostname = hostname()
+	return render_template('param.html',hostname=hostname)
 
 #creating a view function without returning a response in Flask
 # return HTTP/1.1" 204
