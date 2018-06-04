@@ -31,9 +31,6 @@ def dash():
 #	else:
 #		(cpu,mem,proc) = tpl['data']
 #		return render_template('dash.html', cpu = cpu, mem = mem, proc = proc)
-
-	
-#	return render_template('dash.html')
 	tpl = getsysteminfo()
 	(cpu,mem,proc) = tpl['data']
 	return render_template('dash.html', cpu = cpu, mem = mem, proc = proc)
@@ -114,6 +111,7 @@ def removeUserGroup():
 	return redirect(url_for('listUserAndGroups'))
 
 ########## FUNZIONALITÀ cron.py ##########
+
 @app.route('/listCron')
 def listCron():
 	listCrontabs = listcrontabs()
@@ -125,7 +123,21 @@ def getContentCrontab(cronk,cronv):
 	pathCron=basedir+cronk+'/'+cronv
 	content = getcrontabcontent(pathCron)
 	#return send_file(pathCron,attachment_filename=cronv) fa il download
-	return render_template("jobs.html", content=content)
+	return render_template("jobs.html", content=content, pathCron=pathCron)
+
+@app.route('/updateCrontab/<string:pathCron>', methods=['POST'])
+def updateCrontab(pathCron):
+	#manca contenuto
+	error = None
+	updatedCrontab = request.form['content-textarea']
+	#aggingi contenuto textarea
+	log = writecron(pathCron)
+	if(log['returncode'] != 0):
+		error = log['command']
+	else:
+		flash('Crontab modificato correttamente!')
+		return redirect(url_for('listCron'))
+	return render_template('listCron.html',error=error)
 
 ########## FUNZIONALITÀ apps.py ##########
 
@@ -146,6 +158,7 @@ def findPkgInstalled():
 	return render_template('find-pkg-installed.html', appFound = appFound)
 
 ########## FUNZIONALITÀ file.py ##########
+
 @app.route('/file')
 def file():
 	return render_template('file.html')
@@ -187,7 +200,6 @@ def param():
 		flash(hname['command'])
 	else:
 		return render_template('param.html', hname=hname)
-
 	return render_template('param.html')
 
 @app.route('/newHostname', methods=['POST'])
@@ -230,6 +242,7 @@ def startApache():
 		error = 'Non funzica' 
 	return render_template('apache.html', error=error)
 
+#errore 500
 @app.route('/stopApache', methods=['POST'])
 def stopApache():
 	error = None
@@ -296,12 +309,6 @@ def getVHosts():
 	else:
 		return render_template('apache.html', vhost=vhost)
 
-##### FUNZIONALITÀ system.py #####
-@app.route('/param')
-def param():
-	hostname = hostname()
-	return render_template('param.html',hostname=hostname)
-
 #creating a view function without returning a response in Flask
 # return HTTP/1.1" 204
 @app.route('/activateVHost', methods=['POST'])
@@ -329,6 +336,8 @@ def deactivateVHost():
 			return '',204
 	#return redirect(url_for('getVHosts'))
 	return '',204 #ritorno senza reindirizzamento con flask
+
+
 
 if __name__ == '__main__':
 	app.run(debug = True)

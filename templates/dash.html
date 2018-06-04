@@ -3,48 +3,50 @@
 
 <h1 class="title">DASHBOARD</h1>
 <div class="container">
-<<<<<<< Updated upstream
   <div class="panel-group">
+
+
     <div class="panel panel-default">
       <div class="panel-heading"><h2>cpu</h2></div>
-      <div class="panel-body">
-        <table class="systeminfo">
-          {% for key,value in cpu.items()%}
-            <tr>
-              <td><h4>{{key}}</h4></td>
-              <td style="text-align: center;"><h4>{{value}}</h4></td>
-            </tr>
-          {% endfor %}
-          </table>
-      </div> <!-- end body -->
-    </div> <!-- end default -->
+        <div class="panel-body">
+          <table class="systeminfo">
+            {% for key,value in cpu.items()%}
+              <tr>
+                <td><h4>{{key}}</h4></td>
+                <td style="text-align: center;"><h4>{{value}}</h4></td>
+              </tr>
+            {% endfor %}
+            </table>
+        </div> <!-- end body -->
+      </div> <!-- end default -->
+
+
     <div class="panel panel-default">
       <div class="panel-heading"><h2>memory</h2></div>
-      <div class="panel-body">
-        <table class="systeminfo">
-          {% for key,value in mem.items()%}
-            <tr>
-              <td><h4>{{key}}</h4></td>
-              <td style="text-align: center;"><h4>{{value}}</h4></td>
-            </tr>
-          {% endfor %}
-        </table>
-      </div> <!-- end body -->
+        <div class="panel-body">
+          <table class="systeminfo">
+            {% for key,value in mem.items()%}
+              <tr>
+                <td><h4>{{key}}</h4></td>
+                <td style="text-align: center;"><h4>{{value}}</h4></td>
+              </tr>
+            {% endfor %}
+          </table>
+        </div> <!-- end body -->
     </div> <!-- end default -->
+
+
     <div class="panel panel-default">
       <div class="panel-heading"><h2>process</h2></div>
-      <div class="panel-body">
-        <table class="systeminfo">
-          {% for p in proc %}
-            <tr>
-              <td style="text-align: center;"><h4>{{p}}</h4></td>
-            </tr>
-      {% endfor %}
-      </table>
-    </div>
-          {% endfor %}
-        </table>
-      </div> <!-- end body -->
+        <div class="panel-body">
+          <table class="systeminfo">
+            {% for p in proc %}
+              <tr>
+                <td style="text-align: center;"><h4>{{p}}</h4></td>
+              </tr>
+            {% endfor %}
+          </table>
+        </div> <!-- end body -->
     </div> <!-- end default -->
   </div> <!-- end group -->
 </div> <!-- end container -->

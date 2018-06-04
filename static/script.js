@@ -24,9 +24,11 @@ $(document).ready(function () {
 		$("#pText").show();
 	});
 
-	$('#content-textarea').on('change',function(){
-		alert('text has been changed');
+	$('#content-textarea').focusout(function(){
+		$('#content-textarea').css("border-color","red");
 	});
+
+	
 
 
 });
