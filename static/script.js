@@ -24,11 +24,9 @@ $(document).ready(function () {
 		$("#pText").show();
 	});
 
-	$('#content-textarea').focusout(function(){
+	$('#content-textarea').mouseleave(function(){
 		$('#content-textarea').css("border-color","red");
+		$('#modificaCrontab').prop('disabled',false);
 	});
-
-	
-
 
 });

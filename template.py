@@ -131,7 +131,7 @@ def updateCrontab(pathCron):
 	error = None
 	updatedCrontab = request.form['content-textarea']
 	#aggingi contenuto textarea
-	log = writecron(pathCron)
+	log = writecron(pathCron, updatedCrontab)
 	if(log['returncode'] != 0):
 		error = log['command']
 	else:

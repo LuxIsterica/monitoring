@@ -22,8 +22,8 @@
 			    {% for key, value in listCrontabs.data.items() %}
 			      <dt><h2>{{ key }}</h2></dt>
 			      {% for v in value %}
-		      		<!--<dd style="margin-left: 60px;">{{ v }}</dd>-->
-		      		<dd><a href="{{ url_for('getContentCrontab', cronk = key, cronv = v ) }}" class="btn btn-link"> {{ v }} </a></dd>
+		      		<!-- <dd style="margin-left: 60px;">{{ v }}</dd> -->
+		      		<dd style="margin-left: 60px;"><a href="{{ url_for('getContentCrontab', cronk = key, cronv = v ) }}" class="btn btn-link"> {{ v }} </a></dd>
 			      {% endfor %}
 			    {% endfor %}
 		    </dl>
@@ -31,19 +31,15 @@
 		</div>
 	{% endif %}
 	{% if content %}
-	<div class="container-fluid">
-	  	<form id="form" action="/updateCrontab/{{pathCron}}" role="form" method = "POST">
-		    <div id="loadTextArea" class="col-sm-12 col-md-12">
-				  <label for="content-textarea">content:</label>
-				  <textarea class="form-control" rows="8" name="content-textarea" id="content-textarea">{{ content.data }}</textarea>
-		    </div>
-		    <div class="col-sm-offset-6 col-md-offset-6 col-sm-6 col-md-6">
-				<div class="input-group-btn">
-		        	<button type="button" class="btn btn-primary">Modifica</button>
-		      	</div>
-		    </div>
-	    </form>
-	  </div>
+	<form id="form" action="/updateCrontab/{{ pathCron }}" role="form" method = "POST"> 
+	    <div id="loadTextArea">
+			  <label for="content-textarea">content:</label>
+			  <textarea class="form-control" rows="8" name="content-textarea" id="content-textarea">{{ content.data }}</textarea>
+	    </div>
+	    <div class="input-group-btn">
+	    	<button type="button" class="btn btn-primary" id="modificaCrontab" style="margin-top: 1em;margin-left: 56em;" disabled>Modifica</button>
+	  	</div>
+	</form> 
 	</div>
 	{% endif %}
 
