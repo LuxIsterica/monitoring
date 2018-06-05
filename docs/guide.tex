@@ -2141,7 +2141,38 @@ La funzione è basata sulla funzione precedentemente spiegata \nameref{delfile}.
 \paragraph{Return}
 Restituisce ciò che ritora la funzione \nameref{delfile}.
 
-\subsection{Sistema}\label{sistema}
+\subsection{Sistema}\label{system}
+Questa libreria è relativamente piccola per adesso ma sarà riempita con altre funzione in seguito. Contiene
+tutte quelle funzione che riguardano il sistema in generale, come ad esempio la funzione per la visualizzione
+e il cambio del nome macchina.
+
+\subsubsection{hostname}\label{hostname}
+\begin{lstlisting}
+def hostname(newhostname=""):
+    
+    command = ['hostname']
+        
+    if newhostname:
+        logid = mongolog( locals() )
+        command.append(newhostname)
+
+    try:
+        hostname = check_output(command, stderr=PIPE, universal_newlines=True)
+    except CalledProcessError as e:
+        return command_error( e, command )
+
+    if newhostname:
+        return command_success( logid=logid )
+    else:
+        return command_success( data=hostname )
+\end{lstlisting}
+La funzione serve sia ad ottenere il nome macchina che a cambiarlo.
+\paragraph{Parametri}
+Accetta un solo parametro opzionale \texttt{newhostname} che contiene il nuovo nome macchina da assegnare alla stessa.
+\paragraph{Funzionamento}
+Il funzionamento è simile alla funzione hostname
+\paragraph{Return}
+
 \subsection{apache}\label{apache}
 \subsection{Database}\label{database}
 \subsection{File}\label{file}
