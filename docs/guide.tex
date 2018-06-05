@@ -1864,13 +1864,26 @@ Restituisce il dizionario di successo senza dati (\texttt{data=None}) ma con l'o
 alla chiave \texttt{logid}.
 
 \subsection{Cron}
-Il cron è l'applicazione inclusa di base in tutte le distribuzioni Linux based che copre il compito di eseguire
+Il cron è un software incluso in tutte le distribuzioni Linux che copre il compito di eseguire
 detereminati task (definiti dall'utente) con una certa frequenza e a specifici giorni e orari.\\
 Un esempio di task ricorrente può essere ad esempio l'aggiornamento del database dei file per
 la ricerca indicizzata.\\
 Il cron di Linux può essere di sistema o dell'utente. Siccome usando il cron di sistema è possibile lanciare i processi
 utilizzando qualsiasi utente del sistema si è deciso di tralasciare il cron utente ed implementare in nomodo
-solo quello di sistema.
+solo quello di sistema.\\
+Distinguiamo 2 tipi di cron:
+\begin{itemize}
+	\item{Il cron utilizzato da \texttt{cronspath} e dagli script in \texttt{cron.d} che sono veri e propri
+		script di cron, contenente cioè tutte le informazioni sulla tempistica di lancio del comando o
+		dello script, l'utente e il comando stesso. Il comando in questo caso deve essere contenuto in una sola riga.
+		In nomodo la creazione di tali script è possibile chiamando la funzione \nameref{addcron}}
+	\item{Il cron delle cartelle \texttt{/etc/cron.daily}, \texttt{/etc/cron.hourly}, \texttt{/etc/cron.monthly} e \texttt{/etc/cron.weekly}
+		che sono invece degli script o dei programmi (solitamente scrcitti in bash) che vengono eseguiti uno
+		alla volta ordinati per nome all'ora e alla data definiti di default nel file \texttt{/ect/crontab}.
+		In nomodo la creazione di tali script avviene tramite la chiamata alle funzioni derivate da \nameref{adddefaultcron},
+		ad es. \texttt{adddailycron}}
+\end{itemize}
+
 \subsubsection{listcrontabs}
 \begin{lstlisting}
 def listcrontabs():
@@ -1902,6 +1915,141 @@ Restitusice il dizionario di successo contenente nella variabile \texttt{data} i
 come spiegato nel funzionamento. Un esempio del dizionario è il seguente:
 \begin{lstlisting}
 \end{lstlisting}
+
+\subsubsection{getcroncontent}\label{getcroncontent}
+\begin{lstlisting}
+def getcroncontent(cronpath):
+
+    try:
+        with open(cronpath, 'r') as content:
+            return command_success( data=content.read() )
+    except FileNotFoundError:
+        return command_error( returncode=10, stderr='No cron file found: "'+cronpath+'"' )
+\end{lstlisting}
+La funzione dato il path di un file di cron restituisce il contenuto dello stesso.
+\paragraph{Parametri}
+Accetta l'unico parametro \texttt{cronpath} che è il percorso del file di cron di cui leggerne il contenuto.
+\paragraph{Funzionamento}
+La funzione semplicemente apre il file in lettura utilizzando \texttt{with open()} e ne restituisce il contenuto.
+Durante le sue operazioni controlla che non venga lanciata l'eccezione \texttt{FileNotFoundError} che avviene
+quando il file che si sta cercando di aprire il lettura non esiste.
+\paragraph{Return}
+Restituisce il dizionario di successo contenente alla variabile \texttt{data} il contenuto del cron indicato.
+Restituisce invece il dizionario di errore se viene generata l'eccezione \texttt{FileNotFoundError}, con
+un codice di ritorno e un messaggio di errore personalizzato e che sono quello che si vedono in codice.
+
+\subsubsection{getcronname}\label{getcronname}
+\begin{lstlisting}
+def getcronname(): return 'nomodo-' + datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+\end{lstlisting}
+\paragraph{Parametri}
+\paragraph{Funzionamento}
+\paragraph{Return}
+
+\subsubsection{addcron}\label{addcron}
+\begin{lstlisting}
+def addcron( command, name="", user="root", minute='*', hour='*', dom='*', month='*', dow='*' ):
+
+    cronspath = '/etc/cron.d/' 
+
+    #New cron gets a random name if user did not provide it
+    if not name: name = getcronname()
+
+    logid = mongolog( locals() )
+
+    with open(cronspath + name, 'w') as newcron:
+        newcron.write( minute + ' ' + hour + ' ' + dom + ' ' + month + ' ' + dow + ' ' + user + ' ' + command + '\n' )
+
+    return command_success( data=cronspath+name, logid=logid )
+\end{lstlisting}
+La funzione nsace per la creazione di uno script di cron vero che si vada ad aggiungere a quelli presenti nella cartella
+\texttt{/etc/cron.d/}. Per "script di cron vero" si intende un file di direttive che contenga la sintassi del cron; come spiegato
+nell'introduzione alla sezione \nameref{cron} questi si differenziano dagli script specifici in quanto questi ultimi sono
+veri e propri applicativi, usualmente scritti in bash, mentre gli script di cron contengono anche le informazioni
+sulla tempistica dell'esecuzione del comando e il comando deve essere contenuto in una linea o deve essere la chiamata
+ad un applicativo.\\
+La spiegazione di centos in questo esempio chiarisce ancora meglio come deve essere strutturato uno script di cron:ù
+\begin{lstlisting}
+# Example of job definition:
+# .---------------- minute (0 - 59)
+# |  .------------- hour (0 - 23)
+# |  |  .---------- day of month (1 - 31)
+# |  |  |  .------- month (1 - 12) OR jan,feb,mar,apr ...
+# |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
+# |  |  |  |  |
+# *  *  *  *  * user-name  command to be executed
+\end{lstlisting}
+Si intuisce da questo esempio che mentre i campi \texttt{dom} e \texttt{dow} interferiscano tra di loro. In realtà
+settando entrambi il comando verrà eseguito sia nel "day of month" sia nel "day of week" specificari.
+\paragraph{Parametri}
+Accetta un sacco di parametri, qui spiegati:
+\begin{itemize}
+	\item{\texttt{command}: È il comando che deve essere eseguito. Deve essere di una sola riga e può essere sia
+		un comando di bash che la chiamata ad un'applicativo di sistema, che può essere in qualsiasi linguaggio,
+		incluso bash stesso (ovviamente)}
+	\item{\texttt{name=""}: È il nome del nuovo script di bash. Se non specificato viene gererato automaticamente
+		attraverso la chiamata alla funzione \nameref{getcronname}. In realtà la funzione viene chiamata
+		direttamente dal frontend per settare il nome, ma per la massima sicurezza viene fatto un controllo
+		per vedere se il nome è vuoto, e generarlo in tal caso}
+	\item{\texttt{user="root"}: È l'utente per conto di cui il comando verrà lanciato. Di default è l'utenza amministrativa.}
+	\item{\texttt{minute="*"}: È il minuto in cui il comando verrà eseguito. Di default è * che indica ogni minuto}
+	\item{\texttt{hour="*"}: È l'ora in cui il comando verrà eseguito. Di default è * che indica ogni ora. Accetta valori
+		da 0 a 24 ed è basato sul fuso orario del sistema}
+	\item{\texttt{dom="*"}: È il giorno del mese (dom="day of month")  in cui il comando verrà eseguito.
+		Di default è * che indica ogni giorno del mese. Accetta valori da 1 a 31 se il mese ha 31 giorni}
+	\item{\texttt{month="*"}: È il mese in cui il comamndo deve essere eseguito. Di default è * che indica ogni mese.
+		Accetta valori da 1 da 12}
+	\item{\texttt{dow="*"}: È il giorno della settimana in cui il comando deve essere esguito.
+		Di default è * che indica ogni gionro della settimana. Accetta valori da 1 a 7}
+\end{itemize}
+\paragraph{Funzionamento}
+Una volta settato il path in cui il file verrà creato (\texttt{/etc/cron.d/}) si crea il mongolog in quanto bisogna tenere
+traccia di chi ha creato il file, e semplicemente usando una \texttt{with open} si apre il file in scrittura e si scrivono
+tutti le informazioni ricevute come parametri.
+\paragraph{Return}
+Restituisce il percorso del file creato e il logid del documento mongo contenente le informazioni sulla operazione nel dizionario
+di successo generato dalla funzione \texttt{command\_success}.
+
+\subsubsection{adddefaultcron}\label{adddefaultcron}
+\begin{lstlisting}
+def adddefaultcron(command, cronspath, name):
+
+    #New cron gets a random name if user did not provide it
+    if not name: name=getcronname()
+
+    logid = mongolog( locals() )
+
+    with open(cronspath + name, 'w') as newcron:
+        newcron.write( command + '\n' )
+
+    return command_success( logid=logid )
+
+
+def addhourlycron(command, name=""): return addefaultcron( name=name, command=command, cronspath='/etc/cron.hourly/' )
+def adddailycron(command, name=""): return addefaultcron( command=command, cronspath='/etc/cron.daily/' )
+def addweeklycron(command, name=""): return addefaultcron( command=command, cronspath='/etc/cron.weekly/' )
+def addmonthlyycron(command, name=""): return addefaultcron( command=command, cronspath='/etc/cron.monthly/' )
+\end{lstlisting}
+\paragraph{Parametri}
+\paragraph{Funzionamento}
+\paragraph{Return}
+
+\subsubsection{writecron}\label{writecron}
+\begin{lstlisting}
+def writecron( cronpath, newcontent ):
+    return writefile( filepath=cronpath, newcontent=newcontent+'\n' )
+\end{lstlisting}
+\paragraph{Parametri}
+\paragraph{Funzionamento}
+\paragraph{Return}
+
+\subsubsection{removecron}\label{removecron}
+\begin{lstlisting}
+def removecron(cronpath): delfile( path=cronpath )
+\end{lstlisting}
+\paragraph{Parametri}
+\paragraph{Funzionamento}
+\paragraph{Return}
 
 \subsection{Sistema}\label{sistema}
 \subsection{apache}\label{apache}
