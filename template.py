@@ -6,7 +6,11 @@ from systemfile import locate,updatedb
 from system import getsysteminfo, hostname
 #from network import ifacestat
 from apache import apachestart, apachestop, apacherestart, apachereload, apachestatus, getvhosts, activatevhost, deactivatevhost
+from cron import listcrontabs, getcrontabcontent
+from flask import Flask, render_template, flash, request, redirect, url_for, send_file
+from network import ifacestat
 from flask import Flask, render_template, flash, request, redirect, url_for
+
 from flask_bootstrap import Bootstrap
 from collections import defaultdict
 
@@ -20,15 +24,13 @@ bootstrap = Bootstrap(app)
 # definizione base dash con componente fissa navbar
 @app.route('/dash')
 def dash():
-	#error = None
-	#tpl = getsysteminfo()
-	#if tpl['returncode'] != 0:
-	#	flash(tpl['stderr'])
-	#else:
-	#	(cpu,mem,proc) = tpl['data']
-	#	return render_template('dash.html', cpu = cpu, mem = mem, proc = proc)
-
-	#return render_template('dash.html')
+#	error = None
+#	tpl = getsysteminfo()
+#	if tpl['returncode'] != 0:
+#		flash(tpl['stderr'])
+#	else:
+#		(cpu,mem,proc) = tpl['data']
+#		return render_template('dash.html', cpu = cpu, mem = mem, proc = proc)
 	tpl = getsysteminfo()
 	(cpu,mem,proc) = tpl['data']
 	return render_template('dash.html', cpu = cpu, mem = mem, proc = proc)
@@ -108,6 +110,35 @@ def removeUserGroup():
 	
 	return redirect(url_for('listUserAndGroups'))
 
+########## FUNZIONALITÀ cron.py ##########
+
+@app.route('/listCron')
+def listCron():
+	listCrontabs = listcrontabs()
+	return render_template("jobs.html",listCrontabs=listCrontabs)
+
+@app.route('/getContentCrontab/<string:cronk>/<string:cronv>')
+def getContentCrontab(cronk,cronv):
+	basedir='/etc/'
+	pathCron=basedir+cronk+'/'+cronv
+	content = getcrontabcontent(pathCron)
+	#return send_file(pathCron,attachment_filename=cronv) fa il download
+	return render_template("jobs.html", content=content, pathCron=pathCron)
+
+@app.route('/updateCrontab/<string:pathCron>', methods=['POST'])
+def updateCrontab(pathCron):
+	#manca contenuto
+	error = None
+	updatedCrontab = request.form['content-textarea']
+	#aggingi contenuto textarea
+	log = writecron(pathCron)
+	if(log['returncode'] != 0):
+		error = log['command']
+	else:
+		flash('Crontab modificato correttamente!')
+		return redirect(url_for('listCron'))
+	return render_template('listCron.html',error=error)
+
 ########## FUNZIONALITÀ apps.py ##########
 
 # http://localhost:5000/listInstalled
@@ -127,6 +158,7 @@ def findPkgInstalled():
 	return render_template('find-pkg-installed.html', appFound = appFound)
 
 ########## FUNZIONALITÀ file.py ##########
+
 @app.route('/file')
 def file():
 	return render_template('file.html')
@@ -168,7 +200,6 @@ def param():
 		flash(hname['command'])
 	else:
 		return render_template('param.html', hname=hname)
-
 	return render_template('param.html')
 
 @app.route('/newHostname', methods=['POST'])
@@ -196,13 +227,14 @@ def newHostname():
 #	return render_template('network.html', facestat=facestat)
 
 ########## FUNZIONALITÀ apache.py ##########
+
 @app.route('/startApache', methods=['POST'])
 def startApache():
 	error = None
 	if request.form['b-start-a'] == 'Start':
 		log = apachestart()
 		if(log['returncode'] != 0):
-			error = "Errore start apache"
+			error = log['stderr']
 		else:
 			flash("Apache startato correttamente")
 			return redirect(url_for('getVHosts'))
@@ -210,13 +242,14 @@ def startApache():
 		error = 'Non funzica' 
 	return render_template('apache.html', error=error)
 
+#errore 500
 @app.route('/stopApache', methods=['POST'])
 def stopApache():
 	error = None
 	if request.form['b-stop-a'] == 'Stop':
 		log = apachestop()
 		if(log['returncode'] != 0):
-			error = "Errore stop apache"
+			error = log['stderr']
 		else:
 			flash("Apache stoppato correttamente")
 			return redirect(url_for('getVHosts'))
@@ -231,7 +264,7 @@ def restartApache():
 	if request.form['b-restart-a'] == 'Restart':
 		log = apacherestart()
 		if(log['returncode'] != 0):
-			error = "Errore restart apache"
+			error = log['stderr']
 		else:
 			flash("Restart Apache avvenuto correttamente")
 			return redirect(url_for('getVHosts'))
@@ -241,11 +274,30 @@ def restartApache():
 
 @app.route('/reloadApache', methods=['POST'])
 def reloadApache():
-	pass
+	error = None
+	if request.form['b-reload-a'] == 'Reload':
+		log = apachereload()
+		if(log['returncode'] != 0):
+			error = log['stderr']
+		else:
+			flash("Reload Apache avvenuto correttamente")
+			return redirect(url_for('getVHosts'))
+	else:
+		error = 'Non funzica' 
+	return render_template('apache.html', error=error)
 
 @app.route('/statusApache', methods=['POST'])
 def statusApache():
-	pass
+	error = None
+	if request.form['b-status-a'] == 'Status':
+		logStatus = apachestatus()
+		if(logStatus['returncode'] != 0):
+			error = logStatus['stderr']
+		else:
+			return render_template('apache.html', logStatus=logStatus)
+	else:
+		error = 'Non funzica' 
+	return render_template('apache.html', error=error)
 
 @app.route('/getVHosts')
 def getVHosts():
@@ -272,18 +324,20 @@ def activateVHost():
 	#return redirect(url_for('getVHosts'))
 	return '',204 #ritorno senza reindirizzamento con flask
 
-@app.route('/deactivatevhost', methods=['POST'])
-def deactivatevhost():
+@app.route('/deactivateVHost', methods=['POST'])
+def deactivateVHost():
 	filename = request.form['clickDeactiv']
 	if filename:
-		logAVHost=deactivatevhost(filename)
-		if(logAVHost['returncode'] != 0):
-			flash(logAVHost['stderr'])
-			flash(logAVHost['command'])
+		logDAVHost=deactivatevhost(filename)
+		if(logDAVHost['returncode'] != 0):
+			flash(logDAVHost['stderr'])
+			flash(logDAVHost['command'])
 			#return redirect(url_for('getVHosts'))
 			return '',204
 	#return redirect(url_for('getVHosts'))
 	return '',204 #ritorno senza reindirizzamento con flask
+
+
 
 if __name__ == '__main__':
 	app.run(debug = True)

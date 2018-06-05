@@ -24,4 +24,11 @@ $(document).ready(function () {
 		$("#pText").show();
 	});
 
+	$('#content-textarea').focusout(function(){
+		$('#content-textarea').css("border-color","red");
+	});
+
+	
+
+
 });
