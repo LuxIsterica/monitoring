@@ -1942,9 +1942,22 @@ un codice di ritorno e un messaggio di errore personalizzato e che sono quello c
 \begin{lstlisting}
 def getcronname(): return 'nomodo-' + datetime.datetime.now().strftime('%Y%m%d%H%M%S')
 \end{lstlisting}
+Genera un nome da usare per un nuovo cron. Viene usato principalmente in due fasi:
+\begin{enumerate}
+	\item{Viene chiamato dal frontend per riempire il campo \textit{name} all'aggiunta di un nuovo crontab.
+		L'utente ovviamente ha la possibiltà di cammbiare questo nome prima dell'aggiunta dello script}
+	\item{Chiamato dalle funzione di aggiunta cron \nameref{addcron} e \nameref{adddefaultcron} in quanto
+		se il parametro \texttt{name} non è stato passato vanno ad utilizzare il nome restituito da
+		questa funzione. Questa operazione sembra ridondante in quanto già chiamata dal frontend come
+		spiegato al punto 1, ma serve a dare solidità al codice}
+\end{enumerate}
 \paragraph{Parametri}
+Non prende nessun parametro.
 \paragraph{Funzionamento}
+Semplicemente contatena la stringa "nomodo-" alla data e ora odierna col formato che si vede nel codice.
 \paragraph{Return}
+È una delle pochissime funzione che non chiama una delle due funzioni di ritorno di nomodo.
+Restituisce la stringa costruita come spiegato nel funzionamento.
 
 \subsubsection{addcron}\label{addcron}
 \begin{lstlisting}
@@ -2022,7 +2035,7 @@ def adddefaultcron(command, cronspath, name):
     with open(cronspath + name, 'w') as newcron:
         newcron.write( command + '\n' )
 
-    return command_success( logid=logid )
+    return command_success( data=cronspath+name, logid=logid )
 
 
 def addhourlycron(command, name=""): return addefaultcron( name=name, command=command, cronspath='/etc/cron.hourly/' )
@@ -2030,9 +2043,50 @@ def adddailycron(command, name=""): return addefaultcron( command=command, crons
 def addweeklycron(command, name=""): return addefaultcron( command=command, cronspath='/etc/cron.weekly/' )
 def addmonthlyycron(command, name=""): return addefaultcron( command=command, cronspath='/etc/cron.monthly/' )
 \end{lstlisting}
+La funzione si contrappone a \nameref{addcron} e a differenza di questo serve a creare uno script nelle cartelle
+\texttt{/etc/cron.hourly}, \texttt{/etc/cron.daily}, \texttt{/etc/cron.weekly} e \texttt{cron.monthly}. Come spiegato
+gli script di queste cartelle a differenza di quelli in \texttt{/etc/cron.d} sono veri e propri script
+(solitamente script di bash) che vengono eseguiti ordinati per nome e secondo le direttive del file \texttt{/etc/crontab}.
+Qui un esempio di tale file preso da un Ubuntu 16.04 server:
+\begin{lstlisting}
+# /etc/crontab: system-wide crontab
+# Unlike any other crontab you don't have to run the `crontab'
+# command to install the new version when you edit this file
+# and files in /etc/cron.d. These files also have username fields,
+# that none of the other crontabs do.
+
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# m h dom mon dow user	command
+17 *	* * *	root    cd / && run-parts --report /etc/cron.hourly
+25 6	* * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.daily )
+47 6	* * 7	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.weekly )
+52 6	1 * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.monthly )
+\end{lstlisting}
+Quindi ad esempio tutti gli script in \texttt{/etc/cron.daily} verranno eseguiti ogni mattina alle ore 6:25.
 \paragraph{Parametri}
+Non prendendo informazioni ne sulla tempistica ne sull'utente prende pochi parametri, qui presentati:
+\begin{itemize}
+	\item{\texttt{command}: È il contenuto dello script che verrà aggiunto alle cartelle. In questo
+		caso può essere multilinea. Il fontend può leggere questo contenuto ad esempio da una text area}
+	\item{\texttt{cronspath}: Dato che questa funzione non andrebbe mami richiamata direttamente ma sempre
+		attraverso le 4 funzioni che si vedono nelle ultime 4 righe del codice questo è un parametro
+		che indica la cartella dove lo script sarà posizionato; questo cambia a seconda della funzione chiamata}
+	\item{\texttt{name}: È il nome dello script di cron, che come per \nameref{addcron} se non presente viene
+		generato tramite la chiamata alla funzione \nameref{getcronname}}
+\end{itemize}
 \paragraph{Funzionamento}
+Come per \texttt{addcron} la funzione non fa altro che verificare che il nome sia presente e generarlo in caso negativo,
+creare un documento mongo che memorizzi l'operazione effettuata e scrivere lo script (contenuto nella variabile \texttt{command})
+nel nuovo file.\\
+La funzione principale non va mai chiamata direttamente ma bisogna sempre utilizzare le 4 funzioni intermediare che si vedono
+nelle ultime 4 righe del codice e che vanno a settare correttamente la variabile \texttt{cronspath} a seconda della tempistica
+di esecuzione dello script.
 \paragraph{Return}
+Ugualemente a \texttt{addcron} restituisce il dizionario di successo contenete il percorso del nuovo file
+nella variabile \texttt{data} e il l'object id del documento mongo contenente le informazioni sull'operazione
+nella variabile \texttt{logid}.
 
 \subsubsection{writecron}\label{writecron}
 \begin{lstlisting}

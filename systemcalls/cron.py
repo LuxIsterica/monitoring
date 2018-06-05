@@ -62,7 +62,7 @@ def adddefaultcron(command, cronspath, name):
     with open(cronspath + name, 'w') as newcron:
         newcron.write( command + '\n' )
 
-    return command_success( logid=logid )
+    return command_success( data=cronspath+name, logid=logid )
 
 
 def addhourlycron(command, name=""): return addefaultcron( name=name, command=command, cronspath='/etc/cron.hourly/' )
