@@ -500,6 +500,29 @@ così chiaramente e in modo così adatto da essere inserito in un database.\\
 \paragraph{Return}
 Restituisce un dizionario con la sola chiave \texttt{filediff} dove il valore è il diff generato.
 
+\subsubsection{delfile}\label{delfile}
+\begin{lstlisting}
+    logid = mongolog( locals() )
+
+    try:
+        os.remove( path )
+    except FileNotFoundError:
+        return command_error( returncode=10, stderr='File to remove not found: "'+path+'"' )
+
+    return command_success( logid=logid )
+\end{lstlisting}
+Nasce per eliminare un file dal sistema.
+\paragraph{Parametri}
+Accetta un solo parametro che è il percorso del file da rimuovere.
+\paragraph{Funzionamento}
+Semplicemente eliminare il file utilizzando la funzione \texttt{remove} della libreria \texttt{os}. Durante la rimozione
+verifica che non si verifichi l'eccezione \texttt{FileNotFoundError}, lanciata se il file indicato dal percorso non esiste.
+In caso l'eccezione venga lanciata viene chiamata la funzione di errore con codice e messaggio di errore personalizzati.
+\paragraph{Return}
+Restituiusce il dizionario di errore costruita come si vede in codice se il file non esiste, il dizionario di successo
+altrimenti, contenente nella variabile \texttt{logid} l'object id del documento mongo creato e contenente le informazioni
+sull'operazione appena eseguita.
+
 \subsection{Utenti}\label{utenti}
 \subsubsection{getuser}\label{getuser}
 \begin{lstlisting}
@@ -2093,17 +2116,30 @@ nella variabile \texttt{logid}.
 def writecron( cronpath, newcontent ):
     return writefile( filepath=cronpath, newcontent=newcontent+'\n' )
 \end{lstlisting}
+Nasce per scrivere il contenuto di un file di cron. Ovviamente può essere usato per sovrascrivere completamente il contenuto
+o in congiunzione con \nameref{getcroncontent} per aggiornarne il contenuto.
 \paragraph{Parametri}
+Prende 2 parametri:
+\begin{itemize}
+	\item{\texttt{cronpath}: È il percorso del file di cron che verrà scritto}
+	\item{\texttt{newcontent}: È il nuovo contenuto del file che verrà scritto nel file indicato in \texttt{cronpath}}
+\end{itemize}
 \paragraph{Funzionamento}
+La funzione è basata su \nameref{writefile} spiegata precedentemente.
 \paragraph{Return}
+Restituisce ciò che ritorna \nameref{writefile}.
 
 \subsubsection{removecron}\label{removecron}
 \begin{lstlisting}
 def removecron(cronpath): delfile( path=cronpath )
 \end{lstlisting}
+Serve ad eliminare un file di cron e quindi a fermare l'esecuzione del comando in esso contenuto.
 \paragraph{Parametri}
+Accetta un solo parametro che è il percorso del file da eliminare.
 \paragraph{Funzionamento}
+La funzione è basata sulla funzione precedentemente spiegata \nameref{delfile}.
 \paragraph{Return}
+Restituisce ciò che ritora la funzione \nameref{delfile}.
 
 \subsection{Sistema}\label{sistema}
 \subsection{apache}\label{apache}

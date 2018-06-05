@@ -172,7 +172,11 @@ def filediff(filea, fileb):
 
 def delfile(path):
 
+    logid = mongolog( locals() )
+
     try:
         os.remove( path )
     except FileNotFoundError:
         return command_error( returncode=10, stderr='File to remove not found: "'+path+'"' )
+
+    return command_success( logid=logid )

@@ -19,7 +19,7 @@
 \contentsline {paragraph}{Parametri}{8}{section*.11}
 \contentsline {paragraph}{Funzionamento}{8}{section*.12}
 \contentsline {paragraph}{Return}{9}{section*.13}
-\contentsline {subsubsection}{\numberline {2.1.5}filedit}{9}{subsubsection.2.1.5}
+\contentsline {subsubsection}{\numberline {2.1.5}writefile}{9}{subsubsection.2.1.5}
 \contentsline {paragraph}{Parametri}{10}{section*.14}
 \contentsline {paragraph}{Funzionamento}{10}{section*.15}
 \contentsline {paragraph}{Return}{11}{section*.16}
@@ -27,87 +27,140 @@
 \contentsline {paragraph}{Parametri}{12}{section*.17}
 \contentsline {paragraph}{Funzionamento}{12}{section*.18}
 \contentsline {paragraph}{Return}{12}{section*.19}
-\contentsline {subsection}{\numberline {2.2}Utenti}{12}{subsection.2.2}
-\contentsline {subsubsection}{\numberline {2.2.1}getuser}{12}{subsubsection.2.2.1}
-\contentsline {paragraph}{Parametri}{13}{section*.20}
-\contentsline {paragraph}{Funzionamento}{13}{lstlisting.-17}
-\contentsline {paragraph}{Return}{14}{section*.22}
+\contentsline {subsubsection}{\numberline {2.1.7}delfile}{12}{subsubsection.2.1.7}
+\contentsline {paragraph}{Parametri}{12}{section*.20}
+\contentsline {paragraph}{Funzionamento}{13}{section*.21}
+\contentsline {paragraph}{Return}{13}{section*.22}
+\contentsline {subsection}{\numberline {2.2}Utenti}{13}{subsection.2.2}
+\contentsline {subsubsection}{\numberline {2.2.1}getuser}{13}{subsubsection.2.2.1}
+\contentsline {paragraph}{Parametri}{14}{section*.23}
+\contentsline {paragraph}{Funzionamento}{14}{lstlisting.-18}
+\contentsline {paragraph}{Return}{15}{section*.25}
 \contentsline {subsubsection}{\numberline {2.2.2}getusers}{15}{subsubsection.2.2.2}
-\contentsline {paragraph}{Parametri}{15}{section*.23}
-\contentsline {paragraph}{Funzionamento}{15}{lstlisting.-21}
-\contentsline {paragraph}{Return}{16}{section*.25}
-\contentsline {subsubsection}{\numberline {2.2.3}getgroups}{16}{subsubsection.2.2.3}
 \contentsline {paragraph}{Parametri}{16}{section*.26}
-\contentsline {paragraph}{Funzionamento}{16}{section*.27}
-\contentsline {paragraph}{Return}{17}{section*.28}
-\contentsline {subsubsection}{\numberline {2.2.4}getusergroups}{17}{subsubsection.2.2.4}
+\contentsline {paragraph}{Funzionamento}{16}{lstlisting.-22}
+\contentsline {paragraph}{Return}{16}{section*.28}
+\contentsline {subsubsection}{\numberline {2.2.3}getgroups}{16}{subsubsection.2.2.3}
 \contentsline {paragraph}{Parametri}{17}{section*.29}
-\contentsline {paragraph}{Funzionamento}{18}{lstlisting.-27}
-\contentsline {paragraph}{Return}{18}{section*.31}
-\contentsline {subsubsection}{\numberline {2.2.5}getusernotgroups}{18}{subsubsection.2.2.5}
-\contentsline {paragraph}{Parametri}{19}{section*.32}
-\contentsline {paragraph}{Funzionamento}{19}{section*.33}
-\contentsline {paragraph}{Return}{20}{section*.34}
+\contentsline {paragraph}{Funzionamento}{17}{section*.30}
+\contentsline {paragraph}{Return}{17}{section*.31}
+\contentsline {subsubsection}{\numberline {2.2.4}getusergroups}{18}{subsubsection.2.2.4}
+\contentsline {paragraph}{Parametri}{18}{section*.32}
+\contentsline {paragraph}{Funzionamento}{18}{lstlisting.-28}
+\contentsline {paragraph}{Return}{19}{section*.34}
+\contentsline {subsubsection}{\numberline {2.2.5}getusernotgroups}{19}{subsubsection.2.2.5}
+\contentsline {paragraph}{Parametri}{19}{section*.35}
+\contentsline {paragraph}{Funzionamento}{19}{section*.36}
+\contentsline {paragraph}{Return}{20}{section*.37}
 \contentsline {subsubsection}{\numberline {2.2.6}addusertogroups}{20}{subsubsection.2.2.6}
-\contentsline {paragraph}{Parametri}{20}{section*.35}
-\contentsline {paragraph}{Funzionamento}{21}{lstlisting.-33}
-\contentsline {paragraph}{Return}{21}{section*.37}
-\contentsline {subsubsection}{\numberline {2.2.7}removeuserfromgroups}{21}{subsubsection.2.2.7}
-\contentsline {paragraph}{Parametri}{22}{section*.38}
-\contentsline {paragraph}{Funzionamento}{22}{lstlisting.-36}
+\contentsline {paragraph}{Parametri}{21}{section*.38}
+\contentsline {paragraph}{Funzionamento}{21}{lstlisting.-34}
 \contentsline {paragraph}{Return}{22}{section*.40}
+\contentsline {subsubsection}{\numberline {2.2.7}removeuserfromgroups}{22}{subsubsection.2.2.7}
+\contentsline {paragraph}{Parametri}{22}{section*.41}
+\contentsline {paragraph}{Funzionamento}{22}{lstlisting.-37}
+\contentsline {paragraph}{Return}{23}{section*.43}
 \contentsline {subsubsection}{\numberline {2.2.8}updatepass}{23}{subsubsection.2.2.8}
-\contentsline {paragraph}{Parametri}{23}{section*.41}
-\contentsline {paragraph}{Funzionamento}{23}{lstlisting.-39}
-\contentsline {paragraph}{Return}{24}{section*.43}
-\contentsline {subsubsection}{\numberline {2.2.9}getshells}{24}{subsubsection.2.2.9}
 \contentsline {paragraph}{Parametri}{24}{section*.44}
-\contentsline {paragraph}{Funzionamento}{24}{section*.45}
-\contentsline {paragraph}{Return}{25}{section*.46}
-\contentsline {subsubsection}{\numberline {2.2.10}updateusershell}{25}{subsubsection.2.2.10}
+\contentsline {paragraph}{Funzionamento}{24}{lstlisting.-40}
+\contentsline {paragraph}{Return}{24}{section*.46}
+\contentsline {subsubsection}{\numberline {2.2.9}getshells}{24}{subsubsection.2.2.9}
 \contentsline {paragraph}{Parametri}{25}{section*.47}
-\contentsline {paragraph}{Funzionamento}{25}{lstlisting.-43}
-\contentsline {paragraph}{Return}{26}{section*.49}
-\contentsline {subsubsection}{\numberline {2.2.11}adduser}{26}{subsubsection.2.2.11}
+\contentsline {paragraph}{Funzionamento}{25}{section*.48}
+\contentsline {paragraph}{Return}{25}{section*.49}
+\contentsline {subsubsection}{\numberline {2.2.10}updateusershell}{25}{subsubsection.2.2.10}
 \contentsline {paragraph}{Parametri}{26}{section*.50}
-\contentsline {paragraph}{Funzionamento}{26}{lstlisting.-46}
-\contentsline {paragraph}{Return}{27}{section*.52}
-\contentsline {subsubsection}{\numberline {2.2.12}removeuser}{27}{subsubsection.2.2.12}
-\contentsline {paragraph}{Parametri}{28}{section*.53}
-\contentsline {paragraph}{Funzionamento}{28}{lstlisting.-49}
-\contentsline {paragraph}{Return}{28}{section*.55}
-\contentsline {subsection}{\numberline {2.3}Network}{28}{subsection.2.3}
-\contentsline {subsubsection}{\numberline {2.3.1}ifacestat}{28}{subsubsection.2.3.1}
-\contentsline {paragraph}{Parametri}{29}{section*.56}
-\contentsline {paragraph}{Funzionamento}{29}{lstlisting.-52}
-\contentsline {paragraph}{Return}{31}{section*.58}
-\contentsline {subsubsection}{\numberline {2.3.2}getnewifacealiasname}{31}{subsubsection.2.3.2}
-\contentsline {paragraph}{Parametri}{32}{section*.59}
-\contentsline {paragraph}{Funzionamento}{32}{section*.60}
-\contentsline {paragraph}{Return}{33}{section*.61}
-\contentsline {subsubsection}{\numberline {2.3.3}ifacedown}{33}{subsubsection.2.3.3}
-\contentsline {paragraph}{Parametri}{33}{section*.62}
+\contentsline {paragraph}{Funzionamento}{26}{lstlisting.-44}
+\contentsline {paragraph}{Return}{26}{section*.52}
+\contentsline {subsubsection}{\numberline {2.2.11}adduser}{26}{subsubsection.2.2.11}
+\contentsline {paragraph}{Parametri}{27}{section*.53}
+\contentsline {paragraph}{Funzionamento}{27}{lstlisting.-47}
+\contentsline {paragraph}{Return}{27}{section*.55}
+\contentsline {subsubsection}{\numberline {2.2.12}removeuser}{28}{subsubsection.2.2.12}
+\contentsline {paragraph}{Parametri}{28}{section*.56}
+\contentsline {paragraph}{Funzionamento}{28}{lstlisting.-50}
+\contentsline {paragraph}{Return}{29}{section*.58}
+\contentsline {subsection}{\numberline {2.3}Network}{29}{subsection.2.3}
+\contentsline {subsubsection}{\numberline {2.3.1}ifacestat}{29}{subsubsection.2.3.1}
+\contentsline {paragraph}{Parametri}{30}{section*.59}
+\contentsline {paragraph}{Funzionamento}{30}{lstlisting.-53}
+\contentsline {paragraph}{Return}{32}{section*.61}
+\contentsline {subsubsection}{\numberline {2.3.2}getnewifacealiasname}{32}{subsubsection.2.3.2}
+\contentsline {paragraph}{Parametri}{32}{section*.62}
 \contentsline {paragraph}{Funzionamento}{33}{section*.63}
 \contentsline {paragraph}{Return}{33}{section*.64}
-\contentsline {subsubsection}{\numberline {2.3.4}ifaceup}{34}{subsubsection.2.3.4}
+\contentsline {subsubsection}{\numberline {2.3.3}ifacedown}{34}{subsubsection.2.3.3}
 \contentsline {paragraph}{Parametri}{34}{section*.65}
 \contentsline {paragraph}{Funzionamento}{34}{section*.66}
 \contentsline {paragraph}{Return}{34}{section*.67}
+\contentsline {subsubsection}{\numberline {2.3.4}ifaceup}{34}{subsubsection.2.3.4}
+\contentsline {paragraph}{Parametri}{35}{section*.68}
+\contentsline {paragraph}{Funzionamento}{35}{section*.69}
+\contentsline {paragraph}{Return}{35}{section*.70}
 \contentsline {subsubsection}{\numberline {2.3.5}createalias}{35}{subsubsection.2.3.5}
-\contentsline {subsubsection}{\numberline {2.3.6}destroyalias}{35}{subsubsection.2.3.6}
-\contentsline {subsubsection}{\numberline {2.3.7}editiface}{35}{subsubsection.2.3.7}
-\contentsline {subsubsection}{\numberline {2.3.8}getroutes}{35}{subsubsection.2.3.8}
-\contentsline {subsubsection}{\numberline {2.3.9}addroute}{35}{subsubsection.2.3.9}
-\contentsline {subsubsection}{\numberline {2.3.10}defaultroute}{35}{subsubsection.2.3.10}
-\contentsline {subsubsection}{\numberline {2.3.11}delroute}{35}{subsubsection.2.3.11}
-\contentsline {subsection}{\numberline {2.4}Cron}{35}{subsection.2.4}
-\contentsline {subsection}{\numberline {2.5}Sistema}{35}{subsection.2.5}
-\contentsline {subsection}{\numberline {2.6}apache}{35}{subsection.2.6}
-\contentsline {subsection}{\numberline {2.7}Database}{35}{subsection.2.7}
-\contentsline {subsection}{\numberline {2.8}File}{35}{subsection.2.8}
-\contentsline {subsection}{\numberline {2.9}Logs}{35}{subsection.2.9}
-\contentsline {section}{\numberline {3}Frontend}{35}{section.3}
-\contentsline {section}{\numberline {4}Utility}{35}{section.4}
-\contentsline {subsection}{\numberline {4.1}\href {https://developers.redhat.com/products/developertoolset/overview/}{Red Hat Developer Toolset}}{35}{subsection.4.1}
-\contentsline {subsection}{\numberline {4.2}Rimossi tra CentOS 6 e 7 e le cui alternative non presenti su CRESCO 6}{35}{subsection.4.2}
-\contentsline {subsection}{\numberline {4.3}Rimossi da Centos 6 e 7 e le cui alternative sono presenti su CRESCO 6}{37}{subsection.4.3}
+\contentsline {paragraph}{Parametri}{36}{section*.71}
+\contentsline {paragraph}{Funzionamento}{36}{section*.72}
+\contentsline {paragraph}{Return}{36}{section*.73}
+\contentsline {subsubsection}{\numberline {2.3.6}destroyalias}{36}{subsubsection.2.3.6}
+\contentsline {paragraph}{Parametri}{36}{section*.74}
+\contentsline {paragraph}{Funzionamento}{36}{section*.75}
+\contentsline {paragraph}{Return}{36}{section*.76}
+\contentsline {subsubsection}{\numberline {2.3.7}editiface}{37}{subsubsection.2.3.7}
+\contentsline {paragraph}{Parametri}{37}{section*.77}
+\contentsline {paragraph}{Funzionamento}{37}{section*.78}
+\contentsline {paragraph}{Return}{37}{section*.79}
+\contentsline {subsubsection}{\numberline {2.3.8}getroutes}{37}{subsubsection.2.3.8}
+\contentsline {paragraph}{Parametri}{38}{section*.80}
+\contentsline {paragraph}{Funzionamento}{38}{lstlisting.-65}
+\contentsline {paragraph}{Return}{39}{section*.82}
+\contentsline {subsubsection}{\numberline {2.3.9}addroute}{39}{subsubsection.2.3.9}
+\contentsline {paragraph}{Parametri}{39}{section*.83}
+\contentsline {paragraph}{Funzionamento}{40}{section*.84}
+\contentsline {paragraph}{Return}{40}{section*.85}
+\contentsline {subsubsection}{\numberline {2.3.10}defaultroute}{40}{subsubsection.2.3.10}
+\contentsline {paragraph}{Parametri}{40}{section*.86}
+\contentsline {paragraph}{Funzionamento}{40}{section*.87}
+\contentsline {paragraph}{Return}{40}{section*.88}
+\contentsline {subsubsection}{\numberline {2.3.11}delroute}{40}{subsubsection.2.3.11}
+\contentsline {paragraph}{Parametri}{41}{section*.89}
+\contentsline {paragraph}{Funzionamento}{41}{section*.90}
+\contentsline {paragraph}{Return}{41}{section*.91}
+\contentsline {subsection}{\numberline {2.4}Cron}{41}{subsection.2.4}
+\contentsline {subsubsection}{\numberline {2.4.1}listcrontabs}{42}{subsubsection.2.4.1}
+\contentsline {paragraph}{Parametri}{42}{section*.92}
+\contentsline {paragraph}{Funzionamento}{42}{section*.93}
+\contentsline {paragraph}{Return}{42}{section*.94}
+\contentsline {subsubsection}{\numberline {2.4.2}getcroncontent}{43}{subsubsection.2.4.2}
+\contentsline {paragraph}{Parametri}{43}{section*.95}
+\contentsline {paragraph}{Funzionamento}{43}{section*.96}
+\contentsline {paragraph}{Return}{43}{section*.97}
+\contentsline {subsubsection}{\numberline {2.4.3}getcronname}{43}{subsubsection.2.4.3}
+\contentsline {paragraph}{Parametri}{43}{section*.98}
+\contentsline {paragraph}{Funzionamento}{43}{section*.99}
+\contentsline {paragraph}{Return}{43}{section*.100}
+\contentsline {subsubsection}{\numberline {2.4.4}addcron}{44}{subsubsection.2.4.4}
+\contentsline {paragraph}{Parametri}{44}{section*.101}
+\contentsline {paragraph}{Funzionamento}{45}{section*.102}
+\contentsline {paragraph}{Return}{45}{section*.103}
+\contentsline {subsubsection}{\numberline {2.4.5}adddefaultcron}{45}{subsubsection.2.4.5}
+\contentsline {paragraph}{Parametri}{46}{section*.104}
+\contentsline {paragraph}{Funzionamento}{46}{section*.105}
+\contentsline {paragraph}{Return}{46}{section*.106}
+\contentsline {subsubsection}{\numberline {2.4.6}writecron}{47}{subsubsection.2.4.6}
+\contentsline {paragraph}{Parametri}{47}{section*.107}
+\contentsline {paragraph}{Funzionamento}{47}{section*.108}
+\contentsline {paragraph}{Return}{47}{section*.109}
+\contentsline {subsubsection}{\numberline {2.4.7}removecron}{47}{subsubsection.2.4.7}
+\contentsline {paragraph}{Parametri}{47}{section*.110}
+\contentsline {paragraph}{Funzionamento}{47}{section*.111}
+\contentsline {paragraph}{Return}{47}{section*.112}
+\contentsline {subsection}{\numberline {2.5}Sistema}{47}{subsection.2.5}
+\contentsline {subsection}{\numberline {2.6}apache}{47}{subsection.2.6}
+\contentsline {subsection}{\numberline {2.7}Database}{47}{subsection.2.7}
+\contentsline {subsection}{\numberline {2.8}File}{47}{subsection.2.8}
+\contentsline {subsection}{\numberline {2.9}Logs}{47}{subsection.2.9}
+\contentsline {section}{\numberline {3}Frontend}{47}{section.3}
+\contentsline {section}{\numberline {4}Utility}{47}{section.4}
+\contentsline {subsection}{\numberline {4.1}\href {https://developers.redhat.com/products/developertoolset/overview/}{Red Hat Developer Toolset}}{47}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Rimossi tra CentOS 6 e 7 e le cui alternative non presenti su CRESCO 6}{47}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.3}Rimossi da Centos 6 e 7 e le cui alternative sono presenti su CRESCO 6}{49}{subsection.4.3}
