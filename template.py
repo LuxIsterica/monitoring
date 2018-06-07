@@ -6,7 +6,7 @@ from systemfile import locate,updatedb
 from system import getsysteminfo, hostname
 #from network import ifacestat
 from apache import apachestart, apachestop, apacherestart, apachereload, apachestatus, getvhosts, activatevhost, deactivatevhost
-from cron import listcrontabs, getcrontabcontent
+from cron import listcrontabs, getcroncontent, writecron
 from flask import Flask, render_template, flash, request, redirect, url_for, send_file
 from network import ifacestat
 from flask import Flask, render_template, flash, request, redirect, url_for
@@ -121,23 +121,23 @@ def listCron():
 def getContentCrontab(cronk,cronv):
 	basedir='/etc/'
 	pathCron=basedir+cronk+'/'+cronv
-	content = getcrontabcontent(pathCron)
+	content = getcroncontent(pathCron)
 	#return send_file(pathCron,attachment_filename=cronv) fa il download
-	return render_template("jobs.html", content=content, pathCron=pathCron)
+	return render_template("jobs-details.html", content=content, pathCron=pathCron)
 
-@app.route('/updateCrontab/<string:pathCron>', methods=['POST'])
-def updateCrontab(pathCron):
-	#manca contenuto
+@app.route('/updateCrontab', methods=['POST'])
+def updateCrontab():
 	error = None
-	updatedCrontab = request.form['content-textarea']
-	#aggingi contenuto textarea
-	log = writecron(pathCron, updatedCrontab)
-	if(log['returncode'] != 0):
-		error = log['command']
+	updatedCrontab = request.form['contentTextarea']
+	path = request.form['hiddenPath']
+	if not updateCrontab and not path:
+		error = "Errore passaggio parametri: vuoti"
+		return render_template("jobs.html", error=error)
 	else:
-		flash('Crontab modificato correttamente!')
-		return redirect(url_for('listCron'))
-	return render_template('listCron.html',error=error)
+		newPath = writecron(path, updatedCrontab)
+		return render_template_string('listCron', newPath=newPath)
+
+	
 
 ########## FUNZIONALITÀ apps.py ##########
 

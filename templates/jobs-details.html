@@ -1,0 +1,17 @@
+{% extends "index.html" %}
+{% block page_content %}
+
+
+  <form id="updateCrontab" action="/updateCrontab" method = "post">
+	    <div id="loadTextArea">
+			  <label for="contentTextarea">content:</label>
+			  <textarea class="form-control" rows="8" name="contentTextarea" id="contentTextarea">{{ content.data }}</textarea>
+			  <input type="hidden" value="{{pathCron}}" name="hiddenPath">
+	    </div>
+	    <div class="input-group-btn">
+	    	<button type="submit" class="btn btn-primary" id="modificaCrontab" style="margin-top: 1em;margin-left: 56em;">Modifica</button>
+	  	</div>
+  </form>
+  
+
+{% endblock %}

@@ -1,16 +1,11 @@
 {% extends "index.html" %}
 {% block page_content %}
 <h2>Lista Job schedulati</h2>
-	{% with messages = get_flashed_messages() %}
-	  {% if messages %}
-	    <ul class=flashes>
-	    {% for message in messages %}
-	      <li>{{ message }}</li>
-	    {% endfor %}
-	    </ul>
-	  {% endif %}
-	{% endwith %}
-	
+
+	{% if newPath %}
+		<p>Modifica effettuata con successo! {{newPath}}</p>
+	{% endif %}
+
   	{% if error %}
     	<p class=error><strong>Error:</strong> {{ error }} </p>
   	{% endif %}
@@ -29,18 +24,6 @@
 		    </dl>
 		  </div>     
 		</div>
-	{% endif %}
-	{% if content %}
-	<form id="form" action="/updateCrontab/{{ pathCron }}" role="form" method = "POST"> 
-	    <div id="loadTextArea">
-			  <label for="content-textarea">content:</label>
-			  <textarea class="form-control" rows="8" name="content-textarea" id="content-textarea">{{ content.data }}</textarea>
-	    </div>
-	    <div class="input-group-btn">
-	    	<button type="button" class="btn btn-primary" id="modificaCrontab" style="margin-top: 1em;margin-left: 56em;" disabled>Modifica</button>
-	  	</div>
-	</form> 
-	</div>
 	{% endif %}
 
 {% endblock %}
