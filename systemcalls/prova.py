@@ -6,20 +6,20 @@ from apache import getvhosts, getmods, getconf, activatevhost, deactivatevhost, 
 from pprint import pprint
 from utilities import filediff, writefile
 from network import ifacestat, getnewifacealiasname, ifacedown, ifaceup, editiface, createalias, destroyalias, getroutes, addroute, defaultroute, delroute
-from cron import getusercron, writeusercrontab
+
 import os
 import sys
 
 
 
-data = getvhosts()
+data = getmods()
 #data = writeusercrontab('giuseppe', 'nuovociaone')
 if data['returncode'] is 0:
     #(cpu,mem,proc) = data['data']
 	#pprint(data['data'][1]['filename'][:-5])
 	#for k in data['data'][0]:
 	#	print("key: "+ k)
-	print (data)
+	print (data['data'])
 
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments

@@ -53,65 +53,27 @@
 <div class="container">
 
   <ul class="nav nav-tabs">
-    <li role="presentation" class="active"><a data-toggle="tab" href="#sites">Sites</a></li>
-    <li role="presentation"><a data-toggle="tab" href="#modules">Modules</a></li>
-    <li role="presentation"><a data-toggle="tab" href="#configurations">Configurations</a></li>
+    <li role="presentation"><a data-toggle="tab" href="{{ url_for('sites') }}">Sites</a></li>
+    <li role="presentation"><a data-toggle="tab" href="{{ url_for('modules') }}">Modules</a></li>
+    <li role="presentation"><a data-toggle="tab" href="{{ url_for('configurations') }}">Configurations</a></li>
   </ul>
 
-  <div class="tab-content">
-    <div id="sites" class="tab-pane fade in active">
-      <h3 class="title">Sites</h3>
-      {% if vhost|length > 0 %}
-	      {% for v in vhost.data %}
-	      <div class="row">
-	        	<div class="col-md-6"> 
-		        	<h2 style="text-align: center;">{{v['filename'][:-5]}}</h2>
-		      	</div>
-		        <div class="col-md-4"> 
-		          <table>
-		            <tr>
-		             <td> Site Folder (DocumentRoot): </td>
-		             <td> {{  v['DocumentRoot'] }} </td>
-		            </tr>
-		            <tr>
-		             <td> filename: </td>
-		             <td> {{  v['filename'] }} </td>
-		            </tr>
-		            <tr>
-		             <td> active: </td>
-		             {% if v['active'] == 1 %}
-			            <td>
-				            <form id="deactivateVHost" action="/deactivateVHost" role="form" method="POST">
-				           		<input type="hidden" value="{{v['filename']}}" name="clickDeactiv">
-			       		 		<button class="button b-round-g" id="buttonClickDeactiv"></button>
-			    			 </form>
-		    			</td>
-		             <!--<td><button class="button b-round-g" value="" id="buttonClickActiv"></button></td>-->
-		             {% else %}
-			            <td>
-				            <form id="activateVHost" action="/activateVHost" role="form" method="POST">
-				           		<input type="hidden" value="{{v['filename']}}" name="clickActiv">
-			       		 		<button class="button b-round-r" id="buttonClickActiv"></button>
-			    			 </form>
-		    			</td>
-		             {% endif %}
-		            </tr> 
-		        </table>
-		      </div>		
-	      </div>
-	      {% endfor %}
-      {% endif %}
-    </div>
-    <div id="modules" class="tab-pane fade">
-      <h3 class="title">Modules</h3>
-      <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-    </div>
-    <div id="configurations" class="tab-pane fade">
-      <h3 class="title">Configurations</h3>
-      <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.</p>
-    </div>
-  </div>
+	<div class="tab-content">
+	  {% if vhost and vhost|length > 0 %}
+		{% with vhost=vhost %}
+			{% include 'apache-sites.html' %}
+	  	{% endwith %}
+	  {% endif %}
+	  {% if mods and mods|length > 0 %}
+	  	{% with mods=mods %}
+			{% include 'apache-modules.html' %}
+	  	{% endwith %}
+	  {% endif %}
+	  {% if conf and conf|length > 0 %}
+	  	{% with conf=conf %}
+			{% include 'apache-configurations.html' %}
+	  	{% endwith %}
+	  {% endif %}
+	</div>  
 </div>
-
-
 {% endblock %}

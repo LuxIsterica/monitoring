@@ -1,0 +1,43 @@
+<div id="sites" class="tab-pane fade in active">
+      <h3 class="title">Sites</h3>
+
+	      {% for v in vhost.data %}
+	      <div class="row">
+	        	<div class="col-md-6"> 
+		        	<h2 style="text-align: center;">{{v['filename'][:-5]}}</h2>
+		      	</div>
+		        <div class="col-md-4"> 
+		          <table>
+		            <tr>
+		             <td> Site Folder (DocumentRoot): </td>
+		             <td> {{  v['DocumentRoot'] }} </td>
+		            </tr>
+		            <tr>
+		             <td> filename: </td>
+		             <td> {{  v['filename'] }} </td>
+		            </tr>
+		            <tr>
+		             <td> active: </td>
+		             {% if v['active'] == 1 %}
+			            <td>
+				            <form id="deactivateVHost" action="/deactivateVHost" role="form" method="POST">
+				           		<input type="hidden" value="{{v['filename']}}" name="clickDeactiv">
+			       		 		<button class="button b-round-g" id="buttonClickDeactiv"></button>
+			    			 </form>
+		    			</td>
+		             <!--<td><button class="button b-round-g" value="" id="buttonClickActiv"></button></td>-->
+		             {% else %}
+			            <td>
+				            <form id="activateVHost" action="/activateVHost" role="form" method="POST">
+				           		<input type="hidden" value="{{v['filename']}}" name="clickActiv">
+			       		 		<button class="button b-round-r" id="buttonClickActiv"></button>
+			    			 </form>
+		    			</td>
+		             {% endif %}
+		            </tr> 
+		        </table>
+		      </div>		
+	      </div>
+	      {% endfor %}
+
+</div>

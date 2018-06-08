@@ -5,11 +5,10 @@ from apps import listinstalled, aptsearch
 from systemfile import locate,updatedb
 from system import getsysteminfo, hostname
 #from network import ifacestat
-from apache import apachestart, apachestop, apacherestart, apachereload, apachestatus, getvhosts, activatevhost, deactivatevhost
+from apache import apachestart, apachestop, apacherestart, apachereload, apachestatus, getvhosts, getmods, getconf, activatevhost, deactivatevhost
 from cron import listcrontabs, getcroncontent, writecron
 from flask import Flask, render_template, flash, request, redirect, url_for, send_file
 from network import ifacestat
-from flask import Flask, render_template, flash, request, redirect, url_for
 
 from flask_bootstrap import Bootstrap
 from collections import defaultdict
@@ -299,15 +298,38 @@ def statusApache():
 		error = 'Non funzica' 
 	return render_template('apache.html', error=error)
 
-@app.route('/getVHosts')
-def getVHosts():
+@app.route('/sites')
+def sites():
 	error=None
 	vhost=getvhosts()
 	if(vhost['returncode'] != 0):
 		flash(vhost['stderr'])
 		flash(vhost['command'])
+		return render_template('apache.html')
 	else:
 		return render_template('apache.html', vhost=vhost)
+
+@app.route('/modules')
+def modules():
+	error=None
+	mods=getmods()
+	if(mods['returncode'] != 0):
+		flash(mods['stderr'])
+		flash(mods['command'])
+		return render_template('apache.html')
+	else:
+		return render_template('apache.html', mods=mods)
+
+@app.route('/configurations')
+def configurations():
+	error=None
+	conf=getconf()
+	if(conf['returncode'] != 0):
+		flash(conf['stderr'])
+		flash(conf['command'])
+		return render_template('apache.html')
+	else:
+		return render_template('apache.html', conf=conf)
 
 #creating a view function without returning a response in Flask
 # return HTTP/1.1" 204
