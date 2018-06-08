@@ -2170,8 +2170,135 @@ La funzione serve sia ad ottenere il nome macchina che a cambiarlo.
 \paragraph{Parametri}
 Accetta un solo parametro opzionale \texttt{newhostname} che contiene il nuovo nome macchina da assegnare alla stessa.
 \paragraph{Funzionamento}
-Il funzionamento è simile alla funzione hostname
+Si comporta similmente alla funzione \texttt{hostname} dei sistemi linux, ossia se chiamata senza alcun parametro
+restituisce l'hostname della macchina sulla quale viene eseguito, mentre e chiamato con un parametro allora setta
+il contenuto di questo parametro come nuovo nome macchina.\\
+Viene quindi fatto un controllo, se il parametro non obbligatorio \texttt{newhostname} contiene una stringa
+allora crea un nuovo momgolog e assegna alla macchina questa stringa come nome host, restituisce l'hostname
+della macchina altrimenti.
 \paragraph{Return}
+Restituisce il dizionario di successo contenente l'hostname se \texttt{newhostname} è vuota, l'object id
+del mongolog altrimenti.
+
+\subsubsection{getsysteminfo}\label{getsysteminfo}
+\begin{lstlisting}
+def getsysteminfo( getall=True, getproc=False, getcpu=False, getmem=False ):
+
+    #Tuple to return
+    toreturn = ()
+
+    ##### CPU #####
+    if getall or getcpu:
+
+        #Reading cpu stat from /opt files
+        with open('/proc/cpuinfo', 'r') as cpuorig:
+            cpuraw = cpuorig.read().splitlines()
+
+        #Removing duplicate lines by converting list() to set()
+        cpuraw = set(cpuraw)
+        
+        #Removing empty lines
+        cpuraw = list( filter( None, cpuraw ) )
+    
+        #Removing useless lines
+        linestoremove = ('flags', 'apicid', 'processor', 'core id', 'coreid')
+        cpuraw = list( filter( lambda line: not any(s in line for s in linestoremove), cpuraw ) )
+    
+        #Deleting all tabulation and spaces for each line of the cpuraw set cpuraw
+        cpuraw = map( lambda line: re.sub('[\t| ]*:[\t| ]*', ':', line), cpuraw )
+    
+    
+        #We got three fields named "cpu Mhz", but to use them as dictionry keys
+        #we need to rename them all
+        cpuaf = list()
+        i = 1
+        for line in cpuraw:
+            #Adds an incremental number to the key
+            if 'mhz' in line.lower():
+                cpuaf.append( re.sub('^.*:', 'cpu' + str(i) +' MHz:', line) )
+                i += 1
+            else: cpuaf.append( line )
+    
+    
+        #Buiding final dictionary cotaining cpu information in the right form
+        cpu = dict()
+        for line in cpuaf:
+            line = line.split(':')
+            cpu.update({ line[0]: line[1] })
+
+        #Adding cpu dict to the tuple to return
+        toreturn = toreturn + (cpu,)
+
+
+
+    ##### MEMORY #####
+    if getall or getmem:
+
+        #Reading memory status from /opt files
+        with open('/proc/meminfo', 'r') as memorig:
+            memraw = memorig.read().splitlines()
+
+
+        #Filling mem dict with memory information
+        mem = dict()
+        for line in memraw:
+            line = re.sub(' ', '', line)                #Removing spaces for each line
+            line = line.split(':')                      #Splitting by colon
+            mem.update({ line[0].lower() : line[1] })   #Appending the dictionary to a list to return
+
+        toreturn = toreturn + (mem,)
+    
+
+
+
+
+    #### PROCESSES #####
+    if getall or getproc:
+
+        #Reading processes status using top command
+        command = ['top', '-b', '-n1']
+
+        try:
+            procraw = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
+        except CalledProcessError as e:
+            return command_error( e, command )
+
+
+
+        #Removing headers from the output of top command
+        i = 0
+        while 'PID' not in procraw[i]: i+=1
+        procraw = procraw[i:]
+        proc = list(map( lambda line: line.split(), procraw ))
+        toreturn = toreturn + (proc,)
+
+
+    #dict, dict, list
+    return command_success( data=toreturn )
+\end{lstlisting}
+Nasce per la creazione della dashboard della pagina \textit{system} in nomodo. Serve ad ottenere informazioni
+riguado memoria, cpu e processi del sistema.
+\paragraph{Parametri}
+Accetta tre parametri il cui valore definisce la quantità di informazioni che si desidera ottenere:
+\begin{itemize}
+	\item{\texttt{getall=True}: Questa variabile se True prevale sulle altre, ossia se questa variabile è settata a True
+		non importa come sono settate le altre, la funzione restituiurà sempre tutte le informazioni possibili}
+	\item{\texttt{getproc=False}: Funziona solo se \texttt{getall=False}, indica alla funzione di includere
+		nella tupla di ritorno le informazioni sui processi attualmente attivi sul sistema}
+	\item{\texttt{getcpu=False}: Funziona solo se \texttt{getall=False}, indica alla funzione di includere
+		nella tupla di ritorno anche le informazioni sulla CPU della macchina}
+	\item{\texttt{getmem=False}: Funziona solo se \texttt{getall=False}, indica alla funzione di includere
+		nelle tupla di ritorno anche le informazioni sulla memoria della macchina}
+\end{itemize}
+\paragraph{Funzionamento}
+\begin{lstlisting}
+    #Tuple to return
+    toreturn = ()
+\end{lstlisting}
+All'inizio della funzione viene allocata una tupla vuota chiamata \texttt{toreturn} che sarà l'unica tupla che verrà
+restituita all'utente. A seconda dei parametri passati alla funzione 
+\paragraph{Return}
+
 
 \subsection{apache}\label{apache}
 \subsection{Database}\label{database}
