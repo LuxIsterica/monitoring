@@ -2758,9 +2758,6 @@ def manageobjs(filename, op):
     except CalledProcessError as e:
         return command_error( e, command, logid )
 
-    #Reloading apache after site activation
-    apachereload()
-
     return command_success( logid=logid )
 
 #Call a function with different parameters
@@ -2771,9 +2768,28 @@ def deactivatemod(filename): return manageobjs(filename, op='a2dismod')
 def activateconf(filename): return manageobjs(filename, op='a2enconf')
 def deactivateconf(filename): return manageobjs(filename, op='a2disconf')
 \end{lstlisting}
+La funzione nasce per gestire gli oggetti di apache, ossia per attivare o disattivare vhosts, mods e conf. Come per le altre
+funzioni della libreria anche questa non va chiamata direttamente ma tramite le funzioni alias che si vede nelle ultime 6 righe
+del codice.\\
+ATTENZIONE: Si ricorda che dopo l'attivazione o la disattivazione di un oggetto apache deve essere ricaricato (reload) o
+riavviato (restart) per attuare le modifiche. Ci pensa il frontend ad informare l'utente e a dargli la possibilità
+di ricaricare o restartare il demone di apache.
 \paragraph{Parametri}
+Non prendiamo in considerazione la funzione principale ma solo i suoi alias. Questi accettano un solo parametro che è il nome
+dell'oggetto apache da attivare o disattivare e che coincide col nome del file stesso. Viene poi chiamata la funzione principale
+passandogli anche nel parametro \texttt{op} l'operazione da compiere.
 \paragraph{Funzionamento}
+Essendo una operazione sensibile (in quanto potrebbe compromettere il buon funzionamento di apache) viene prima creato
+un documento mongo contenente le specifiche dell'operazione. Poi semplicemente viene costruito il comando e lanciato
+come si vede nel codice. Viene infine chiamata la funzione di successo \texttt{command\_success()} passandogli nel campo
+\texttt{logid} l'object id dell'oggetto mongo creato.
 \paragraph{Return}
+Viene restituito il dizionario di successo così come generato dalla funzione \nameref{command\string_success} contenente
+al campo \texttt{logid} l'object id del docuemnto mongo creato contenente le specifiche dell'operazione appena eseguita.
+
+\subsubsection{Lettura e scrittura degli oggeti di apache}\label{apacheobjectswrite}
+Sono state omesse nella libreria le funzioni per la modifica degli oggetti di apache in quanto questa può essere effettuata
+utilizzata la funzione \nameref{writefile} della libreria \nameref{system}, e così viene fatto dal frontend.
 
 \subsection{Database}\label{database}
 \subsection{File}\label{file}

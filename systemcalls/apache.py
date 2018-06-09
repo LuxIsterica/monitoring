@@ -131,9 +131,6 @@ def manageobjs(filename, op):
     except CalledProcessError as e:
         return command_error( e, command, logid )
 
-    #Reloading apache after site activation
-    apachereload()
-
     return command_success( logid=logid )
 
 #Call a function with different parameters
