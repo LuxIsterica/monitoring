@@ -2549,16 +2549,74 @@ Nella prima parte del codice innanzitutto vengono definite tre variabili:
 		nella cartella indica che questo oggetto è attivo per apache, ossia che il sito (o vhost) \textit{default-ssl}
 		è attivo}
 \end{itemize}
+La variabile da restituire è \texttt{objs} che sarà costruita come lista di dizionari, dove ogni dizionario conterrà le informazioni
+su ognuno degli oggetti di apache di tipo \textit{<objtype>}.
 Per ogni file di un oggetto di apache si è deciso di restituire in output oltre al nome anche un flag che indica che la configurazione
 è attiva se è 1, disattiva se 0. Si crea quindi prima di tutto una lista di oggetti abilitati, chiamando un \texttt{listdir} sulla
-cartella \textit{enabled} dell'oggetto voluto (ad esempio \textit{sites-enabled}). Si aggiunge quindi ognuno di questi oggetti al dizionario
-\texttt{objs} assegnandosi anche il flag \texttt{active} col valore 1, ad indicare che l'oggetto è attivo.\\
+cartella \textit{enabled} dell'oggetto voluto (ad esempio \textit{sites-enabled}). Si aggiunge quindi ognuno di questi oggetti alla
+lista di dizionari \texttt{objs} assegnandosi anche il flag \texttt{active} col valore 1, ad indicare che l'oggetto è attivo.\\
 Dato che i file nella cartella \texttt{<objtype>-enabled} sono un sottoinsieme dei file nella cartella \texttt{<objtype>-available}
 per ottenere gli oggetti di \textit{objtype} non attivi bisogna sottrarre l'insieme dei file di \texttt{<objtype>-enabled}
 all'insieme dei file di \texttt{<objtype>-available}. Si ottiene quindi una lista degli oggetti di tipo \textit{objtype}
-che non sono attivi, e li si inserisce nel dizionario \texttt{objs} con la flag \texttt{active} a 0 ad indicare che tali oggetti
+che non sono attivi, e li si inserisce nella lista di dizionari \texttt{objs} con la flag \texttt{active} a 0 ad indicare che tali oggetti
 non sono attivi.
+\begin{lstlisting}
+    ##### ONLY FOR VHOSTS #####
+    #Gathering object information only if objstype == "site"
+    if objtype is "sites":
+        #Gathering vhosts information to fill the list
+        for obj in objs:
+
+            #"vhostcontent" mantains all vhost file content
+            with open(apacheconfdir + availabledir + obj['filename']) as opened:
+                vhostcontent = opened.read().splitlines()
+
+            
+            i = 0
+            for line in vhostcontent:
+                line = line.lstrip()
+                linestosearch = ('Alias', 'DocumentRoot', 'ServerName', 'ServerAlias')
+
+                #If any of this words in vhost file add the entire splitted line to the vhost dict
+                if any( line.startswith(s) for s in linestosearch ):
+
+                    #A vhost can handle multiple ServerAlias but dict() cannot accept multiple key with the same string
+                    #so we're going to add an incremental number to the key "ServerAlias"
+                    if 'ServerAlias' in  line: line = re.sub('ServerAlias', 'ServerAlias' + str(i), line)
+                    i += 1
+
+                    line = line.split(None, maxsplit=1)
+
+                    #vhost dict is a pointer to the original dict in vhosts list, hence an update here means an update to the original dict
+                    obj.update({ line[0]: line[1] })
+
+
+    return command_success( data=objs )
+\end{lstlisting}
+Questo pezzo di codice viene eseguito solo se il tipo di oggetto su cui si sta lavorando è un \textit{site}, cioè
+un \textit{vhost}, in quanto tutti i site hanno delle informazioni comuni che è possibile inserire nel dizionario di ritorno.\\
+Quindi prima di tutto si cicla su ogni site di apache, aprendo il contenuto, leggendolo e dividendolo per linee, e inserendolo quindi
+nella variabile \texttt{vhostcontent}. Si comincia poi a ciclare sulle linee; per ogni linea vengono innanzitutto
+rimossi gli spazi iniziali usando la funzione \texttt{lstrip()} in quanto molte linee presentano probabilmente una
+tabulazione iniziale. Viene creata una lista \texttt{linestosearch} contenente tutte le direttive la cui riga si vuole estrarre dal file.
+Se la riga attuale inizia con una di queste direttive (\texttt{startswith()}) la riga può ovviamente essere inserita
+nel dizionario che si andrà a restituire. Come succedeva con la funzione \nameref{getsysteminfo} è possibile che ci siano
+più direttive con il nome \texttt{ServerAlias} e sarebbe quindi impossibile inserirle nel dizionario come chiave; viene quindi
+lanciato l'ultimo \texttt{if} che all'incontro con una di queste direttive aggiunge un valore numerico incrementale
+che rende la sua definizione unica. Siamo quindi pronti ad inserire queste informazioni nel dizionario. splittiamo quindi
+la riga per spazio vuoti (\texttt{split(None)}) e una sola volta (\texttt{maxsplit=1} in quanto potrebbero esserci più spazi
+vuoti nella riga). Alla fine questi valori vengono inseriti nella lista di dizionari che viene restituita \texttt{objs}
+e viene chiamata la funzione \texttt{command\_success()} passandogli proprio questa lista e che sancisce la fine della funzione.
 \paragraph{Return}
+Restituisce il dizionario di successo se tutte le operazioni sono andate a buon fine, contenente alla chiave \texttt{data} la
+lista di dizionari \texttt{objs} in cui ogni dizionario è un oggetto di tipo \textit{objtype} contenente le informazioni
+sullo stesso. Queste informazioni:
+\begin{itemize}
+	\item{Se si sta richiedendo info su conf e mods contiene solo il nome e il flag \texttt{active} a 0 o 1 che indica se
+		l'oggetto è attivo o meno in apache}
+	\item{Se si sta richiedendo info sui vhost contiene oltre al nome e il flag \texttt{active} anche (se presenti)
+		i valori delle direttive  \textit{'Alias', 'DocumentRoot', 'ServerName'} e \textit{'ServerAlias'}}
+\end{itemize}
 
 \subsubsection{manageapache}\label{manageapache}
 \begin{lstlisting}
@@ -2604,9 +2662,81 @@ def apacherestart(): return manageapache(op='restart')
 def apachereload(): return manageapache(op='reload')
 def apachestatus(): return manageapache(op="status")
 \end{lstlisting}
+La funzione nasce per gestire il demone di apache, cioè per avviarlo, fermarlo ecc. Come prima la funzione principale non va
+mai chiamata direttamente ma sempre tramite gli alias che si leggono nelle ultime cinque righe del codice.
 \paragraph{Parametri}
+La funzione principale prende un solo parametro che è l'indicazione sull'operazione da eseguire, ma visto che questa non viene
+mai chiamata direttamente la trascuriamo.\\
+Le funzioni alias invece non prendono alcun argomento, in quanto la loro chiamata contiene già è sufficiente alla libreria
+per capire cosa il frontend vuole.
 \paragraph{Funzionamento}
+\begin{lstlisting}
+    #Can only accept these parameters
+    acceptedparams = ['stop', 'status', 'reload', 'restart']
+    if not any(op in param for param in acceptedparams):
+        return command_error( returncode=-1, stderr='Bad parameter: '+op )
+    else:
+        command = ['systemctl', op, 'apache2']
+
+    toreturn = None
+\end{lstlisting}
+Anche se la funzione non deve essere chiamata direttamente è sempre buono effettuare un controllo per verificare se il valore
+del parametro \texttt{op} rientra tra quelli possibili. Se non è così viene chiamata la funzione di errore \texttt{command\_error}
+generando un errore custom, altrimenti viene composto il comando che si andrà ad eseguire ed inserito nella variabile \texttt{command}.
+Viene poi dichiarata la variabile \texttt{toreturn} senza un tipo, in quanto questo cambierà a seconda del parametro \texttt{op}.
+\begin{lstlisting}
+    try:
+        if op is "status":
+            #Avoid to print journal (log) lines in output
+            command.append('-n0')
+
+            #We are using Popen here because check_output fails to return stdout and stderr on exit code != 0
+            toreturn = Popen(command, stdout=PIPE, universal_newlines=True).communicate()[0].splitlines()
+
+            #Filtering useless lines
+            linestomantain = ['loaded', 'active', 'memory', 'cpu']
+            toreturn = list( filter( lambda line: any(s in line.lower() for s in linestomantain), toreturn ) )
+            #Formatting output
+            toreturn = dict( map(lambda line: line.lstrip().split(':', maxsplit=1), toreturn ) )
+
+        else:
+            #Logging operation to MongoDB; in this specific case "toreturn" contains mongo logid
+            toreturn = mongolog( locals() )
+            check_call(command)
+    except CalledProcessError:
+        pass
+
+
+    return command_success( data=toreturn )
+\end{lstlisting}
+C'è una grande differenza nel chiamare la funzione con \texttt{op='status'} e con \texttt{op} uguale a qualsiasi altra cosa,
+in quanto \textit{status} genera un output che deve essere restituito mentre le altre no.\\
+Si va quindi prima di tutto a verificare il valore di \texttt{op}:
+\begin{itemize}
+	\item{Se chiamata con tutto al di fuori di \textit{'status'} viene semplicemente creato un mongolog, lanciato il comando
+		ed inserito l'object id del documento mongo nel dizionario di ritorno tramite la funzione \texttt{command\_success}}
+	\item{Se invece viene chiamata con \texttt{op='status'} vengono fatte giusto un pò di operazioni in più. Prima di tutto
+		viene aggiunto il comando l'argomento \texttt{-n0} che omette la stampa del giornale di systemd riguardante
+		l'unità stessa, ossia \textit{apache.service}.\\
+		Viene poi lanciato il comando. Notare che il lancio avviene con \texttt{Popen} in quanto a parte che non ci interessa
+		niente del codice di ritorno, ma inoltre questo è diverso da 0 se ad esempio il servizio è fermo, cosa che fa andare
+		l'applicativo in crash.\\
+		Viene quidi cerata una lista di linee (generate dal comando) da mantenere e quindi le si filtra usando la funzione
+		\texttt{filter()} e \texttt{any()} (ricordiamo che quest'ultimo restituisce \texttt{True} se almeno uno degli eventi
+		generati col codice scritto in essa è \texttt{True}).\\
+		Sapendo che ogni riga segue la convenzione \texttt{chiave:valore} tramite la funzione \texttt{map()} vengono iterate
+		tutte le righe e divise con la funzione \texttt{split()}, così da ottenere da ognuna di questa chiave e valore;
+		Questi vengono poi inseriti nella variabile \texttt{toreturn} che diventa quindi un dizionario e pasato
+		alla funzione di successo \texttt{command\_success} nel campo \texttt{data}.
+\end{itemize}
 \paragraph{Return}
+Se le operazioni vanno a buon fine restituisce il dizionario di successo. Per il suo contenuto distinguiamo invece due casi:
+\begin{itemize}
+	\item{Se l'operazione è \textit{status} il dizionario di successo conterrà nel campo \texttt{data} un dizionario
+		contenente alcune informazioni sullo stato attuale del demone di apache}
+	\item{Se invece si è richiesto qualsiasi altra operazione non ci sono dati da restituire, ma è stato creato un
+		mongolog il cui object id è contenuto nel campo \texttt{logid} del dizionario di successo restituito}
+\end{itemize}
 
 \subsubsection{manageobjs}\label{manageobjs}
 \begin{lstlisting}
