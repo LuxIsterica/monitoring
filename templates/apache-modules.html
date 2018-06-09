@@ -1,6 +1,39 @@
 <div id="modules" class="tab-pane fade in active">
       <h3 class="title">Modules</h3>
-
-	      
+    
+    {% for m in mods.data %}
+    <div class="row">
+    	<div class="col-md-6"> 
+        	<h2 style="text-align: center;">{{m['filename'][:-5]}}</h2>
+      	</div>
+      	<div class="col-md-4">
+      		<table>
+	            <tr>
+		            <td> filename: &ensp;</td>
+		            <td> {{  m['filename'] }} </td>
+	            </tr>
+	            <tr>
+	            	<td> active: &ensp;</td>
+	            {% if m['active'] == 1 %}
+		            <td>
+			            <form id="deactivateMods" action="/deactivateMods" role="form" method="POST">
+			           		<input type="hidden" value="{{m['filename']}}" name="clickDeactiv">
+		       		 		<button class="button b-round-g" id="buttonClickDeactiv"></button>
+		    			 </form>
+	    			</td>
+	            <!--<td><button class="button b-round-g" value="" id="buttonClickActiv"></button></td>-->
+	            {% else %}
+		            <td>
+			            <form id="activateMods" action="/activateMods" role="form" method="POST">
+			           		<input type="hidden" value="{{m['filename']}}" name="clickActiv">
+		       		 		<button class="button b-round-r" id="buttonClickActiv"></button>
+		    			 </form>
+	    			</td>
+	            {% endif %}
+	            </tr> 
+	        </table> 
+      	</div>
+    </div>
+	{% endfor %}      
 
 </div>
