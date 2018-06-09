@@ -9,11 +9,13 @@ import inspect
 #import urllib.parse
 
 
+apacheconfdir = "/etc/apache2/"
+
+
 #NOTE: Never call this function directly.
 #objtype can be one of "sites", "mods" or "conf"
 def getobjs(objtype):
 
-    apacheconfdir = "/etc/apache2/"
     availabledir = objtype + '-available/'
     enableddir = objtype + '-enabled/'
 

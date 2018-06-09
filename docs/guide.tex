@@ -2453,9 +2453,11 @@ che è possibile trovare alla fine del codice di ogni funzione.
 \subsubsection{getobjs}\label{getobjs}
 \begin{lstlisting}
 #NOTE: Must not be called directly
+
+apacheconfdir = "/etc/apache2/"
+
 def getobjs(objtype):
 
-    apacheconfdir = "/etc/apache2/"
     availabledir = objtype + '-available/'
     enableddir = objtype + '-enabled/'
 
@@ -2511,14 +2513,15 @@ def getconf(): return getobjs('conf')
 \end{lstlisting}
 La funzione dato un tipo di oggetto in input restituisce la lista di tutti gli oggetti di quel tipo presenti in apache.
 Non viene mai chiamata direttamente ma sempre tramite le tre funzioni che si vedono sulle ultime tre righe del codice.
-Si deduce che gli oggetti che è possibile ottenere sono i \textit{virtual hosts} ossia i siti che apache gestisce,
-i moduli ossia i \textit{mods} e le configurazioni, ossia i \textit{conf}.
+Si deduce che gli oggetti che è possibile ottenere sono i \textit{virtual hosts} ossia i sites che apache gestisce,
+i moduli ossia i \textit{mods} e le configurazioni, ossia i \textit{conf}.\\
+Notare che la variabile \texttt{apacheconfdir} è posizionata all'esterno e quindi globale, in quanto deve essere universale
+a tutti e anche al fontend che la chiama all'appello.
 \paragraph{Parametri}
 La funzione principale accetta un solo parametro che è il tipo di oggetto su sui la funzione lavora, ma visto che
 questa non viene mai richiamata direttamente le tre funzioni non accettano alcun parametro.
 \paragraph{Funzionamento}
 \begin{lstlisting}
-    apacheconfdir = "/etc/apache2/"
     availabledir = objtype + '-available/'
     enableddir = objtype + '-enabled/'
 
