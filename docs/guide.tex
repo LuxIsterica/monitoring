@@ -2445,6 +2445,203 @@ se \texttt{getall=True}, le informazioni richieste utilizzando i parametri altri
 
 
 \subsection{apache}\label{apache}
+La libreria \textit{apache} è utile alla gestione del web server Apache e dei suoi componenti, ossia configurazioni
+(abbreviato in \textit{conf}) e moduli (abbreviato in \textit{mods}).\\
+Le funzioni principali di questa libreria non vengono mai chiamate direttamente ma sempre tramite una funzione alias
+che è possibile trovare alla fine del codice di ogni funzione.
+
+\subsubsection{getobjs}\label{getobjs}
+\begin{lstlisting}
+#NOTE: Must not be called directly
+def getobjs(objtype):
+
+    apacheconfdir = "/etc/apache2/"
+    availabledir = objtype + '-available/'
+    enableddir = objtype + '-enabled/'
+
+    objs = list()
+
+    #Getting enabled vhosts and appending to vhosts list as dictionary
+    enabled = set( os.listdir(apacheconfdir + enableddir ) )
+    for obj in enabled:
+        objs.append({ 'filename': obj, 'active': 1 })
+
+    #Gets nonactive vhosts and appending to vhosts list as dictionary
+    notactive = set( os.listdir(apacheconfdir  + availabledir) ).difference(enabled)
+    for obj in notactive:
+        objs.append({ 'filename': obj, 'active': 0 })
+
+
+
+    ##### ONLY FOR VHOSTS #####
+    #Gathering object information only if objstype == "site"
+    if objtype is "sites":
+        #Gathering vhosts information to fill the list
+        for obj in objs:
+
+            #"vhostcontent" mantains all vhost file content
+            with open(apacheconfdir + availabledir + obj['filename']) as opened:
+                vhostcontent = opened.read().splitlines()
+
+            
+            i = 0
+            for line in vhostcontent:
+                line = line.lstrip()
+                linestosearch = ('Alias', 'DocumentRoot', 'ServerName', 'ServerAlias')
+
+                #If any of this words in vhost file add the entire splitted line to the vhost dict
+                if any( line.startswith(s) for s in linestosearch ):
+
+                    #A vhost can handle multiple ServerAlias but dict() cannot accept multiple key with the same string
+                    #so we're going to add an incremental number to the key "ServerAlias"
+                    if 'ServerAlias' in  line: line = re.sub('ServerAlias', 'ServerAlias' + str(i), line)
+                    i += 1
+
+                    line = line.split(None, maxsplit=1)
+
+                    #vhost dict is a pointer to the original dict in vhosts list, hence an update here means an update to the original dict
+                    obj.update({ line[0]: line[1] })
+
+
+    return command_success( data=objs )
+
+def getvhosts(): return getobjs('sites')
+def getmods(): return getobjs('mods')
+def getconf(): return getobjs('conf')
+\end{lstlisting}
+La funzione dato un tipo di oggetto in input restituisce la lista di tutti gli oggetti di quel tipo presenti in apache.
+Non viene mai chiamata direttamente ma sempre tramite le tre funzioni che si vedono sulle ultime tre righe del codice.
+Si deduce che gli oggetti che è possibile ottenere sono i \textit{virtual hosts} ossia i siti che apache gestisce,
+i moduli ossia i \textit{mods} e le configurazioni, ossia i \textit{conf}.
+\paragraph{Parametri}
+La funzione principale accetta un solo parametro che è il tipo di oggetto su sui la funzione lavora, ma visto che
+questa non viene mai richiamata direttamente le tre funzioni non accettano alcun parametro.
+\paragraph{Funzionamento}
+\begin{lstlisting}
+    apacheconfdir = "/etc/apache2/"
+    availabledir = objtype + '-available/'
+    enableddir = objtype + '-enabled/'
+
+    objs = list()
+
+    #Getting enabled vhosts and appending to vhosts list as dictionary
+    enabled = set( os.listdir(apacheconfdir + enableddir ) )
+    for obj in enabled:
+        objs.append({ 'filename': obj, 'active': 1 })
+
+    #Gets nonactive vhosts and appending to vhosts list as dictionary
+    notactive = set( os.listdir(apacheconfdir  + availabledir) ).difference(enabled)
+    for obj in notactive:
+        objs.append({ 'filename': obj, 'active': 0 })
+
+\end{lstlisting}
+Nella prima parte del codice innanzitutto vengono definite tre variabili:
+\begin{itemize}
+	\item{\texttt{apacheconfdir}: indica il path sul sistema dove sono presenti le configurazioni e gli oggetti di apache}
+	\item{\texttt{availabledir}: dato in input l'oggetto che si desidera questa variabile indica il path dove sono presenti
+		tutti i file per quell'oggetto, che siano attivati o meno. Ad esempio per i vhosts questo path è
+		\texttt{apachecondir + 'sites-available'} mentre per i mods è \texttt{apacheconfdir + 'mods-available'}}
+	\item{\texttt{enableddir}: è il path sul sistema dove sono presenti i file di configurazione degli oggetti che sono
+		attivati su apache. Queste cartelle contengono link simbolici ai file nelle cartelle di \texttt{availabledir}.
+		Se il link simbolico è presente allora significa che il file dell'oggetto in questione è attivo.
+		Ad esempio nell'installazione di base apache contiene un link simbolico \texttt{/etc/apache2/sites-enabled/default-ssl} che punta
+		allo file nella cartella \texttt{/etc/apache2/sites-available/default-ssl}. Il fatto che esista questo link
+		nella cartella indica che questo oggetto è attivo per apache, ossia che il sito (o vhost) \textit{default-ssl}
+		è attivo}
+\end{itemize}
+Per ogni file di un oggetto di apache si è deciso di restituire in output oltre al nome anche un flag che indica che la configurazione
+è attiva se è 1, disattiva se 0. Si crea quindi prima di tutto una lista di oggetti abilitati, chiamando un \texttt{listdir} sulla
+cartella \textit{enabled} dell'oggetto voluto (ad esempio \textit{sites-enabled}). Si aggiunge quindi ognuno di questi oggetti al dizionario
+\texttt{objs} assegnandosi anche il flag \texttt{active} col valore 1, ad indicare che l'oggetto è attivo.\\
+Dato che i file nella cartella \texttt{<objtype>-enabled} sono un sottoinsieme dei file nella cartella \texttt{<objtype>-available}
+per ottenere gli oggetti di \textit{objtype} non attivi bisogna sottrarre l'insieme dei file di \texttt{<objtype>-enabled}
+all'insieme dei file di \texttt{<objtype>-available}. Si ottiene quindi una lista degli oggetti di tipo \textit{objtype}
+che non sono attivi, e li si inserisce nel dizionario \texttt{objs} con la flag \texttt{active} a 0 ad indicare che tali oggetti
+non sono attivi.
+\paragraph{Return}
+
+\subsubsection{manageapache}\label{manageapache}
+\begin{lstlisting}
+#NOTE: Must not be called directly
+def manageapache(op):
+    
+    #Can only accept these parameters
+    acceptedparams = ['stop', 'status', 'reload', 'restart']
+    if not any(op in param for param in acceptedparams):
+        return command_error( returncode=-1, stderr='Bad parameter: '+op )
+    else:
+        command = ['systemctl', op, 'apache2']
+
+
+    toreturn = None
+    try:
+        if op is "status":
+            #Avoid to print journal (log) lines in output
+            command.append('-n0')
+
+            #We are using Popen here because check_output fails to return stdout and stderr on exit code != 0
+            toreturn = Popen(command, stdout=PIPE, universal_newlines=True).communicate()[0].splitlines()
+
+            #Filtering useless lines
+            linestomantain = ['loaded', 'active', 'memory', 'cpu']
+            toreturn = list( filter( lambda line: any(s in line.lower() for s in linestomantain), toreturn ) )
+            #Formatting output
+            toreturn = dict( map(lambda line: line.lstrip().split(':', maxsplit=1), toreturn ) )
+
+        else:
+            #Logging operation to MongoDB; in this specific case "toreturn" contains mongo logid
+            toreturn = mongolog( locals() )
+            check_call(command)
+    except CalledProcessError:
+        pass
+
+
+    return command_success( data=toreturn )
+
+def apachestart(): return manageapache(op='start')
+def apachestop(): return manageapache(op='stop')
+def apacherestart(): return manageapache(op='restart')
+def apachereload(): return manageapache(op='reload')
+def apachestatus(): return manageapache(op="status")
+\end{lstlisting}
+\paragraph{Parametri}
+\paragraph{Funzionamento}
+\paragraph{Return}
+
+\subsubsection{manageobjs}\label{manageobjs}
+\begin{lstlisting}
+#NOTE: Must not be called directly
+def manageobjs(filename, op):
+
+    logid = mongolog( locals() )
+
+    command = [op, filename]
+
+    try:
+        #Shrinks the output --------.
+        #                           |
+        #                           v
+        check_call(command, stdout=DEVNULL)
+    except CalledProcessError as e:
+        return command_error( e, command, logid )
+
+    #Reloading apache after site activation
+    apachereload()
+
+    return command_success( logid=logid )
+
+#Call a function with different parameters
+def activatevhost(filename): return manageobjs(filename, op='a2ensite')
+def deactivatevhost(filename): return manageobjs(filename, op='a2dissite')
+def activatemod(filename): return manageobjs(filename, op='a2enmod')
+def deactivatemod(filename): return manageobjs(filename, op='a2dismod')
+def activateconf(filename): return manageobjs(filename, op='a2enconf')
+def deactivateconf(filename): return manageobjs(filename, op='a2disconf')
+\end{lstlisting}
+\paragraph{Parametri}
+\paragraph{Funzionamento}
+\paragraph{Return}
+
 \subsection{Database}\label{database}
 \subsection{File}\label{file}
 \subsection{Logs}\label{logs}
