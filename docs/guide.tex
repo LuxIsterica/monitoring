@@ -2215,7 +2215,7 @@ def getsysteminfo( getall=True, getproc=False, getcpu=False, getmem=False ):
         for line in cpuraw:
             #Adds an incremental number to the key
             if 'mhz' in line.lower():
-                cpuaf.append( re.sub('^.*:', 'cpu' + str(i) +' MHz:', line) )
+                cpuaf.append( re.sub('^.*:', 'core' + str(i) +' MHz:', line) )
                 i += 1
             else: cpuaf.append( line )
     
@@ -2296,8 +2296,152 @@ Accetta tre parametri il cui valore definisce la quantità di informazioni che s
     toreturn = ()
 \end{lstlisting}
 All'inizio della funzione viene allocata una tupla vuota chiamata \texttt{toreturn} che sarà l'unica tupla che verrà
-restituita all'utente. A seconda dei parametri passati alla funzione 
+restituita all'utente. A seconda dei parametri passati alla funzione questa avrà più o meno elementi. La tupla si è
+resa obbligatoria in quantosi devono restituire retituire più variabili.
+\begin{lstlisting}
+    ##### CPU #####
+    if getall or getcpu:
+
+        #Reading cpu stat from /opt files
+        with open('/proc/cpuinfo', 'r') as cpuorig:
+            cpuraw = cpuorig.read().splitlines()
+
+        #Removing duplicate lines by converting list() to set()
+        cpuraw = set(cpuraw)
+        
+        #Removing empty lines
+        cpuraw = list( filter( None, cpuraw ) )
+    
+        #Removing useless lines
+        linestoremove = ('flags', 'apicid', 'processor', 'core id', 'coreid')
+        cpuraw = list( filter( lambda line: not any(s in line for s in linestoremove), cpuraw ) )
+    
+        #Deleting all tabulation and spaces for each line of the cpuraw set cpuraw
+        cpuraw = map( lambda line: re.sub('[\t| ]*:[\t| ]*', ':', line), cpuraw )
+    
+    
+        #We got three fields named "cpu Mhz", but to use them as dictionry keys
+        #we need to rename them all
+        cpuaf = list()
+        i = 1
+        for line in cpuraw:
+            #Adds an incremental number to the key
+            if 'mhz' in line.lower():
+                cpuaf.append( re.sub('^.*:', 'core' + str(i) +' MHz:', line) )
+                i += 1
+            else: cpuaf.append( line )
+    
+    
+        #Buiding final dictionary cotaining cpu information in the right form
+        cpu = dict()
+        for line in cpuaf:
+            line = line.split(':')
+            cpu.update({ line[0]: line[1] })
+
+        #Adding cpu dict to the tuple to return
+        toreturn = toreturn + (cpu,)
+\end{lstlisting}
+La prima parte della funzione è quella che ricava informazioni sulla CPU del sistema. Come si vede dal primo \texttt{if}
+se la variabile \texttt{getall} è vera allora la variabile \texttt{getcpu} non viene affatto controllata, e si deduce
+che l'utente quindi voglia anche informazioni sulla CPU.\\
+Le informazioni sono ricavate dal file \texttt{/proc/cpuinfo} che come sappiamo facente parte del filesystem \texttt{proc}
+le informazioni al suo interno vengono calcolate al momento dell'apertura e quindi non è un vero file. 
+Dopo l'apertura (che restituisce una lista di stringhe a causa dell'utilizzo della funzione \texttt{splitlines()})
+si effettuano alcuni accorgimenti sull'output, specialmente perchè questo andrà a costruire un dizionario chiave-valore.
+In particolare:
+\begin{itemize}
+	\item{Si eliminao le righe simili. I processori moderni hanno come minimo 2 core per CPU; questo implica una
+		duplicazione di informazioni restituite all'utente all'apertura di questo file. Si trasforma quindi
+		la lista in un set in quanto un set non può avere valori duplocati, e vengono quindi rimossi automaticamente
+		alla conversione}
+	\item{Vengono eliminate le righe vuota usando la funzione \texttt{filter()} e dandogli come funzione lambda
+		la keywork \texttt{None}}
+	\item{Vengono eliminate le righe non utili per il frontend che sono \textit{flags, apicid, processor, core id}
+		e \textit{coreid}}
+	\item{Tramite la funzione \texttt{map} si scorrono tutte le righe eliminando gli spazi o le tabulazioni tra la chiave
+		e il valore della riga. Ad esempio \texttt{cpucores	: 2} diventa \texttt{cpucores:2} così
+		da agevolare la creazione del dizionario che andrà restituito}
+	\item{Il tipo \texttt{set} elimina le righe uguali ma non le righe in cui solo le chiavi sono uguali. Inoltre
+		per ogni core della CPU abbiamo bisogno di sapere la sua frequenza, ma come sappiamo per la costruzione
+		del dizionario non possono esserci chiavi uguali. Si entra quindi nel primo ciclo for dove  per ogni riga
+		del \texttt{set} se la riga contiene la stringa \textit{mhz} (ossia è una riga indicante la frequenza del core)
+		rinomina l'attuale chiave da \textit{cpu MHZ} a \textit{core\#Mhz} dove \# è un numero incrementale indicato
+		dalla variabile \texttt{i} nella funzione. Avremo così una chiave univoca per ogni core.
+		\footnote{\label{nospaceindictkeys}Notare che oltre all'aggiunta del numero incrementale viene anche rimosso
+		lo spazio}}
+\end{itemize}
+Viene infine costruito il dizionario da inserire nella tupla \texttt{toreturn}. Ogni riga del set viene splittata per
+due punti ottenendo una lista di due valori dove il primo elemento è la chiave e il secondo è il valore.  Vengono quindi
+inseriti nel dizionario \texttt{cpu} e questo stesso dizionario infine lui stesso inserito nella tupla \texttt{toreturn}.
+\begin{lstlisting}
+    if getall or getmem:
+
+        #Reading memory status from /opt files
+        with open('/proc/meminfo', 'r') as memorig:
+            memraw = memorig.read().splitlines()
+
+
+        #Filling mem dict with memory information
+        mem = dict()
+        for line in memraw:
+            line = re.sub(' ', '', line)                #Removing spaces for each line
+            line = line.split(':')                      #Splitting by colon
+            mem.update({ line[0].lower() : line[1] })   #Appending the dictionary to a list to return
+
+        toreturn = toreturn + (mem,)
+\end{lstlisting}
+La seconda parte del codice riguarda le informazioni sulla memoria della macchina, e richiede meno elaborazione delle
+informazioni sulla CPU. Come prima se \texttt{getall} è \texttt{True} si entra nel codice
+senza nemmeno considerare la variabile \texttt{getmem}.\\
+Questa volta il file del filesystem \texttt{proc} che contiene le informazioni sulla memoria è \texttt{/proc/meminfo}.
+Viene quindi aperto, letto il contenuto, diviso per righe ed inserito nella variabile \texttt{memraw}, che diventa quindi
+una lista di strighe.\\
+Le informazioni non contengono righe uguali, righe vuote ecc. quindi le uniche operazioni da compiere sono eliminare
+gli spazi vuoti dalle righe (utilizzando \texttt{re.sub}), dividere le linee per due punti, costruire il dizionario
+dove inserire queste righe e inserire lo stesso nella tupla \texttt{toreturn}.
+\begin{lstlisting}
+    #### PROCESSES #####
+    if getall or getproc:
+
+        #Reading processes status using top command
+        command = ['top', '-b', '-n1']
+
+        try:
+            procraw = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
+        except CalledProcessError as e:
+            return command_error( e, command )
+
+
+
+        #Removing headers from the output of top command
+        i = 0
+        while 'PID' not in procraw[i]: i+=1
+        procraw = procraw[i:]
+        proc = list(map( lambda line: line.split(), procraw ))
+        toreturn = toreturn + (proc,)
+\end{lstlisting}
+La terza ed ultima parte del codice ricava le informazioni sui processi attualmente in esecuzione sulla macchina.
+In questo caso non c'è un file (o almeno non cìè un file chiaro ed utile al nostro scopo) che contenga tutte le informazioni
+che a noi servono. Dopo essere quindi entrati nell'if (\texttt{getall=True} o \texttt{getproc=True}) viene lanciato
+l'applicativo \texttt{top} con i parametri \texttt{b} e \texttt{-n1} che servono rispettivamente a lanciarlo in maniera
+non interattiva e a restituire la lista dei processi una sola volta. L'output viene diviso per righe (\texttt{splitlines()})
+ed inserire in \texttt{procraw} che diventa una lista di stringhe.\\
+Nell'output del comando è incluso anche l'header che contiene diverse informazioni, ad esempio sui processi in IO wait.
+Non essendo utili in questa fase del programma cerchiamo di eliminarlli. Si entra quindi in un ciclo \texttt{while}
+iterando sulle righe una alla volta ed incrementando un contatore \texttt{i} ad ogni iterazione. L'iterazione si ferma
+quando si arriva ad una riga in cui sia presente la stringa \texttt{PID}, che indica l'inizio della porzione di informazioni
+che deve essere mantenuta. Sappiamo quindi che le righe nel range 0 - i-1 devono essere eliminate. Viene quindi lanciato
+il comando \texttt{procraw = procraw[i:]} che effettua proprio questa operazione.\\
+Abbiamo quindi ottenuto le informazioni che ci servono, usando quindi la funzione \texttt{map} splittiamo per spazio vuoto
+ottenendo una lista di liste (\texttt{proc}) che inseriamo nella tupla \texttt{toreturn}.
+\begin{lstlisting}
+    return command_success( data=toreturn )
+\end{lstlisting}
+Non ci rimane quindi che restituire la tupla \texttt{toreturn} che contiene le informazioni chieste dall'utente.
 \paragraph{Return}
+Restituisce il dizionario di successo contenente alla vatiabile \texttt{data} la tupla \texttt{toreturn} contenente la qunatità
+di inormazioni chieste dall'utente, ossia \texttt{cpu} (dizionario), \texttt{mem} (dizionario) e \texttt{proc} (lista di liste)
+se \texttt{getall=True}, le informazioni richieste utilizzando i parametri altrimenti.
 
 
 \subsection{apache}\label{apache}

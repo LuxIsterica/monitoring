@@ -44,12 +44,14 @@
 \BOOKMARK [3][-]{subsubsection.2.4.6}{writecron}{subsection.2.4}% 44
 \BOOKMARK [3][-]{subsubsection.2.4.7}{removecron}{subsection.2.4}% 45
 \BOOKMARK [2][-]{subsection.2.5}{Sistema}{section.2}% 46
-\BOOKMARK [2][-]{subsection.2.6}{apache}{section.2}% 47
-\BOOKMARK [2][-]{subsection.2.7}{Database}{section.2}% 48
-\BOOKMARK [2][-]{subsection.2.8}{File}{section.2}% 49
-\BOOKMARK [2][-]{subsection.2.9}{Logs}{section.2}% 50
-\BOOKMARK [1][-]{section.3}{Frontend}{}% 51
-\BOOKMARK [1][-]{section.4}{Utility}{}% 52
-\BOOKMARK [2][-]{subsection.4.1}{Red Hat Developer Toolset}{section.4}% 53
-\BOOKMARK [2][-]{subsection.4.2}{Rimossi tra CentOS 6 e 7 e le cui alternative non presenti su CRESCO 6}{section.4}% 54
-\BOOKMARK [2][-]{subsection.4.3}{Rimossi da Centos 6 e 7 e le cui alternative sono presenti su CRESCO 6}{section.4}% 55
+\BOOKMARK [3][-]{subsubsection.2.5.1}{hostname}{subsection.2.5}% 47
+\BOOKMARK [3][-]{subsubsection.2.5.2}{getsysteminfo}{subsection.2.5}% 48
+\BOOKMARK [2][-]{subsection.2.6}{apache}{section.2}% 49
+\BOOKMARK [2][-]{subsection.2.7}{Database}{section.2}% 50
+\BOOKMARK [2][-]{subsection.2.8}{File}{section.2}% 51
+\BOOKMARK [2][-]{subsection.2.9}{Logs}{section.2}% 52
+\BOOKMARK [1][-]{section.3}{Frontend}{}% 53
+\BOOKMARK [1][-]{section.4}{Utility}{}% 54
+\BOOKMARK [2][-]{subsection.4.1}{Red Hat Developer Toolset}{section.4}% 55
+\BOOKMARK [2][-]{subsection.4.2}{Rimossi tra CentOS 6 e 7 e le cui alternative non presenti su CRESCO 6}{section.4}% 56
+\BOOKMARK [2][-]{subsection.4.3}{Rimossi da Centos 6 e 7 e le cui alternative sono presenti su CRESCO 6}{section.4}% 57

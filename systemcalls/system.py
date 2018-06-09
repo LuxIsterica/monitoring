@@ -75,7 +75,7 @@ def getsysteminfo( getall=True, getproc=False, getcpu=False, getmem=False ):
         for line in cpuraw:
             #Adds an incremental number to the key
             if 'mhz' in line.lower():
-                cpuaf.append( re.sub('^.*:', 'cpu' + str(i) +' MHz:', line) )
+                cpuaf.append( re.sub('^.*:', 'core' + str(i) +' MHz:', line) )
                 i += 1
             else: cpuaf.append( line )
     
