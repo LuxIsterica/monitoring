@@ -118,6 +118,8 @@ else:
  
 pprint(data)
 \end{lstlisting}
+Si fa notare inoltre che il formato dell'output delle funzioni del backend è stato adattato agli scopi del frontend e mai per essere
+chiaro all'utente che voglia lanciare queste funzioni direttamente.
 
 \paragraph{subprocess}\label{subprocess}
 Le funzionalità di Python più utilizzata per la realizzazione dell'applicazione sono senza dubbio quelle appartenenti alla libreria subprocess,
@@ -1298,7 +1300,9 @@ sull'operazione.
 \subsection{Applicazioni}\nameref{apps}
 La libreria nasce per la gestione dei pacchetti sul sistema. nomodo nasce su un sistema Ubuntu server 16.04 cioè
 Debian-based ed attualmente supporta solamente la gestione dei pacchetti tramite i tool di questa categoria di sistemi,
-ossia \texttt{dpkg} e \texttt{apt} (evoluzione di \texttt{apt-get}).
+ossia \texttt{dpkg} e \texttt{apt} (evoluzione di \texttt{apt-get}). Da notare però che nelle funzione non viene
+mai utilizzato il comando \texttt{apt} ma sempre il vecchio \texttt{apt-get} in quanto come suggerito dagli
+sviluppatori non ancora pronto per l'uso negli script.
 
 \subsubsection{aptupdate}\label{aptupdate}
 \begin{lstlisting}
@@ -1318,8 +1322,13 @@ Diversamente dai sistemi rpm-based nei sistemi debian-based la cache dei pacchet
 pacchetti è fondamentale al sistema per eseguire ricerche e installazioni di nuovi pacchetti più rapidamente possibile.
 Questa funzione nasce proprio per aggiornare tale cache.
 \paragraph{Parametri}
+La funzione non prende parametri.
 \paragraph{Funzionamento}
+Viene semplicemente costruito e lanciato il comando \texttt{apt-get update} che come detto aggiorna la cache dei pacchetti,
+dopo aver creato un mongolog.
 \paragraph{Return}
+Restituisce il dizionario di successo contenente al campo \texttt{logid} l'object id del documento mongo (o mongolog in nomodo)
+contenente le specifiche dell'operazione.
 
 \subsubsection{listinstalled}\label{listinstalled}
 \begin{lstlisting}
@@ -1350,7 +1359,10 @@ def listinstalled( summary=False ):
 
     return command_success( data=pkgs )
 \end{lstlisting}
+La funzione nasce per restituire la lista dei pacchetti installata nel sistema.
 \paragraph{Parametri}
+Accetta l'unico parametro \texttt{summary} di default a \texttt{False} che se impostato a \texttt{True} indica
+alla funzione di restituire nell'output anche la descrizione breve sulle funzionalità della singola applicazione.
 \paragraph{Funzionamento}
 \paragraph{Return}
 
