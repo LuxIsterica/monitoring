@@ -4,6 +4,8 @@
 {% block head %}
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="Expires" content="-1">
 	{{ super() }}
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='custom.css') }}">
 	<link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='nomodo.ico') }}"/>

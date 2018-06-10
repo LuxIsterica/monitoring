@@ -6,6 +6,7 @@ from systemfile import locate,updatedb
 from system import getsysteminfo, hostname
 #from network import ifacestat
 from apache import apachestart, apachestop, apacherestart, apachereload, apachestatus, getvhosts, getmods, getconf, activatevhost, deactivatevhost, activatemod, deactivatemod, activateconf, deactivateconf
+from apache import apacheconfdir
 from cron import listcrontabs, getcroncontent, writecron
 from flask import Flask, render_template, flash, request, redirect, url_for, send_file
 
@@ -247,7 +248,7 @@ def startApache():
 			return redirect(url_for('sites'))
 	else:
 		error = 'Non funzica' 
-	return render_template('apache.html', error=error)
+	return render_template('apache-sites.html', error=error)
 
 #errore 500
 @app.route('/stopApache', methods=['POST'])
@@ -262,7 +263,7 @@ def stopApache():
 			return redirect(url_for('sites'))
 	else:
 		error = 'Non funzica' 
-	return render_template('apache.html', error=error)
+	return render_template('apache-sites.html', error=error)
 
 # return HTTP/1.1" 302
 @app.route('/restartApache', methods=['POST'])
@@ -277,7 +278,7 @@ def restartApache():
 			return redirect(url_for('sites'))
 	else:
 		error = 'Non funzica' 
-	return render_template('apache.html', error=error)
+	return render_template('apache-sites.html', error=error)
 
 @app.route('/reloadApache', methods=['POST'])
 def reloadApache():
@@ -291,7 +292,7 @@ def reloadApache():
 			return redirect(url_for('sites'))
 	else:
 		error = 'Non funzica' 
-	return render_template('apache.html', error=error)
+	return render_template('apache-sites.html', error=error)
 
 @app.route('/statusApache', methods=['POST'])
 def statusApache():
@@ -313,7 +314,7 @@ def sites():
 	if(vhost['returncode'] != 0):
 		flash(vhost['stderr'])
 		flash(vhost['command'])
-		return render_template('apache-sites.html')
+		return redirect(url_for('sites'))
 	else:
 		return render_template('apache-sites.html', vhost=vhost)
 
@@ -324,7 +325,7 @@ def modules():
 	if(mods['returncode'] != 0):
 		flash(mods['stderr'])
 		flash(mods['command'])
-		return render_template('apache-modules.html')
+		return redirect(url_for('sites'))
 	else:
 		return render_template('apache-modules.html', mods=mods)
 
@@ -335,7 +336,7 @@ def configurations():
 	if(conf['returncode'] != 0):
 		flash(conf['stderr'])
 		flash(conf['command'])
-		return render_template('apache-configurations.html')
+		return redirect(url_for('sites'))
 	else:
 		return render_template('apache-configurations.html', conf=conf)
 
@@ -397,7 +398,7 @@ def deactivateMods():
 def activateConf():
 	filename = request.form['clickActiv']
 	if filename:
-		logAConf=activatemod(filename)
+		logAConf=activateconf(filename)
 		if(logAConf['returncode'] != 0):
 			flash(logAConf['stderr'])
 			flash(logAConf['command'])
@@ -410,7 +411,7 @@ def activateConf():
 def deactivateConf():
 	filename = request.form['clickDeactiv']
 	if filename:
-		logDAConf=deactivatemod(filename)
+		logDAConf=deactivateconf(filename)
 		if(logDAConf['returncode'] != 0):
 			flash(logDAConf['stderr'])
 			flash(logDAConf['command'])

@@ -336,6 +336,15 @@ button.b-round-r {
     margin-left: 3em;
 }
 
+.apacheRow {
+    border-bottom: 2px solid #59d059;
+    /* margin-left: 65px; */
+    /* margin-right: 65px; */
+    /* margin-top: 15px; */
+    /* margin-bottom: 5px; */
+    margin: 15px 110px 5px 110px;
+}
+
 /* ---------------------------------------
                 MEDIAQUERIES
 ------------------------------------------ */
