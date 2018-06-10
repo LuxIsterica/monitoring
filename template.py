@@ -5,7 +5,7 @@ from apps import listinstalled, aptsearch
 from systemfile import locate,updatedb
 from system import getsysteminfo, hostname
 #from network import ifacestat
-from apache import apachestart, apachestop, apacherestart, apachereload, apachestatus, getvhosts, getmods, getconf, activatevhost, deactivatevhost
+from apache import apachestart, apachestop, apacherestart, apachereload, apachestatus, getvhosts, getmods, getconf, activatevhost, deactivatevhost, activatemod, deactivatemod, activateconf, deactivateconf
 from cron import listcrontabs, getcroncontent, writecron
 from flask import Flask, render_template, flash, request, redirect, url_for, send_file
 
@@ -20,14 +20,6 @@ bootstrap = Bootstrap(app)
 
 
 ########## FUNZIONALITÀ user.py ##########
-
-#http://localhost:5000/dash
-# definizione base dash con componente fissa navbar
-@app.route('/dash')
-def dash():
-	tpl = getsysteminfo()
-	(cpu,mem,proc) = tpl['data']
-	return render_template('dash.html', cpu = cpu, mem = mem, proc = proc)
 
 # http://localhost:5000/listUser/
 @app.route('/listUserAndGroups')
@@ -194,6 +186,13 @@ def updateDbFile():
 
 
 ########## FUNZIONALITÀ system.py ##########
+#http://localhost:5000/dash
+# definizione base dash con componente fissa navbar
+@app.route('/dash')
+def dash():
+	tpl = getsysteminfo()
+	(cpu,mem,proc) = tpl['data']
+	return render_template('dash.html', cpu = cpu, mem = mem, proc = proc)
 
 @app.route('/param')
 def param():
@@ -307,10 +306,6 @@ def statusApache():
 		error = 'Non funzica' 
 	return render_template('apache.html', error=error)
 
-@app.route('/apache')
-def apache():
-	return render_template('apache.html')
-
 @app.route('/sites')
 def sites():
 	error=None
@@ -318,9 +313,9 @@ def sites():
 	if(vhost['returncode'] != 0):
 		flash(vhost['stderr'])
 		flash(vhost['command'])
-		return render_template('apache.html')
+		return render_template('apache-sites.html')
 	else:
-		return render_template('apache.html', vhost=vhost)
+		return render_template('apache-sites.html', vhost=vhost)
 
 @app.route('/modules')
 def modules():
@@ -329,9 +324,9 @@ def modules():
 	if(mods['returncode'] != 0):
 		flash(mods['stderr'])
 		flash(mods['command'])
-		return render_template('apache.html')
+		return render_template('apache-modules.html')
 	else:
-		return render_template('apache.html', mods=mods)
+		return render_template('apache-modules.html', mods=mods)
 
 @app.route('/configurations')
 def configurations():
@@ -340,9 +335,9 @@ def configurations():
 	if(conf['returncode'] != 0):
 		flash(conf['stderr'])
 		flash(conf['command'])
-		return render_template('apache.html')
+		return render_template('apache-configurations.html')
 	else:
-		return render_template('apache.html', conf=conf)
+		return render_template('apache-configurations.html', conf=conf)
 
 #creating a view function without returning a response in Flask
 # return HTTP/1.1" 204
@@ -367,6 +362,58 @@ def deactivateVHost():
 		if(logDAVHost['returncode'] != 0):
 			flash(logDAVHost['stderr'])
 			flash(logDAVHost['command'])
+			#return redirect(url_for('sites'))
+			return '',204
+	#return redirect(url_for('sites'))
+	return '',204 #ritorno senza reindirizzamento con flask
+
+@app.route('/activateMods', methods=['POST'])
+def activateMods():
+	filename = request.form['clickActiv']
+	if filename:
+		logAMod=activatemod(filename)
+		if(logAMod['returncode'] != 0):
+			flash(logAMod['stderr'])
+			flash(logAMod['command'])
+			#return redirect(url_for('sites'))
+			return '',204
+	#return redirect(url_for('sites'))
+	return '',204 #ritorno senza reindirizzamento con flask
+
+@app.route('/deactivateMods', methods=['POST'])
+def deactivateMods():
+	filename = request.form['clickDeactiv']
+	if filename:
+		logDAMod=deactivatemod(filename)
+		if(logDAMod['returncode'] != 0):
+			flash(logDAMod['stderr'])
+			flash(logDAMod['command'])
+			#return redirect(url_for('sites'))
+			return '',204
+	#return redirect(url_for('sites'))
+	return '',204 #ritorno senza reindirizzamento con flask
+
+@app.route('/activateConf', methods=['POST'])
+def activateConf():
+	filename = request.form['clickActiv']
+	if filename:
+		logAConf=activatemod(filename)
+		if(logAConf['returncode'] != 0):
+			flash(logAConf['stderr'])
+			flash(logAConf['command'])
+			#return redirect(url_for('sites'))
+			return '',204
+	#return redirect(url_for('sites'))
+	return '',204 #ritorno senza reindirizzamento con flask
+
+@app.route('/deactivateConf', methods=['POST'])
+def deactivateConf():
+	filename = request.form['clickDeactiv']
+	if filename:
+		logDAConf=deactivatemod(filename)
+		if(logDAConf['returncode'] != 0):
+			flash(logDAConf['stderr'])
+			flash(logDAConf['command'])
 			#return redirect(url_for('sites'))
 			return '',204
 	#return redirect(url_for('sites'))

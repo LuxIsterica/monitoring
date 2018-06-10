@@ -12,8 +12,9 @@ import sys
 
 
 
-data = getmods()
+data = getsysteminfo()
 #data = writeusercrontab('giuseppe', 'nuovociaone')
+(cpu,mem,proc) = data['data']
 if data['returncode'] is 0:
     #(cpu,mem,proc) = data['data']
 	#pprint(data['data'][1]['filename'][:-5])
