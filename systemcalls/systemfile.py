@@ -34,16 +34,3 @@ def locate(name, insensitive=True):
         return command_error( e, command )
 
     return command_success( data=found )
-
-
-#Unlink file using his path
-def removefile(path):
-
-    logid = mongolog( locals() )
-
-    try:
-        os.remove(path)
-    except OSError:
-        pass
-
-    return command_success( logid=logid )

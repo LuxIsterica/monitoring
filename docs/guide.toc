@@ -6,7 +6,7 @@
 \contentsline {section}{\numberline {2}Backend}{2}{section.2}
 \contentsline {paragraph}{Interfaccia al frontend}{3}{section*.4}
 \contentsline {paragraph}{subprocess}{3}{section*.5}
-\contentsline {subsection}{\numberline {2.1}utilities}{4}{subsection.2.1}
+\contentsline {subsection}{\numberline {2.1}Utilities}{4}{subsection.2.1}
 \contentsline {subsubsection}{\numberline {2.1.1}mongolog()}{4}{subsubsection.2.1.1}
 \contentsline {subsubsection}{\numberline {2.1.2}mongologstatus() e funzioni collegate }{5}{subsubsection.2.1.2}
 \contentsline {paragraph}{Parametri}{6}{section*.6}
@@ -163,12 +163,34 @@
 \contentsline {paragraph}{Parametri}{50}{section*.116}
 \contentsline {paragraph}{Funzionamento}{51}{lstlisting.-85}
 \contentsline {paragraph}{Return}{54}{section*.118}
-\contentsline {subsection}{\numberline {2.6}apache}{54}{subsection.2.6}
-\contentsline {subsection}{\numberline {2.7}Database}{54}{subsection.2.7}
-\contentsline {subsection}{\numberline {2.8}File}{54}{subsection.2.8}
-\contentsline {subsection}{\numberline {2.9}Logs}{54}{subsection.2.9}
-\contentsline {section}{\numberline {3}Frontend}{54}{section.3}
-\contentsline {section}{\numberline {4}Utility}{54}{section.4}
-\contentsline {subsection}{\numberline {4.1}\href {https://developers.redhat.com/products/developertoolset/overview/}{Red Hat Developer Toolset}}{54}{subsection.4.1}
-\contentsline {subsection}{\numberline {4.2}Rimossi tra CentOS 6 e 7 e le cui alternative non presenti su CRESCO 6}{54}{subsection.4.2}
-\contentsline {subsection}{\numberline {4.3}Rimossi da Centos 6 e 7 e le cui alternative sono presenti su CRESCO 6}{56}{subsection.4.3}
+\contentsline {subsection}{\numberline {2.6}Apache}{54}{subsection.2.6}
+\contentsline {subsubsection}{\numberline {2.6.1}getobjs}{54}{subsubsection.2.6.1}
+\contentsline {paragraph}{Parametri}{56}{section*.119}
+\contentsline {paragraph}{Funzionamento}{56}{lstlisting.-91}
+\contentsline {paragraph}{Return}{58}{section*.121}
+\contentsline {subsubsection}{\numberline {2.6.2}manageapache}{58}{subsubsection.2.6.2}
+\contentsline {paragraph}{Parametri}{59}{section*.122}
+\contentsline {paragraph}{Funzionamento}{59}{lstlisting.-94}
+\contentsline {paragraph}{Return}{61}{section*.124}
+\contentsline {subsubsection}{\numberline {2.6.3}manageobjs}{61}{subsubsection.2.6.3}
+\contentsline {paragraph}{Parametri}{61}{section*.125}
+\contentsline {paragraph}{Funzionamento}{62}{section*.126}
+\contentsline {paragraph}{Return}{62}{section*.127}
+\contentsline {subsubsection}{\numberline {2.6.4}Lettura e scrittura degli oggeti di apache}{62}{subsubsection.2.6.4}
+\contentsline {subsection}{\numberline {2.7}Database}{62}{subsection.2.7}
+\contentsline {subsection}{\numberline {2.8}File}{62}{subsection.2.8}
+\contentsline {subsubsection}{\numberline {2.8.1}updatedb}{62}{subsubsection.2.8.1}
+\contentsline {paragraph}{Parametri}{62}{section*.128}
+\contentsline {paragraph}{Funzionamento}{63}{section*.129}
+\contentsline {paragraph}{Return}{63}{section*.130}
+\contentsline {subsubsection}{\numberline {2.8.2}locate}{63}{subsubsection.2.8.2}
+\contentsline {paragraph}{Parametri}{63}{section*.131}
+\contentsline {paragraph}{Funzionamento}{63}{section*.132}
+\contentsline {paragraph}{Return}{64}{section*.133}
+\contentsline {subsubsection}{\numberline {2.8.3}Altre funzioni della libreria systemfile}{64}{subsubsection.2.8.3}
+\contentsline {subsection}{\numberline {2.9}Logs}{64}{subsection.2.9}
+\contentsline {section}{\numberline {3}Frontend}{64}{section.3}
+\contentsline {section}{\numberline {4}Utility}{64}{section.4}
+\contentsline {subsection}{\numberline {4.1}\href {https://developers.redhat.com/products/developertoolset/overview/}{Red Hat Developer Toolset}}{64}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Rimossi tra CentOS 6 e 7 e le cui alternative non presenti su CRESCO 6}{64}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.3}Rimossi da Centos 6 e 7 e le cui alternative sono presenti su CRESCO 6}{66}{subsection.4.3}

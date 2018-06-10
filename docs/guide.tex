@@ -157,7 +157,7 @@ def removeuser(user, removehome=None):
 \end{lstlisting}
 Nelle prossime sezioni verranno analizzate tutte le categorie e spiegato il funzionamento di ogni funzione che contengono.
 
-\subsection{utilities}
+\subsection{Utilities}\label{utilities}
 Questa categoria contiene per la maggior parte funzioni che non vengono mai richiamate direttamente dal frontend, ma vengono utilizzate
 dalle altre funzioni del backend. Fa eccezione la funzione \nameref{writefile} che oltre essere chiamata da queste funzioni può anche
 essere chiamata direttamente, ed è utile alla modifica dei. \\
@@ -523,7 +523,7 @@ Restituiusce il dizionario di errore costruita come si vede in codice se il file
 altrimenti, contenente nella variabile \texttt{logid} l'object id del documento mongo creato e contenente le informazioni
 sull'operazione appena eseguita.
 
-\subsection{Utenti}\label{utenti}
+\subsection{Utenti}\label{users}
 \subsubsection{getuser}\label{getuser}
 \begin{lstlisting}
 def getuser(user):
@@ -1294,6 +1294,223 @@ che tiene traccia delle informazioni dell'operazione.
 Restituisce il dizionario di successo generato da \texttt{command\_success} con la key \texttt{Data} a \texttt{None}
 e la key \texttt{logid} contenente l'object id del documento mongo creato e che tiene traccia delle informazioni
 sull'operazione.
+
+\subsection{Applicazioni}\nameref{apps}
+La libreria nasce per la gestione dei pacchetti sul sistema. nomodo nasce su un sistema Ubuntu server 16.04 cioè
+Debian-based ed attualmente supporta solamente la gestione dei pacchetti tramite i tool di questa categoria di sistemi,
+ossia \texttt{dpkg} e \texttt{apt} (evoluzione di \texttt{apt-get}).
+
+\subsubsection{aptupdate}\label{aptupdate}
+\begin{lstlisting}
+def aptupdate():
+
+    logid = mongolog( locals() )
+
+    try:
+        command = ['apt-get', 'update']
+        check_call(command)
+    except CalledProcessError as e:
+        return command_error( e, command, logid )
+
+    return command_success( logid=logid )
+\end{lstlisting}
+Diversamente dai sistemi rpm-based nei sistemi debian-based la cache dei pacchetti va aggiornata a mano. La cache dei
+pacchetti è fondamentale al sistema per eseguire ricerche e installazioni di nuovi pacchetti più rapidamente possibile.
+Questa funzione nasce proprio per aggiornare tale cache.
+\paragraph{Parametri}
+\paragraph{Funzionamento}
+\paragraph{Return}
+
+\subsubsection{listinstalled}\label{listinstalled}
+\begin{lstlisting}
+def listinstalled( summary=False ):
+
+    options = '-f=${binary:Package};${Version};${Architecture}' + ( ';${binary:Summary}\n' if summary else '\n' )
+    command = ['dpkg-query', options, '-W']
+
+    try:
+        output = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
+    except CalledProcessError as e:
+        return command_error( e, command )
+    except FileNotFoundError as e:
+        return command_error( e, command )
+
+
+    #Lista di chiavi per le informazioni sull'app
+    keys = ['name', 'version', 'architecture']
+    if summary: keys.append('summary')
+    
+    #Conterrà una lista di dizionari con tutte le app installate nel sistema
+    pkgs = list()
+
+    #Inserimento valori nella lista apps()
+    for i in output:
+        appinfo = i.split(';')
+        pkgs.append( dict( zip(keys, appinfo) ) )
+
+    return command_success( data=pkgs )
+\end{lstlisting}
+\paragraph{Parametri}
+\paragraph{Funzionamento}
+\paragraph{Return}
+
+\subsubsection{aptsearch}\label{aptsearch}
+\begin{lstlisting}
+def aptsearch( pkgname, namesonly=True ):
+
+    #Cannot search on empty string
+    if not pkgname:
+        command_error( returncode=255, stderr='Empty search string not allowed' )
+
+    command = ['apt-cache', 'search', pkgname]
+    if namesonly: command.append('--names-only')
+
+    try:
+        output = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
+    except CalledProcessError as e:
+        return command_error( e, command )
+
+    keys = ['name', 'desc']
+    pkgs = list()
+
+    for i in output:
+        appinfo = i.split(' - ')
+        pkgs.append( dict( zip(keys, appinfo) ) )
+
+    return command_success( data=pkgs )
+\end{lstlisting}
+\paragraph{Parametri}
+\paragraph{Funzionamento}
+\paragraph{Return}
+
+\subsubsection{aptshow}\label{aptshow}
+\begin{lstlisting}
+def aptshow(pkgname, onlydependences=False):
+    
+    mode = 'depends' if onlydependences else 'show'
+    command = ['apt-cache', mode, pkgname]
+
+    try:
+        output = check_output(command, stderr=PIPE, universal_newlines=True)
+    except CalledProcessError as e:
+        return command_error( e, command )
+    
+    #Se vengono restituiti più pacchetti (diverse versioni) prende solo il primo di questi
+    if onlydependences:
+        #Remove the first line (header)
+        toreturn = re.sub('^.*\\n', '', output)
+    else:
+        toreturn = output.split('\n\n')[0]
+        
+    return command_success( data=toreturn )
+\end{lstlisting}
+\paragraph{Parametri}
+\paragraph{Funzionamento}
+\paragraph{Return}
+
+\subsubsection{aptinstall}\label{aptinstall}
+\begin{lstlisting}
+def aptinstall(pkgname):
+    
+    logid = mongolog( locals(), {'dependencies' : aptshow(pkgname,onlydependences=True)} )
+
+    command = ['apt-get', 'install', '-y', pkgname]
+    environ = {'DEBIAN_FRONTEND': 'noninteractive', 'PATH': os.environ.get('PATH')}
+
+    try:
+        check_call( command, env=environ )  #, stdout=open(os.devnull, 'wb'), stderr=STDOUT)
+    except CalledProcessError:
+        return command_error( returncode=14, stderr='Errore durante l\'installazione del pacchetto "'+pkgname+'"', logid=logid )
+
+    return command_success( logid=logid )
+\end{lstlisting}
+\paragraph{Parametri}
+\paragraph{Funzionamento}
+\paragraph{Return}
+
+\subsubsection{aptremove}\label{aptremove}
+\begin{lstlisting}
+def aptremove(pkgname, purge=False):
+
+    logid = mongolog( locals(), {'dependencies' : aptshow(pkgname,onlydependences=True)} )
+
+    command = ['apt-get', 'purge' if purge else 'remove', '-y', pkgname]
+    environ = {'DEBIAN_FRONTEND': 'noninteractive', 'PATH': os.environ.get('PATH')}
+
+    try:
+        check_call( command, env=environ ) #stdout=open(os.devnull, 'wb'), stderr=STDOUT)
+    except CalledProcessError as e:
+        return command_error( e, command, logid )
+    
+    return command_success( logid=logid )
+\end{lstlisting}
+\paragraph{Parametri}
+\paragraph{Funzionamento}
+\paragraph{Return}
+
+\subsubsection{getexternalrepos}\label{getexternalrepos}
+\begin{lstlisting}
+def getexternalrepos():
+
+    repospath = '/etc/apt/sources.list.d/'
+    reposfiles = os.listdir(repospath)
+
+    #Removing file that ends with '.save'
+    reposfiles = list( filter( lambda item: not item.endswith('.save'), reposfiles ) )
+
+    #List to return
+    repos = list()
+
+    for filename in reposfiles:
+        with open(repospath + filename) as opened:
+            repos.append({
+                'filename': filename,
+                'lines': opened.read()
+            })
+
+    return command_success( data=repos )
+\end{lstlisting}
+\paragraph{Parametri}
+\paragraph{Funzionamento}
+\paragraph{Return}
+
+\subsubsection{addrepo}\label{addrepo}
+\begin{lstlisting}
+def addrepo(url, name):
+
+    logid = mongolog( locals() )
+
+    filename = '/etc/apt/sources.list.d/' + name + '.list'
+    repofile = open( filename, 'a')
+    repofile.write(url + '\n')
+    repofile.close()
+
+    return command_success( logid=logid )
+\end{lstlisting}
+\paragraph{Parametri}
+\paragraph{Funzionamento}
+\paragraph{Return}
+
+\subsubsection{removerepofile}\label{removerepofile}
+\begin{lstlisting}
+def removerepofile(filename):
+
+    logid = mongolog( locals() )
+
+    repospath = '/etc/apt/sources.list.d/'
+
+    try:
+        os.remove(repospath + filename + '.list')
+        os.remove(repospath + filename + '.list.save')
+    except OSError:
+        pass
+
+    return command_succes( logid=logid )
+\end{lstlisting}
+\paragraph{Parametri}
+\paragraph{Funzionamento}
+\paragraph{Return}
+
 
 
 \subsection{Network}\label{network}
@@ -2444,7 +2661,7 @@ di inormazioni chieste dall'utente, ossia \texttt{cpu} (dizionario), \texttt{mem
 se \texttt{getall=True}, le informazioni richieste utilizzando i parametri altrimenti.
 
 
-\subsection{apache}\label{apache}
+\subsection{Apache}\label{apache}
 La libreria \textit{apache} è utile alla gestione del web server Apache e dei suoi componenti, ossia configurazioni
 (abbreviato in \textit{conf}) e moduli (abbreviato in \textit{mods}).\\
 Le funzioni principali di questa libreria non vengono mai chiamate direttamente ma sempre tramite una funzione alias
@@ -2730,7 +2947,7 @@ Si va quindi prima di tutto a verificare il valore di \texttt{op}:
 		Sapendo che ogni riga segue la convenzione \texttt{chiave:valore} tramite la funzione \texttt{map()} vengono iterate
 		tutte le righe e divise con la funzione \texttt{split()}, così da ottenere da ognuna di questa chiave e valore;
 		Questi vengono poi inseriti nella variabile \texttt{toreturn} che diventa quindi un dizionario e pasato
-		alla funzione di successo \texttt{command\_success} nel campo \texttt{data}.
+		alla funzione di successo \texttt{command\_success} nel campo \texttt{data}}
 \end{itemize}
 \paragraph{Return}
 Se le operazioni vanno a buon fine restituisce il dizionario di successo. Per il suo contenuto distinguiamo invece due casi:
@@ -2793,6 +3010,86 @@ utilizzata la funzione \nameref{writefile} della libreria \nameref{system}, e co
 
 \subsection{Database}\label{database}
 \subsection{File}\label{file}
+La sezione inerente i file (la cui libreria è chiamata \textit{systemfile.py}, a causa della libreria \textit{File}
+già esistente in python) nasce per la gestione, ricerca ed indicizzazione dei file.
+\subsubsection{updatedb}\label{updatedb}
+\begin{lstlisting}
+def updatedb():
+
+    try:
+        command = ['updatedb']
+        check_call(command, stderr=PIPE)
+    except CalledProcessError as e:
+        return command_error( e, command )
+
+    return command_success()
+\end{lstlisting}
+Questa funzione nasce col presupposto che nel sistema sia presente il pacchetto \texttt{mlocate}. Questo pacchetto
+è stato creato per far fronte al problema della lentezza della ricerca di file nell'intero sistema. Ciò è
+ottenuto attraverso la creazione di un database indicizzato di tutti i file del sistema che sia in formato
+binario per velocizzare le operazioni di ricerca.\\
+La funzione quindi nasce per aggiornare questo database utilizzando il frontend di nomodo. Per testare
+l'utilità di questo applicativo basta confrontare la velocità di ricerca dei file col comando \texttt{locate}
+e la classica \texttt{find}.
+\paragraph{Parametri}
+La funzione non prende paramtri; tutte le configurazioni vanno inserite nel file \texttt{/etc/updatedb.conf},
+ma il cambio di configurazione si rende necesario solo per file system speciali come ad esempio l'IBM Spectrun Scale
+o GPFS; non è quindi necessario eseguire altre operazioni se non installare lo stesso pacchetto \texttt{mlocate}.
+\paragraph{Funzionamento}
+La funzione non fa altro che lanciare il comando \texttt{updatedb} a terminale per aggiornare il database
+indicizzato dei file.
+\paragraph{Return}
+Restituisce il dizionario di successo in cui sia \texttt{data} che \texttt{logid} sono a \texttt{None}.
+In sintesi non restituisce niente se non un codice di ritorno per sapere se l'operazione è andata a buon fine.
+
+\subsubsection{locate}\label{locate}
+\begin{lstlisting}
+def locate(name, insensitive=True):
+
+    #Cannot search on empty string
+    if not name:
+        return command_error( returncode=255, stderr='Empty search string not allowed' )
+
+    try:
+        command = ['locate', '-i', name]
+        if insensitive is False: command.pop(1)
+
+        found = check_output(command, stderr=PIPE, universal_newlines=True).splitlines()
+    except CalledProcessError as e:
+        return command_error( e, command )
+
+    return command_success( data=found )
+\end{lstlisting}
+Questa funzione prende lo stesso nome dell comando che si va a lanciare sul terminale ed è utile alla ricerca
+di file nel sistema utilizzando il database indicizzato generato ed aggiornato tramite la funzione \texttt{updatedb}.
+\paragraph{Parametri}
+Prende 2 parametri:
+\begin{itemize}
+	\item{\texttt{name}: è il nome del file da cercare. Il nome può anche essere solo parziale}
+	\item{\texttt{insensitive=True}: indica se la ricerca deve essere effettuata ignorando il case
+		del nome file cercato, cioè se la ricerca non distingue tra caratteri maiuscoli e minuscoli}
+\end{itemize}
+\paragraph{Funzionamento}
+Viene innanzitutto effettuata una verifica sul valore del parametro \texttt{name}, in quanto se l'utente effettua
+una ricerca su stringa vuota il comando restituisce la lista di tutti i file di sistema. Questo controllo viene
+anche effettuato dal frontend ma nel mondo dell'informatica la sicurezza non è mai troppa.\\
+Viene quindi vevrificato il parametro \texttt{insensitive} e se \texttt{False} viene rimosso l'argomento
+\texttt{-i} dal comando da lanciare in quanto l'utente (o il fontend) vuole che la ricerca distingua tra
+caratteri maiuscoli e caratteri minuscoli.\\
+Viene quindi lanciato il comando \texttt{locate} passandogli il nome file che restituisce una lista di risultati.
+Questa lista viene divisa per righe (\texttt{splitlines()}), memorizzata nella variabile \texttt{found} e restituita
+al frontend attraverso la funzione di successo \texttt{command\_success}.
+\paragraph{Return}
+Restituisce il dizionario di successo generato dalla funzione \texttt{command\_success}, contenente al campo
+\texttt{data} una lista di stringhe dove ogni stringa è il percorso di un file trovato nel sistema e che il cui
+nome coincida in maniera totale o parziale con la stringa contenuta nella variabile \texttt{name}.
+
+\subsubsection{Altre funzioni della libreria systemfile}\label{othersystemfilefunctions}
+Le funzioni per la scrittura e la rimozione di un file non sono state inserite qui ma direttamente nella libreria
+\nameref{utilities} in quanto è più comune includere questa libreria per effettuare tali operazioni piuttosto
+che la libreria \nameref{systemfile}.
+
+
 \subsection{Logs}\label{logs}
 
 \section{Frontend}\label{frontend}
