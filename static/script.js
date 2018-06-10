@@ -4,7 +4,7 @@ $(document).ready(function () {
 		$('#sidebar').toggleClass('active');
 	});
  
-	$('#buttonClickActiv').on('click',function(){
+	$('#buttonSitesClickActiv').on('click',function(){
 		$('#startButton').css('opacity', '0.5');
 		$('#startButton').addClass('disabled');
 		$('#stopButton').css('opacity', '0.5');
@@ -14,7 +14,47 @@ $(document).ready(function () {
 		$("#pText").show();
 	});
 
-	$('#buttonClickDeactiv').on('click',function(){
+	$('#buttonSitesClickDeactiv').on('click',function(){
+		$('#startButton').css('opacity', '0.5');
+		$('#startButton').addClass('disabled');
+		$('#stopButton').css('opacity', '0.5');
+		$('#stopButton').addClass('disabled');
+		$('#statusButton').css('opacity', '0.5');
+		$('#statusButton').addClass('disabled');
+		$("#pText").show();
+	});
+
+	$('#buttonModsClickActiv').on('click',function(){
+		$('#startButton').css('opacity', '0.5');
+		$('#startButton').addClass('disabled');
+		$('#stopButton').css('opacity', '0.5');
+		$('#stopButton').addClass('disabled');
+		$('#statusButton').css('opacity', '0.5');
+		$('#statusButton').addClass('disabled');
+		$("#pText").show();
+	});
+
+	$('#buttonModsClickDeactiv').on('click',function(){
+		$('#startButton').css('opacity', '0.5');
+		$('#startButton').addClass('disabled');
+		$('#stopButton').css('opacity', '0.5');
+		$('#stopButton').addClass('disabled');
+		$('#statusButton').css('opacity', '0.5');
+		$('#statusButton').addClass('disabled');
+		$("#pText").show();
+	});
+
+	$('#buttonConfClickActiv').on('click',function(){
+		$('#startButton').css('opacity', '0.5');
+		$('#startButton').addClass('disabled');
+		$('#stopButton').css('opacity', '0.5');
+		$('#stopButton').addClass('disabled');
+		$('#statusButton').css('opacity', '0.5');
+		$('#statusButton').addClass('disabled');
+		$("#pText").show();
+	});
+
+	$('#buttonConfClickDeactiv').on('click',function(){
 		$('#startButton').css('opacity', '0.5');
 		$('#startButton').addClass('disabled');
 		$('#stopButton').css('opacity', '0.5');

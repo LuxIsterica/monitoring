@@ -1,43 +1,102 @@
-<div id="sites" class="tab-pane fade in active">
-      <h3 class="title">Sites</h3>
+{% extends "index.html" %}
+{% block page_content %}
+<h1 class="title">APACHE</h1>
 
-	      {% for v in vhost.data %}
-	      <div class="row">
-	        	<div class="col-md-6"> 
-		        	<h2 style="text-align: center;">{{v['filename'][:-5]}}</h2>
-		      	</div>
-		        <div class="col-md-4"> 
-		          <table>
-		            <tr>
-		             <td> Site Folder (DocumentRoot): </td>
-		             <td> {{  v['DocumentRoot'] }} </td>
-		            </tr>
-		            <tr>
-		             <td> filename: </td>
-		             <td> {{  v['filename'] }} </td>
-		            </tr>
-		            <tr>
-		             <td> active: </td>
-		             {% if v['active'] == 1 %}
-			            <td>
-				            <form id="deactivateVHost" action="/deactivateVHost" role="form" method="POST">
-				           		<input type="hidden" value="{{v['filename']}}" name="clickDeactiv">
-			       		 		<button class="button b-round-g" id="buttonClickDeactiv"></button>
-			    			 </form>
-		    			</td>
-		             <!--<td><button class="button b-round-g" value="" id="buttonClickActiv"></button></td>-->
-		             {% else %}
-			            <td>
-				            <form id="activateVHost" action="/activateVHost" role="form" method="POST">
-				           		<input type="hidden" value="{{v['filename']}}" name="clickActiv">
-			       		 		<button class="button b-round-r" id="buttonClickActiv"></button>
-			    			 </form>
-		    			</td>
-		             {% endif %}
-		            </tr> 
-		        </table>
-		      </div>		
-	      </div>
-	      {% endfor %}
+	{% with messages = get_flashed_messages() %}
+	  {% if messages %}
+	    <ul class=flashes>
+	    {% for message in messages %}
+	      <li>{{ message }}</li>
+	    {% endfor %}
+	    </ul>
+	    <meta http-equiv="refresh" content="5;URL=http://localhost:5000/sites">
+	  {% endif %}
+	{% endwith %}
+	<br>
+	{% if logStatus|length > 0 %}
+		<ul>
+		{% for key,value in logStatus.data.items() %}
+			<li>{{ key }} : {{ value }}</li>
+		{% endfor %}
+		</ul>
+	{% endif %}
 
+<div class="page-header button-style">
+	<ul class="nav nav-pills" style="display: flex;justify-content: space-between;">
+	  <!-- queste sono tutte form, non devo scendere su una nuova pagina -->
+	  <li role="presentation" id="startButton">
+	  	<form id="startApache" action="/startApache" role="form" method="POST">
+       		<input type = "submit" value = "Start" id="buttonStartApache" name="b-start-a"/>
+    	</form>
+	  </li>
+	  <li role="presentation" id="stopButton">
+	   	<form id="stopApache" action="/stopApache" role="form" method="POST">
+       		<input type = "submit" value = "Stop" id="buttonStopApache" name="b-stop-a"/>
+    	</form>
+	  </li>
+	  <li role="presentation" id="restartButton">
+	  	<form id="restartApache" action="/restartApache" role="form" method="POST">
+       		<input type = "submit" value = "Restart" id="buttonRestartApache" name="b-restart-a"/>
+    	</form>
+	  </li>
+	  <li role="presentation" id="reloadButton">
+	  	<form id="reloadApache" action="/reloadApache" role="form" method="POST">
+       		<input type = "submit" value = "Reload" id="buttonReloadApache" name="b-reload-a"/>
+    	</form>
+	  </li>
+	  <li role="presentation" id="statusButton" >
+	  	<form id="statusApache" action="/statusApache" role="form" method="POST">
+       		<input type = "submit" value = "Status" id="buttonStatusApache" name="b-status-a"/>
+    	</form>
+	  </li>
+	</ul>
+	<p id="pText" hidden> To activate new settings you must restart or reload apache </p>
 </div>
+
+	<div class="tab-content">
+	  {% if vhost and vhost|length > 0 %}
+	    <div id="sites">
+	        <h3 class="title">Sites</h3>
+		  	{% for v in vhost.data %}
+		      <div class="row">
+		        	<div class="col-md-6"> 
+			        	<h2 style="text-align: center;">{{v['filename'][:-5]}}</h2>
+			      	</div>
+			        <div class="col-md-4"> 
+			          <table>
+			            <tr>
+			             <td> Site Folder (DocumentRoot): &ensp;</td>
+			             <td> {{ v['DocumentRoot'] }} </td>
+			            </tr>
+			            <tr>
+			             <td> filename: &ensp;</td>
+			             <td> {{ v['filename'] }} </td>
+			            </tr>
+			            <tr>
+			             <td> active: &ensp;</td>
+			             {% if v['active'] == 1 %}
+				            <td>
+					            <form id="deactivateVHost" action="/deactivateVHost" role="form" method="POST">
+					           		<input type="hidden" value="{{v['filename']}}" name="clickDeactiv">
+				       		 		<button class="button b-round-g" id="buttonSitesClickDeactiv"></button>
+				    			</form>
+			    			</td>
+			             <!--<td><button class="button b-round-g" value="" id="buttonClickActiv"></button></td>-->
+			             {% else %}
+				            <td>
+					            <form id="activateVHost" action="/activateVHost" role="form" method="POST">
+					           		<input type="hidden" value="{{v['filename']}}" name="clickActiv">
+				       		 		<button class="button b-round-r" id="buttonSitesClickActiv"></button>
+				    			</form>
+			    			</td>
+			             {% endif %}
+			            </tr> 
+			        </table>
+			      </div>		
+		      </div>
+		  	{% endfor %}
+		</div>
+	  {% endif %}
+	</div> 
+
+{% endblock %}
