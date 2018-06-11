@@ -55,13 +55,12 @@
 </div>
 
 	<div class="tab-content">
-	  {% if vhost and vhost|length > 0 %}
 	    <div id="sites">
 	        <h3 class="title">Sites</h3>
-		  	{% for v in vhost.data %}
+		  	{% for vd in vhost.data %}
 		      <div class="row apacheRow">
 		        	<div class="col-md-6"> 
-			        	<h2 style="text-align: center;"><button style="font-size: 28px;" type="button" data-toggle="modal" class="btn btn-link" data-target="#modalUpdSites">{{v['filename'][:-5]}}</button></h2>
+			        	<h2 style="text-align: center;"><button style="font-size: 28px;" type="button" data-toggle="modal" class="btn btn-link" data-target="#modalUpdSite">{{v['filename'][:-5]}}</button></h2>
 			      	</div>
 			        <div class="col-md-4" style="padding-top: 18px;"> 
 			          <table>
@@ -95,9 +94,36 @@
 			        </table>
 			      </div>		
 		      </div>
-		  	{% endfor %}
+		    {% endfor %}
 		</div>
-	  {% endif %}
 	</div> 
+
+
+<div id = "modalUpdSite" class = "modal fade" role="dialog">
+	<div class = "modal-dialog"> 
+		<div class = "modal-content"> 
+			<div class = "modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Modifica contenuto site</h4>
+			</div>
+			<div class="modal-body">
+			<form id="form" action="/updateSiteFolder" role="form" method = "POST">
+					Site: <input type="text" id="vhostUpdate" name="vhostUpdate" value="{{v['filename']}}" class="form-control" readonly />
+	          		<!--Nuovo comando shell:<input type="text" id="newShell" name="newShell" class="form-control" placeholder="-- Seleziona nuova shell --"/>-->
+
+	          	<div class="form-group">
+				  <label for="content">Contenuto site:</label>
+				  <!-- textarea che ritorna da readfile -->
+				</div>
+        	</div>	
+        	<div class="modal-footer">
+        		<!--<button id = "btnUpd" class="btn btn-info btn-default">Invio</button>-->
+        		<input type = "submit" value = "Invio" class="btn btn-info btn-default">
+          		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        	</div>
+        	</form>	
+        </div>	
+	</div>
+</div>
 
 {% endblock %}

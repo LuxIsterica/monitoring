@@ -12,15 +12,15 @@ import sys
 
 
 
-data = getsysteminfo(True, False, False)
+data = getvhosts()
 #data = writeusercrontab('giuseppe', 'nuovociaone')
-(proc) = data['data']
+vhost = data['data']
 if data['returncode'] is 0:
     #(cpu,mem,proc) = data['data']
 	#pprint(data['data'][1]['filename'][:-5])
-	#for k in data['data'][0]:
-	#	print("key: "+ k)
-	print (data['data'])
+	for vd in data['data']:
+		print(vd['filename'])
+	#print (v)
 
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments
