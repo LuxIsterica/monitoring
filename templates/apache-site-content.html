@@ -1,0 +1,10 @@
+{% extends "index.html" %}
+{% block page_content %}
+
+<h2>Content: {{nameSite}}</h2>
+
+	{% if contentVhost %}
+		<textarea rows="15" name="contentVhost" id="contentVhost" style="width: 55em;">{{ contentVhost.data }}</textarea>
+	{% endif %}
+
+{% endblock %}

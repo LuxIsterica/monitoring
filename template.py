@@ -8,7 +8,10 @@ from system import getsysteminfo, hostname
 from apache import apachestart, apachestop, apacherestart, apachereload, apachestatus, getvhosts, getmods, getconf, activatevhost, deactivatevhost, activatemod, deactivatemod, activateconf, deactivateconf
 from apache import apacheconfdir
 from cron import listcrontabs, getcroncontent, writecron
+from utilities import readfile
+
 from flask import Flask, render_template, flash, request, redirect, url_for, send_file
+
 
 from flask_bootstrap import Bootstrap
 from collections import defaultdict
@@ -317,6 +320,12 @@ def sites():
 		return redirect(url_for('sites'))
 	else:
 		return render_template('apache-sites.html', vhost=vhost)
+
+@app.route('/retrieveContentSite', methods=['POST'])
+def retrieveContentSite():
+	nameSite = request.form['retrieveCS']
+	contentVhost = readfile(apacheconfdir+"sites-available/"+nameSite)
+	return render_template('apache-site-content.html', contentVhost=contentVhost, nameSite=nameSite)
 
 @app.route('/modules')
 def modules():
