@@ -94,7 +94,7 @@ def writefile(filepath, newcontent=None, force=False):
     if not newcontent:
         try:
             with open(filepath, 'r') as content:
-                return content.read()
+                return command_success( data=content.read() )
         except FileNotFoundError:
             return command_error( returncode=10, stderr='No file found on path : "'+filepath+'"' )
 
@@ -130,6 +130,7 @@ def writefile(filepath, newcontent=None, force=False):
 
     return command_success( logid=logid )
 
+def readfile(filepath): return writefile(filepath)
 
 
 
