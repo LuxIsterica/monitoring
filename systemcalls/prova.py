@@ -1,7 +1,7 @@
 from user import getusers, getuser, getgroups, getusergroups, getusernotgroups, addusertogroups, removeuserfromgroups, adduser, removeuser, updateuserpass, getshells, updateusershell
 from apps import listinstalled, aptsearch, aptshow, aptinstall, aptremove, aptupdate, addrepo,  getexternalrepos, removerepofile
 from system import hostname, getsysteminfo
-from systemfile import updatedb, locate, removefile
+from systemfile import updatedb, locate
 from apache import getvhosts, getmods, getconf, activatevhost, deactivatevhost, apachestatus, apachereload
 from pprint import pprint
 from utilities import filediff, writefile
@@ -12,9 +12,9 @@ import sys
 
 
 
-data = getsysteminfo()
+data = getsysteminfo(True, False, False)
 #data = writeusercrontab('giuseppe', 'nuovociaone')
-(cpu,mem,proc) = data['data']
+(proc) = data['data']
 if data['returncode'] is 0:
     #(cpu,mem,proc) = data['data']
 	#pprint(data['data'][1]['filename'][:-5])
