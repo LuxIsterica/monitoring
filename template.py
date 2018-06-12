@@ -1,6 +1,6 @@
 import sys
 sys.path.append('systemcalls')
-from user import getusers, getuser, getgroups, getshells, updateusershell, getusernotgroups, getusergroups
+from user import getusers, getuser, getgroups, getshells, updateusershell, getusernotgroups, getusergroups, addusertogroups, removeuserfromgroups
 from apps import listinstalled, aptsearch
 from systemfile import locate,updatedb
 from system import getsysteminfo, hostname
@@ -8,7 +8,7 @@ from system import getsysteminfo, hostname
 from apache import apachestart, apachestop, apacherestart, apachereload, apachestatus, getvhosts, getmods, getconf, activatevhost, deactivatevhost, activatemod, deactivatemod, activateconf, deactivateconf
 from apache import apacheconfdir
 from cron import listcrontabs, getcroncontent, writecron
-from utilities import readfile
+from utilities import readfile, writefile
 
 from flask import Flask, render_template, flash, request, redirect, url_for, send_file
 
@@ -50,55 +50,79 @@ def getInfoUser(uname):
 
 @app.route('/updateShell', methods=['POST'])
 def updateShell():
-	error = None
-	uname = request.form['unameUpdate'];
-	shell = request.form['newShell'];
-	if shell == '-- Seleziona nuova shell --':
-		flash('Opzione nuova shell non valida')
-	else:
-		log = updateusershell(uname, shell)
-		if(log['returncode'] != 0):
-			flash(log['stderr'])
-			flash(log['command'])
+	try:
+		error = None
+		uname = request.form['unameUpdate'];
+		shell = request.form['newShell'];
+		if shell == '-- Seleziona nuova shell --':
+			flash('Opzione nuova shell non valida')
 		else:
-			flash('Comando shell modificato correttamente')
-	
-	return redirect(url_for('listUserAndGroups'))
-	#return render_template('info-user.html', log = log)
+			log = updateusershell(uname, shell)
+			if(log['returncode'] != 0):
+				flash(log['stderr'])
+				flash(log['command'])
+			else:
+				flash('Comando shell modificato correttamente')
+		
+		return redirect(url_for('listUserAndGroups'))
+	except Exception:
+		return internal_server_error(500)
 
 @app.route('/addUserGroup', methods=['POST'])
 def addUserGroup():
-	error = None
-	uname = request.form['unameAdd'];
-	moreGr = request.form['moreGroups'];
-	if moreGr == '-- Seleziona uno o più dei seguenti gruppi --':
-		flash('Opzione non valida')
-	else:
-		log = addusertogroups(uname, moreGr)
-		if(log['returncode'] != 0):
-			flash(log['stderr'])
-			flash(log['command'])
+	try:
+		error = None
+		uname = request.form['unameAdd'];
+		moreGr = request.form['moreGroups'];
+		if not uname:
+			error = "Errore uname vuoto"
+			return render_template("info-user.html",error=error)
 		else:
-			flash('User aggiunto correttamente al/i gruppo/i')
-	
-	return redirect(url_for('listUserAndGroups'))
+			if not moreGr:
+				error = "Errore moreGroups vuoto"
+				return render_template("info-user.html",error=error)
+			else:
+				if moreGr == '-- Seleziona uno o più dei seguenti gruppi --':
+					flash('Opzione non valida')
+				else:
+					log = addusertogroups(uname, moreGr)
+					if(log['returncode'] != 0):
+						flash(log['stderr'])
+						flash(log['command'])
+					else:
+						flash('User aggiunto correttamente al/i gruppo/i')
+		
+		return redirect(url_for('listUserAndGroups'))
+	except Exception:
+		return internal_server_error(500)
 
 @app.route('/removeUserGroup', methods=['POST'])
 def removeUserGroup():
-	error = None
-	uname = request.form['unameRem'];
-	moreGr = request.form['moreGroups'];
-	if moreGr == '-- Seleziona uno o più dei seguenti gruppi --':
-		flash('Opzione non valida')
-	else:
-		log = removeuserfromgroups(uname, moreGr)
-		if(log['returncode'] != 0):
-			flash(log['stderr'])
-			flash(log['command'])
+	try:
+		error = None
+		uname = request.form['unameRem'];
+		moreGr = request.form['moreGroups'];
+		if not uname:
+			error = "Errore uname vuoto"
+			return render_template("info-user.html",error=error)
 		else:
-			flash('User eliminato correttamente dal/i gruppo/i')
-	
-	return redirect(url_for('listUserAndGroups'))
+			if not moreGr:
+				error = "Errore moreGroups vuoto"
+				return render_template("info-user.html",error=error)
+			else:
+				if moreGr == '-- Seleziona uno o più dei seguenti gruppi --':
+					flash('Opzione non valida')
+				else:
+					log = removeuserfromgroups(uname, moreGr)
+					if(log['returncode'] != 0):
+						flash(log['stderr'])
+						flash(log['command'])
+					else:
+						flash('User eliminato correttamente dal/i gruppo/i')
+		
+		return redirect(url_for('listUserAndGroups'))
+	except Exception:
+		return internal_server_error(500)
 
 
 
@@ -120,16 +144,23 @@ def getContentCrontab(cronk,cronv):
 
 @app.route('/updateCrontab', methods=['POST'])
 def updateCrontab():
-	error = None
-	updatedCrontab = request.form['contentTextarea']
-	path = request.form['hiddenPath']
-	if not updateCrontab and not path:
-		error = "Errore passaggio parametri: vuoti"
-		return render_template("jobs.html", error=error)
-	else:
-		newPath = writecron(path, updatedCrontab)
-		return render_template_string('listCron', newPath=newPath)
-
+	try:
+		error = None
+		updatedCrontab = request.form['contentTextarea']
+		path = request.form['hiddenPath']
+		if not updateCrontab and not path:
+			error = "Errore passaggio parametri: vuoti"
+			return render_template("jobs.html", error=error)
+		else:
+			newPath = writecron(path, updatedCrontab)
+			if(newPath['returncode'] != 0):
+				error = "Modifica cron fallita"
+				return render_template("jobs.html", error=error)
+			else:
+				flash("Modifica avvenuta correttamente")
+				return redirect(url_for('listCron'))
+	except Exception:
+		return internal_server_error(500)	
 
 
 
@@ -174,17 +205,20 @@ def findFile():
 
 @app.route('/updateDbFile', methods=['POST'])
 def updateDbFile():
-	error = None
-	if request.form['updateDbFile'] == 'Aggiorna DB File':
-		log = updatedb()
-		if(log['returncode'] != 0):
-			error = log['command']
+	try:
+		error = None
+		if request.form['updateDbFile'] == 'Aggiorna DB File':
+			log = updatedb()
+			if(log['returncode'] != 0):
+				error = log['command']
+			else:
+				flash(u'Aggiornato!','info')
+				return redirect(url_for('file'))
 		else:
-			flash(u'Aggiornato!','info')
-			return redirect(url_for('file'))
-	else:
-		error = 'Non funzica' 
-	return render_template('file.html', error=error)
+			error = 'Non funzica' 
+		return render_template('file.html', error=error)
+	except Exception:
+		return internal_server_error(500)
 
 
 
@@ -211,19 +245,22 @@ def param():
 
 @app.route('/newHostname', methods=['POST'])
 def newHostname():
-	error = None
-	hname = request.form['newHname'];
-	if not hname:
-		flash('Hostname non può essere vuoto!')
-	else:
-		log = hostname(hname)
-		if(log['returncode'] != 0):
-			flash(log['stderr'])
-			flash(log['command'])
+	try:
+		error = None
+		hname = request.form['newHname'];
+		if not hname:
+			flash('Hostname non può essere vuoto!')
 		else:
-			flash('Hostname modificato correttamente')
-	
-	return redirect(url_for('param'))
+			log = hostname(hname)
+			if(log['returncode'] != 0):
+				flash(log['stderr'])
+				flash(log['command'])
+			else:
+				flash('Hostname modificato correttamente')
+		
+		return redirect(url_for('param'))
+	except Exception:
+		return internal_server_error(500)
 
 
 
@@ -241,74 +278,89 @@ def newHostname():
 
 @app.route('/startApache', methods=['POST'])
 def startApache():
-	error = None
-	if request.form['b-start-a'] == 'Start':
-		log = apachestart()
-		if(log['returncode'] != 0):
-			error = log['stderr']
+	try:
+		error = None
+		if request.form['b-start-a'] == 'Start':
+			log = apachestart()
+			if(log['returncode'] != 0):
+				error = log['stderr']
+			else:
+				flash("Apache startato correttamente")
+				return redirect(url_for('sites'))
 		else:
-			flash("Apache startato correttamente")
-			return redirect(url_for('sites'))
-	else:
-		error = 'Non funzica' 
-	return render_template('apache-sites.html', error=error)
+			error = 'Non funzica' 
+		return render_template('apache-sites.html', error=error)
+	except Exception:
+		return internal_server_error(500)
 
 #errore 500
 @app.route('/stopApache', methods=['POST'])
 def stopApache():
-	error = None
-	if request.form['b-stop-a'] == 'Stop':
-		log = apachestop()
-		if(log['returncode'] != 0):
-			error = log['stderr']
+	try:
+		error = None
+		if request.form['b-stop-a'] == 'Stop':
+			log = apachestop()
+			if(log['returncode'] != 0):
+				error = log['stderr']
+			else:
+				flash("Apache stoppato correttamente")
+				return redirect(url_for('sites'))
 		else:
-			flash("Apache stoppato correttamente")
-			return redirect(url_for('sites'))
-	else:
-		error = 'Non funzica' 
-	return render_template('apache-sites.html', error=error)
+			error = 'Non funzica' 
+		return render_template('apache-sites.html', error=error)
+	except Exception:
+		return internal_server_error(500)
 
 # return HTTP/1.1" 302
 @app.route('/restartApache', methods=['POST'])
 def restartApache():
-	error = None
-	if request.form['b-restart-a'] == 'Restart':
-		log = apacherestart()
-		if(log['returncode'] != 0):
-			error = log['stderr']
+	try:
+		error = None
+		if request.form['b-restart-a'] == 'Restart':
+			log = apacherestart()
+			if(log['returncode'] != 0):
+				error = log['stderr']
+			else:
+				flash("Restart Apache avvenuto correttamente")
+				return redirect(url_for('sites'))
 		else:
-			flash("Restart Apache avvenuto correttamente")
-			return redirect(url_for('sites'))
-	else:
-		error = 'Non funzica' 
-	return render_template('apache-sites.html', error=error)
+			error = 'Non funzica' 
+		return render_template('apache-sites.html', error=error)
+	except Exception:
+		return internal_server_error(500)
 
 @app.route('/reloadApache', methods=['POST'])
 def reloadApache():
-	error = None
-	if request.form['b-reload-a'] == 'Reload':
-		log = apachereload()
-		if(log['returncode'] != 0):
-			error = log['stderr']
+	try:
+		error = None
+		if request.form['b-reload-a'] == 'Reload':
+			log = apachereload()
+			if(log['returncode'] != 0):
+				error = log['stderr']
+			else:
+				flash("Reload Apache avvenuto correttamente")
+				return redirect(url_for('sites'))
 		else:
-			flash("Reload Apache avvenuto correttamente")
-			return redirect(url_for('sites'))
-	else:
-		error = 'Non funzica' 
-	return render_template('apache-sites.html', error=error)
+			error = 'Non funzica' 
+		return render_template('apache-sites.html', error=error)
+	except Exception:
+		return internal_server_error(500)
 
 @app.route('/statusApache', methods=['POST'])
 def statusApache():
-	error = None
-	if request.form['b-status-a'] == 'Status':
-		logStatus = apachestatus()
-		if(logStatus['returncode'] != 0):
-			error = logStatus['stderr']
+	try:
+		error = None
+		if request.form['b-status-a'] == 'Status':
+			logStatus = apachestatus()
+			if(logStatus['returncode'] != 0):
+				error = logStatus['stderr']
+			else:
+				return render_template('apache-sites.html', logStatus=logStatus)
 		else:
-			return render_template('apache.html', logStatus=logStatus)
-	else:
-		error = 'Non funzica' 
-	return render_template('apache.html', error=error)
+			error = 'Non funzica' 
+		return render_template('apache-sites.html', error=error)
+	except Exception:
+		return internal_server_error(500)
 
 @app.route('/sites')
 def sites():
@@ -327,6 +379,21 @@ def retrieveContentSite():
 	contentVhost = readfile(apacheconfdir+"sites-available/"+nameSite)
 	return render_template('apache-site-content.html', contentVhost=contentVhost, nameSite=nameSite)
 
+@app.route('/updateContentSite/<string:nameSite>', methods=['POST'])
+def updateContentSite(nameSite):
+	try:
+		error = None
+		updatedContentVhost = request.form['contentTextarea']
+		newContent = writefile(apacheconfdir+"sites-available/"+nameSite,updatedContentVhost)
+		if(newContent['returncode'] != 0):
+			error = "Errore in fase di modifica"
+			return render_template('apache-site.html',error=error)
+		else:
+			flash("Modifica avvenuta correttamente")
+			return redirect(url_for('sites'))
+	except Exception:
+		return internal_server_error(500)
+
 @app.route('/modules')
 def modules():
 	error=None
@@ -337,6 +404,12 @@ def modules():
 		return redirect(url_for('sites'))
 	else:
 		return render_template('apache-modules.html', mods=mods)
+
+@app.route('/retrieveContentModule', methods=['POST'])
+def retrieveContentModule():
+	nameMods = request.form['retrieveCM']
+	contentMods = readfile(apacheconfdir+"mods-available/"+nameMods)
+	return render_template('apache-module-content.html', contentMods=contentMods, nameMods=nameMods)
 
 @app.route('/configurations')
 def configurations():
@@ -428,6 +501,15 @@ def deactivateConf():
 			return '',204
 	#return redirect(url_for('sites'))
 	return '',204 #ritorno senza reindirizzamento con flask
+
+
+
+
+########## GESTIONE ERRORI ##########
+ 
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('500.html'), 500
 
 
 if __name__ == '__main__':

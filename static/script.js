@@ -2,6 +2,7 @@ var newShell = null;
 $(document).ready(function () {
 	$('#sidebarCollapse').on('click', function () {
 		$('#sidebar').toggleClass('active');
+		$('#content').toggleClass('opacity-content');
 	});
  
  	if(document.getElementById('buttonSClickDeactiv') != null){
@@ -33,9 +34,9 @@ $(document).ready(function () {
 			$("#pText").show();
 	};
 
-	$('#contentTextarea').mouseleave(function(){
+	$('#contentTextarea').change(function(){
 		$('#contentTextarea').css("border-color","red");
-		$('#modificaCrontab').prop('disabled',false);
+		$('#modificaTextarea').prop('disabled',false);
 	});
 
 });

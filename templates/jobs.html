@@ -2,9 +2,16 @@
 {% block page_content %}
 <h2>Lista Job schedulati</h2>
 
-	{% if newPath %}
-		<p>Modifica effettuata con successo! {{newPath}}</p>
-	{% endif %}
+	{% with messages = get_flashed_messages() %}
+	  {% if messages %}
+	    <ul class=flashes>
+	    {% for message in messages %}
+	      <li>{{ message }}</li>
+	    {% endfor %}
+	    </ul>
+	    <meta http-equiv="refresh" content="5;URL=http://localhost:5000/sites">
+	  {% endif %}
+	{% endwith %}
 
   	{% if error %}
     	<p class=error><strong>Error:</strong> {{ error }} </p>

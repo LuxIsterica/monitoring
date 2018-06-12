@@ -22,12 +22,16 @@
 		</ul>
 	{% endif %}
 
+	{% if error %}
+		<p class=error><strong>Error:</strong> {{ error }} </p>
+	{% endif %}
+
 <div class="page-header button-style">
 	<ul class="nav nav-pills" style="display: flex;justify-content: space-between;">
 	  <!-- queste sono tutte form, non devo scendere su una nuova pagina -->
 	  <li role="presentation" id="startButton">
 	  	<form id="startApache" action="/startApache" role="form" method="POST">
-       		<input type = "submit" value = "Start" id="buttonStartApache" name="b-start"/>
+       		<input type = "submit" value = "Start" id="buttonStartApache" name="b-start-a"/>
     	</form>
 	  </li>
 	  <li role="presentation" id="stopButton">

@@ -1,0 +1,11 @@
+{% extends "index.html" %}
+{% block page_content %}
+
+	{% block title %}500 Internal Server Error{% endblock %}
+	{% block body %}
+	  <h1>&ensp;Internal Server Error</h1>
+	  <h3>&emsp;Oi oi!</h3>
+	  <p><a href="{{ url_for('dash') }}">&emsp;&emsp;&emsp;Torna alla pagina iniziale</a>
+
+	{% endblock %}
+{% endblock %}

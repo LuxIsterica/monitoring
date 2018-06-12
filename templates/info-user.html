@@ -29,6 +29,10 @@
     </div>
 </div>
 
+ {% if error %}
+    <p class=error><strong>Error:</strong> {{ error }}
+  {% endif %}
+
 
 <div class="modal fade" id="modalRemoveFromGroups" role="dialog">
 	<div class="modal-dialog">
@@ -112,5 +116,7 @@
 	  </div>
 	</div>
 </div>
+
+
 
 {% endblock %}

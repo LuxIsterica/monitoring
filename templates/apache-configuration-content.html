@@ -6,11 +6,11 @@
 <form id="form" action="/updateContentSite/{{ nameSite }}" role="form" method = "POST">
 	<div id="loadTextArea">
 		{% if contentVhost %}
-			<textarea rows="15" name="contentTextarea" id="contentTextarea" style="width: 55em;">{{ contentVhost.data }}</textarea>
+			<textarea rows="15" name="contentVhost" id="contentVhost" style="width: 55em;">{{ contentVhost.data }}</textarea>
 		{% endif %}
 	</div>
 	<div class="input-group-btn">
-    	<button type="submit" class="btn btn-primary" id="modificaTextarea" style="margin-top: 1em;margin-left: 56em;" disabled>Modifica</button>
+    	<button type="submit" class="btn btn-primary" id="modificaContentSite" style="margin-top: 1em;margin-left: 56em;" disabled>Modifica</button>
   	</div>
 </form>
 
