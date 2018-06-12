@@ -267,7 +267,7 @@ Ecco un esempio che mostra lo stato di un log appena aggiunto (senza il campo \t
 { "_id" : ObjectId("5ae596d4bf3bd205c1aeea25"), "parameters" : { "shell" : "/bin/bash", "user" : "giuseppe2", "password" : "test" }, "funname" : "adduser", "date" : ISODate("2018-04-29T09:56:36.627Z"), "status" : "success" }
 \end{lstlisting}
 \paragraph{Return}
-Restituisce un oggetto della classe 
+Restituisce l'object id del documento mongo di cui ha aggiornato lo stato.
 
 
 \subsubsection{command\_success}\label{command\string_success}
@@ -301,8 +301,9 @@ La prima operazione eseguita è la chiamata a\texttt{mongologstatussuc()} per ag
 questo solo in caso il parametro \texttt{logid} sia non nullo e quindi la funzione chiamante ha dovuto memorizzare un mongolog.
 Successivamente va a costruire il dizionario da restituire formato dal codice di ritorno, i dati voluti dall'utente (se disponibili,
 altrimenti \texttt{None}), e il \textit{logid} dell'operazione.
-\paragraph{Return}
-Restituisce il dizionario contenente i parametri passati alla funzione o i loro valori di default se non vengono passati.
+\paragraph{Return}\label{successdict}
+Restituisce un dizionario che chiamiamo \textbf{dizionario di successo} che indica che una operazione è andata a buon fine attraverso
+il codice di ritorno sempre a 0. Inserisce inoltre i parametri passati 	come argomento all'interno del dizionario restituito.
 Da utilizzare come spiegato in sezione \ref{frontendinterface}.
 
 \subsubsection{command\_error}\label{command\string_error}
@@ -353,7 +354,7 @@ Distinguiamo 3 casi:
 Oltre a restituire il dizionario di errore questa funzione, se il parametro \texttt{logid} è non nullo agisce come \nameref{command\string_success} 
 aggiungendo quindi al log dell'operazione il campo \texttt{status} col valore \texttt{error}.
 \paragraph{Return}
-Restituisce il dizionario creato come descritto nel funzionamento e come si può vedere nel codice.
+Resituisce un dizionario che chiamiamo \textbf{dizionario di errore} creato come descritto nel funzionamento e come si può vedere nel codice.
 
 \subsubsection{writefile}\label{writefile}
 \begin{lstlisting}
@@ -458,7 +459,8 @@ Una volta effettuato i controlli e memorizzati in mongo i dati necessari si proc
 tramite le funzioni Python per la gestione dei file. Si invoca infine \texttt{command\string_success} passandogli il \texttt{logid}.
 \paragraph{Return}
 Restituisce il \textit{dizionario di successo} generato dalla funzione \texttt{command\string_success} con all'interno
-il solo \texttt{logid} dell'operazione.
+il solo \texttt{logid} dell'operazione. Il \texttt{returncode} di questo dizionario indica se la scrittura del file è andata
+a buon fine (=0) o meno (!=0).
 
 \subsubsection{filediff}\label{filediff}
 \begin{lstlisting}
@@ -500,7 +502,8 @@ le due funzioni menzionate genererebbe un eccezione \texttt{CalledProcessError} 
 per effettuare il diff in linux style. Si è optato per tale diff in quanto nessuna funzione di Python restituisce il diff
 così chiaramente e in modo così adatto da essere inserito in un database.\\
 \paragraph{Return}
-Restituisce un dizionario con la sola chiave \texttt{filediff} dove il valore è il diff generato.
+Restituisce un dizionario con la sola chiave \texttt{filediff} dove il valore è il diff generato tra i due file o contenuti passatogli
+in input.
 
 \subsubsection{delfile}\label{delfile}
 \begin{lstlisting}
@@ -521,7 +524,7 @@ Semplicemente eliminare il file utilizzando la funzione \texttt{remove} della li
 verifica che non si verifichi l'eccezione \texttt{FileNotFoundError}, lanciata se il file indicato dal percorso non esiste.
 In caso l'eccezione venga lanciata viene chiamata la funzione di errore con codice e messaggio di errore personalizzati.
 \paragraph{Return}
-Restituiusce il dizionario di errore costruita come si vede in codice se il file non esiste, il dizionario di successo
+Restituiusce il dizionario di errore costruito come si vede in codice se il file non esiste, il dizionario di successo
 altrimenti, contenente nella variabile \texttt{logid} l'object id del documento mongo creato e contenente le informazioni
 sull'operazione appena eseguita.
 
@@ -618,7 +621,7 @@ A parte i campi che vengono inseriti normalmente ne distinguiamo quattro che si 
 		in modo da non vedere apparire in questo campo una lista vuota}
 \end{itemize}
 \paragraph{Return}
-Il dizionario descritto nel funzionamento, composto quindi dai seguenti campi:
+Restituisce il dizionario di successo, dove al campo \texttt{data} sono presenti le informazioni sull'utente, qui descritte:
 \begin{itemize}
 	\item{uname: Nome utente}
 	\item{canlogin: Indica la possibilità di accesso alla shell con questo utente}
@@ -679,7 +682,8 @@ Eseguito questo passaggio si itera sulle linee del dizionario \texttt{passwd}; o
 è l'uid mentre il valore è lo uname. Questo è il dizionario da essere restituito all'utente, che viene quindi passato alla funzione
 di uscita \texttt{command\_success}.
 \paragraph{Return}
-Restituisce il dizionario costruito in cui per ogni utente la chiave è l'uid mentre il valore è lo uname.
+Restituisce il dizionario di successo con al campo \texttt{data} un dizionario dove la chiave è l'uid dell'utente, mentre il valore è
+la sua username.
 
 \subsubsection{getgroups}\label{getgroups}
 \begin{lstlisting}
@@ -739,7 +743,8 @@ Se invece \texttt{namesonly} è \texttt{False} si entra in un for in cui per ogn
 	\item{La lista di dizionari creata (\texttt{groups}) viene passata alla funzione di ritorno \texttt{command\_success}}
 \end{enumerate}
 \paragraph{Return}
-Restituisce il dizionario costruito che contiene, per ogni gruppo del file \texttt{/etc/group}:
+Restituisce il dizionario di successo con al campo \texttt{data} una lista di dizionari contenente le informazioni
+sui singoli gruppi presenti nel sistema. Ogni dizionario è costituito in questo modo:
 \begin{itemize}
 	\item{gname: il nome del gruppo}
 	\item{gid: l'identificativo del gruppo}
@@ -796,7 +801,8 @@ tutto quello che c'è prima e lo spazio che c'è dopo il due punti.\\
 Fatta questa operazione basta quindi splittare la stringa restituita che divide i gruppi con uno spazio
 e chiamare la funzione \texttt{command\_success} passadogli la lista di gruppi
 \paragraph{Return}
-Una lista di stringhe in cui ogni stringa in cui ogni stringa è un gruppo di cui l'utente \texttt{user} fa parte.
+Il dizionario di successo contenente al campo \texttt{data} una lista di stringhe in cui ogni stringa è un gruppo
+di cui l'utente \texttt{user} fa parte.
 
 \subsubsection{getusernotgroups}\label{getusernotgroups}
 \begin{lstlisting}
@@ -875,10 +881,9 @@ Le funzioni usate sono quindi le seguenti:
 \end{itemize}
 Una volta effettuata la sottrazione chiama la funzione di ritorno che indica \textit{successo} \texttt{command\_success}
 passandogli la lista dei gruppi ricavati.
-
-
 \paragraph{Return}
-Restituisce una lista di stringhe in cui ogni stringa è il nome di un gruppo di cui l'utente non fa parte.
+Il dizionario di successo contenente al campo \texttt{data} una lista di stringhe in cui ogni stringa è un gruppo
+di cui l'utente \texttt{user} non fa parte.
 
 \subsubsection{addusertogroups}\label{addusertogroups}
 \begin{lstlisting}
@@ -946,8 +951,8 @@ si chiama \texttt{command\_success}, questa volta passandogli il solo logid. Il 
 avrà quindi la variabile \texttt{Data} a \texttt{None}, mentre la variabile \texttt{logid} conterrà il l'object id
 dell'operazione.
 \paragraph{Return}
-Non restituisce niente in output, la variabile \texttt{logid} invece sarà allocata e conterrà l'object id
-dell'operazione effettuata.
+Restituisce il dizionario di successo con il campo \texttt{data} nullo e il campo \texttt{logid} contenente l'object id
+del documento mongo contenente le specifiche della operazione effettuata.
 
 \subsubsection{removeuserfromgroups}\label{removeuserfromgroups}
 \begin{lstlisting}
@@ -1015,8 +1020,8 @@ si chiama \texttt{command\_success}, questa volta passandogli il solo logid. Il 
 avrà quindi la variabile \texttt{Data} a \texttt{None}, mentre la variabile \texttt{logid} conterrà il l'object id
 dell'operazione.
 \paragraph{Return}
-Non restituisce niente in output, la variabile \texttt{logid} invece sarà allocata e conterrà l'object id
-dell'operazione effettuata.
+Restituisce il dizionario di successo con il campo \texttt{data} nullo e il campo \texttt{logid} contenente l'object id
+del documento mongo contenente le specifiche della operazione effettuata.
 
 \subsubsection{updatepass}\label{updatepass}
 \begin{lstlisting}
@@ -1080,7 +1085,7 @@ Se si va in eccezione (ad esempio si passa un utente non esistente) viene creato
 \nameref{command\string_error} e resttuito all'utente, mentre se l'operazione termina correttamemnte
 viene creato il dizionario di \nameref{command\string_success} e restituito all'utente.
 \paragraph{Return}
-Viene restituito il dizionario di \texttt{command\_success} con il campo \texttt{Data} a \texttt{None}
+Viene restituito il dizionario di successo generayo da \texttt{command\_success} con il campo \texttt{Data} nullo
 e il campo \texttt{logid} contente l'object id del mongolog.
 
 \subsubsection{getshells}\label{getshells}
@@ -1118,7 +1123,8 @@ La funzione nella sua semplicità non prende parametri.
 	\item{Restituisce le shell nella solita funzione di successo \texttt{command\_success}}
 \end{itemize}
 \paragraph{Return}
-Restituisce una lista dove ogni elemento è il percorso di una delle shell installate nel sistema.
+Restituisce il dizionario di successo con il campo \texttt{data} contenente una lista dove ogni elemento
+è il percorso di una delle shell installate nel sistema.
 
 \subsubsection{updateusershell}\label{updateusershell}
 \begin{lstlisting}
@@ -1297,7 +1303,7 @@ Restituisce il dizionario di successo generato da \texttt{command\_success} con 
 e la key \texttt{logid} contenente l'object id del documento mongo creato e che tiene traccia delle informazioni
 sull'operazione.
 
-\subsection{Applicazioni}\nameref{apps}
+\subsection{Applicazioni}\label{apps}
 La libreria nasce per la gestione dei pacchetti sul sistema. nomodo nasce su un sistema Ubuntu server 16.04 cioè
 Debian-based ed attualmente supporta solamente la gestione dei pacchetti tramite i tool di questa categoria di sistemi,
 ossia \texttt{dpkg} e \texttt{apt} (evoluzione di \texttt{apt-get}). Da notare però che nelle funzione non viene
@@ -1349,7 +1355,7 @@ def listinstalled( summary=False ):
     keys = ['name', 'version', 'architecture']
     if summary: keys.append('summary')
     
-    #Conterrà una lista di dizionari con tutte le app installate nel sistema
+    #Conterra' una lista di dizionari con tutte le app installate nel sistema
     pkgs = list()
 
     #Inserimento valori nella lista apps()
@@ -1364,7 +1370,41 @@ La funzione nasce per restituire la lista dei pacchetti installata nel sistema.
 Accetta l'unico parametro \texttt{summary} di default a \texttt{False} che se impostato a \texttt{True} indica
 alla funzione di restituire nell'output anche la descrizione breve sulle funzionalità della singola applicazione.
 \paragraph{Funzionamento}
+Utilizzando il comando \texttt{dpkg-query} le opzioni di visualizzazione sono leggermente complicate, è possibile visualizzarle
+nella variabile \texttt{options}; queste informazioni servono ad ottenere architettura, versione, nome dell'applicazione
+e probabilmente la descrizione della stessa se il parametro \texttt{summary} è \texttt{True}.\\
+Viene quindi costruito il comando e lanciato tramite la \texttt{check\_output}, verificando che non venga lanciata l'eccezione
+\texttt{CalledProcessError}. Una volta lanciato si ottiene quindi una lista di informazioni sulle applicazioni installate
+ma in un formato in cui i campi sono divisi da un punto e virgola e senza indicazioni su cosa rappresenta lo stesso.
+Si desidera un output in le informazioni della singola applicazione sono contenute in un dizionario; si crea quindi
+una lista di chiavi che saranno quelle del dizionario, si dividono i campi delle app e si concatenano alle chiavi
+usando la funzione \texttt{zip()}; il dizionario di ritorno è quello desiderato e viene quindi restituito al frontend
+o all'utente chiamante.
 \paragraph{Return}
+Restituisce il dizionario di successo generato dalla funzione \texttt{command\_success()} in cui il campo \texttt{data}
+contiene una lista di dizionari in cui ogni dizionario contiene le stesse informazioni per tutte le app installate. 
+Le informazioni riguardano \textit{architecture} cioè l'architettura per cui l'app è stata creata, \textit{name}
+che è il nome dell'applicazione e \textit{version} che è la versione dell'applicativo. Un esempio della lista
+di dizionario è il seguente:
+\begin{lstlisting}
+
+..............
+
+{'architecture': 'all',
+  'name': 'python3-pkg-resources',
+  'version': '20.7.0-1'},
+{'architecture': 'all', 'name': 'python3-prettytable', 'version': '0.7.2-3'},
+{'architecture': 'all',
+  'name': 'python3-problem-report',
+  'version': '2.20.1-0ubuntu2.18'},
+{'architecture': 'all', 'name': 'python3-pyasn1', 'version': '0.1.9-1'},
+{'architecture': 'amd64',
+  'name': 'python3-pycurl',
+  'version': '7.43.0-1ubuntu1'},
+
+..............
+
+\end{lstlisting}
 
 \subsubsection{aptsearch}\label{aptsearch}
 \begin{lstlisting}
@@ -1391,8 +1431,26 @@ def aptsearch( pkgname, namesonly=True ):
 
     return command_success( data=pkgs )
 \end{lstlisting}
+È ideata per effettuare la ricerca dei pacchetti disponibili nelle repository installate nel sistema.
+Verrebbe quindi probabilmente usata prima della funzione \nameref{aptinstall} per cercare il pacchetto
+che si desidera installare.
 \paragraph{Parametri}
+Accetta due parametri:
+\begin{itemize}
+	\item{\texttt{pkgname}: è la stringa con cui effettuare la ricerca}
+	\item{\texttt{namesonly=True}: è la modalità di ricerca: di default viene cercato solo nel
+		nome del file, se invece si setta a \texttt{False} viene cercato anche in altri campi
+		dei pacchetti quali la decsrizione}
+\end{itemize}
 \paragraph{Funzionamento}
+La prima operazione è verificare che l'utente non abbia inserito una stringa vuota e ritirnare un codice di ritorno 255
+in tale caso. Tale controllo viene fatto anche dal frontend ma la sicurezza non è mai troppa.\\
+Viene quindi costruito il comando appenendogli il parametro \texttt{--names-only} se l'omonimo parametro è \texttt{True}
+e lanciato immagazzinando lo standard output nella variabile \texttt{output}, che diventa quindi una lista di stringhe
+(a causa della funzione splitlines()).\\
+L'output restituito è nel formato "nome\_pacchetto - descrizione" ma siccome noi vogliamo un dizionario come prima
+creiamo le chiavi del dizionario dividiamo la stringa in nome e descrizione, 
+\#TODO: Riprendere da qui: restituire un dizionario e non una lista di dizionari.
 \paragraph{Return}
 
 \subsubsection{aptshow}\label{aptshow}
@@ -1407,7 +1465,7 @@ def aptshow(pkgname, onlydependences=False):
     except CalledProcessError as e:
         return command_error( e, command )
     
-    #Se vengono restituiti più pacchetti (diverse versioni) prende solo il primo di questi
+    #Se vengono restituiti piu' pacchetti (diverse versioni) prende solo il primo di questi
     if onlydependences:
         #Remove the first line (header)
         toreturn = re.sub('^.*\\n', '', output)

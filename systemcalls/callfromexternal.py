@@ -11,4 +11,4 @@ import os
 import sys
 
 
-print( readfile('/etc/fstab')['data'] )
+pprint( listinstalled()['data'] )

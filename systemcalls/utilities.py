@@ -37,20 +37,20 @@ def mongolog(params, *args):
 
 # Creates or updates the field 'status' into an existing mongolog 
 #
-#           .-----------------------------------------------------------------------------------------------.
-#           v                                                                                               #
-def mongologstatus(logid, status):                                                                          #
-                                                                                                            #
-    return db.log.update_one(                                                                               #
-        {'_id': logid},                                                                                     #
-        {'$set': { 'status' : status }},                                                                    #
-        upsert=False                                                                                        #
-        )                                                                                                   #
-                                                                                                            #
-def mongologstatuserr(logid, status='error'):                                                               #
-    return mongologstatus(logid, status)  # >---------------------------------------------------------------^
-def mongologstatussuc(logid, status='success'):                                                             #
-    return mongologstatus(logid, status)  # >---------------------------------------------------------------^
+#           .----------------------------------------------------.
+#           v                                                    #
+def mongologstatus(logid, status):                               #
+                                                                 #
+    return db.log.update_one(                                    #
+        {'_id': logid},                                          #
+        {'$set': { 'status' : status }},                         #
+        upsert=False                                             #
+        )                                                        #
+                                                                 #
+def mongologstatuserr(logid, status='error'):                    #
+    return mongologstatus(logid, status)  # >--------------------^
+def mongologstatussuc(logid, status='success'):                  #
+    return mongologstatus(logid, status)  # >--------------------^
 
 
 #Called on command success

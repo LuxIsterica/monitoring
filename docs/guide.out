@@ -23,42 +23,52 @@
 \BOOKMARK [3][-]{subsubsection.2.2.10}{updateusershell}{subsection.2.2}% 23
 \BOOKMARK [3][-]{subsubsection.2.2.11}{adduser}{subsection.2.2}% 24
 \BOOKMARK [3][-]{subsubsection.2.2.12}{removeuser}{subsection.2.2}% 25
-\BOOKMARK [2][-]{subsection.2.3}{Network}{section.2}% 26
-\BOOKMARK [3][-]{subsubsection.2.3.1}{ifacestat}{subsection.2.3}% 27
-\BOOKMARK [3][-]{subsubsection.2.3.2}{getnewifacealiasname}{subsection.2.3}% 28
-\BOOKMARK [3][-]{subsubsection.2.3.3}{ifacedown}{subsection.2.3}% 29
-\BOOKMARK [3][-]{subsubsection.2.3.4}{ifaceup}{subsection.2.3}% 30
-\BOOKMARK [3][-]{subsubsection.2.3.5}{createalias}{subsection.2.3}% 31
-\BOOKMARK [3][-]{subsubsection.2.3.6}{destroyalias}{subsection.2.3}% 32
-\BOOKMARK [3][-]{subsubsection.2.3.7}{editiface}{subsection.2.3}% 33
-\BOOKMARK [3][-]{subsubsection.2.3.8}{getroutes}{subsection.2.3}% 34
-\BOOKMARK [3][-]{subsubsection.2.3.9}{addroute}{subsection.2.3}% 35
-\BOOKMARK [3][-]{subsubsection.2.3.10}{defaultroute}{subsection.2.3}% 36
-\BOOKMARK [3][-]{subsubsection.2.3.11}{delroute}{subsection.2.3}% 37
-\BOOKMARK [2][-]{subsection.2.4}{Cron}{section.2}% 38
-\BOOKMARK [3][-]{subsubsection.2.4.1}{listcrontabs}{subsection.2.4}% 39
-\BOOKMARK [3][-]{subsubsection.2.4.2}{getcroncontent}{subsection.2.4}% 40
-\BOOKMARK [3][-]{subsubsection.2.4.3}{getcronname}{subsection.2.4}% 41
-\BOOKMARK [3][-]{subsubsection.2.4.4}{addcron}{subsection.2.4}% 42
-\BOOKMARK [3][-]{subsubsection.2.4.5}{adddefaultcron}{subsection.2.4}% 43
-\BOOKMARK [3][-]{subsubsection.2.4.6}{writecron}{subsection.2.4}% 44
-\BOOKMARK [3][-]{subsubsection.2.4.7}{removecron}{subsection.2.4}% 45
-\BOOKMARK [2][-]{subsection.2.5}{Sistema}{section.2}% 46
-\BOOKMARK [3][-]{subsubsection.2.5.1}{hostname}{subsection.2.5}% 47
-\BOOKMARK [3][-]{subsubsection.2.5.2}{getsysteminfo}{subsection.2.5}% 48
-\BOOKMARK [2][-]{subsection.2.6}{Apache}{section.2}% 49
-\BOOKMARK [3][-]{subsubsection.2.6.1}{getobjs}{subsection.2.6}% 50
-\BOOKMARK [3][-]{subsubsection.2.6.2}{manageapache}{subsection.2.6}% 51
-\BOOKMARK [3][-]{subsubsection.2.6.3}{manageobjs}{subsection.2.6}% 52
-\BOOKMARK [3][-]{subsubsection.2.6.4}{Lettura e scrittura degli oggeti di apache}{subsection.2.6}% 53
-\BOOKMARK [2][-]{subsection.2.7}{Database}{section.2}% 54
-\BOOKMARK [2][-]{subsection.2.8}{File}{section.2}% 55
-\BOOKMARK [3][-]{subsubsection.2.8.1}{updatedb}{subsection.2.8}% 56
-\BOOKMARK [3][-]{subsubsection.2.8.2}{locate}{subsection.2.8}% 57
-\BOOKMARK [3][-]{subsubsection.2.8.3}{Altre funzioni della libreria systemfile}{subsection.2.8}% 58
-\BOOKMARK [2][-]{subsection.2.9}{Logs}{section.2}% 59
-\BOOKMARK [1][-]{section.3}{Frontend}{}% 60
-\BOOKMARK [1][-]{section.4}{Utility}{}% 61
-\BOOKMARK [2][-]{subsection.4.1}{Red Hat Developer Toolset}{section.4}% 62
-\BOOKMARK [2][-]{subsection.4.2}{Rimossi tra CentOS 6 e 7 e le cui alternative non presenti su CRESCO 6}{section.4}% 63
-\BOOKMARK [2][-]{subsection.4.3}{Rimossi da Centos 6 e 7 e le cui alternative sono presenti su CRESCO 6}{section.4}% 64
+\BOOKMARK [2][-]{subsection.2.3}{Applicazioni}{section.2}% 26
+\BOOKMARK [3][-]{subsubsection.2.3.1}{aptupdate}{subsection.2.3}% 27
+\BOOKMARK [3][-]{subsubsection.2.3.2}{listinstalled}{subsection.2.3}% 28
+\BOOKMARK [3][-]{subsubsection.2.3.3}{aptsearch}{subsection.2.3}% 29
+\BOOKMARK [3][-]{subsubsection.2.3.4}{aptshow}{subsection.2.3}% 30
+\BOOKMARK [3][-]{subsubsection.2.3.5}{aptinstall}{subsection.2.3}% 31
+\BOOKMARK [3][-]{subsubsection.2.3.6}{aptremove}{subsection.2.3}% 32
+\BOOKMARK [3][-]{subsubsection.2.3.7}{getexternalrepos}{subsection.2.3}% 33
+\BOOKMARK [3][-]{subsubsection.2.3.8}{addrepo}{subsection.2.3}% 34
+\BOOKMARK [3][-]{subsubsection.2.3.9}{removerepofile}{subsection.2.3}% 35
+\BOOKMARK [2][-]{subsection.2.4}{Network}{section.2}% 36
+\BOOKMARK [3][-]{subsubsection.2.4.1}{ifacestat}{subsection.2.4}% 37
+\BOOKMARK [3][-]{subsubsection.2.4.2}{getnewifacealiasname}{subsection.2.4}% 38
+\BOOKMARK [3][-]{subsubsection.2.4.3}{ifacedown}{subsection.2.4}% 39
+\BOOKMARK [3][-]{subsubsection.2.4.4}{ifaceup}{subsection.2.4}% 40
+\BOOKMARK [3][-]{subsubsection.2.4.5}{createalias}{subsection.2.4}% 41
+\BOOKMARK [3][-]{subsubsection.2.4.6}{destroyalias}{subsection.2.4}% 42
+\BOOKMARK [3][-]{subsubsection.2.4.7}{editiface}{subsection.2.4}% 43
+\BOOKMARK [3][-]{subsubsection.2.4.8}{getroutes}{subsection.2.4}% 44
+\BOOKMARK [3][-]{subsubsection.2.4.9}{addroute}{subsection.2.4}% 45
+\BOOKMARK [3][-]{subsubsection.2.4.10}{defaultroute}{subsection.2.4}% 46
+\BOOKMARK [3][-]{subsubsection.2.4.11}{delroute}{subsection.2.4}% 47
+\BOOKMARK [2][-]{subsection.2.5}{Cron}{section.2}% 48
+\BOOKMARK [3][-]{subsubsection.2.5.1}{listcrontabs}{subsection.2.5}% 49
+\BOOKMARK [3][-]{subsubsection.2.5.2}{getcroncontent}{subsection.2.5}% 50
+\BOOKMARK [3][-]{subsubsection.2.5.3}{getcronname}{subsection.2.5}% 51
+\BOOKMARK [3][-]{subsubsection.2.5.4}{addcron}{subsection.2.5}% 52
+\BOOKMARK [3][-]{subsubsection.2.5.5}{adddefaultcron}{subsection.2.5}% 53
+\BOOKMARK [3][-]{subsubsection.2.5.6}{writecron}{subsection.2.5}% 54
+\BOOKMARK [3][-]{subsubsection.2.5.7}{removecron}{subsection.2.5}% 55
+\BOOKMARK [2][-]{subsection.2.6}{Sistema}{section.2}% 56
+\BOOKMARK [3][-]{subsubsection.2.6.1}{hostname}{subsection.2.6}% 57
+\BOOKMARK [3][-]{subsubsection.2.6.2}{getsysteminfo}{subsection.2.6}% 58
+\BOOKMARK [2][-]{subsection.2.7}{Apache}{section.2}% 59
+\BOOKMARK [3][-]{subsubsection.2.7.1}{getobjs}{subsection.2.7}% 60
+\BOOKMARK [3][-]{subsubsection.2.7.2}{manageapache}{subsection.2.7}% 61
+\BOOKMARK [3][-]{subsubsection.2.7.3}{manageobjs}{subsection.2.7}% 62
+\BOOKMARK [3][-]{subsubsection.2.7.4}{Lettura e scrittura degli oggeti di apache}{subsection.2.7}% 63
+\BOOKMARK [2][-]{subsection.2.8}{Database}{section.2}% 64
+\BOOKMARK [2][-]{subsection.2.9}{File}{section.2}% 65
+\BOOKMARK [3][-]{subsubsection.2.9.1}{updatedb}{subsection.2.9}% 66
+\BOOKMARK [3][-]{subsubsection.2.9.2}{locate}{subsection.2.9}% 67
+\BOOKMARK [3][-]{subsubsection.2.9.3}{Altre funzioni della libreria systemfile}{subsection.2.9}% 68
+\BOOKMARK [2][-]{subsection.2.10}{Logs}{section.2}% 69
+\BOOKMARK [1][-]{section.3}{Frontend}{}% 70
+\BOOKMARK [1][-]{section.4}{Utility}{}% 71
+\BOOKMARK [2][-]{subsection.4.1}{Red Hat Developer Toolset}{section.4}% 72
+\BOOKMARK [2][-]{subsection.4.2}{Rimossi tra CentOS 6 e 7 e le cui alternative non presenti su CRESCO 6}{section.4}% 73
+\BOOKMARK [2][-]{subsection.4.3}{Rimossi da Centos 6 e 7 e le cui alternative sono presenti su CRESCO 6}{section.4}% 74
