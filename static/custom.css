@@ -202,6 +202,10 @@ img {
     transition: all 0.3s;
 }
 
+.opacity-content {
+    opacity: 0.3;
+}
+
 .container {
     position: relative;
 }
@@ -366,7 +370,7 @@ button.b-round-r {
     }
 
     #content {
-        padding: 4px;
+        padding: 3.4px;
         /*padding-left: 80px;*/
         /* min-height: 100vh; */
         transition: all 0.3s;

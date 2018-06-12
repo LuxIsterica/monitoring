@@ -39,7 +39,9 @@
           <table class="systeminfo">
             {% for p in proc %}
               <tr>
-                <td style="text-align: center;"><h4>{{p}}</h4></td>
+                {% for x in p %}
+                <td style="text-align: center;"><h4>{{x}}</h4></td>
+                {% endfor %}
               </tr>
             {% endfor %}
           </table>
