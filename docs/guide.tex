@@ -360,13 +360,6 @@ Resituisce un dizionario che chiamiamo \textbf{dizionario di errore} creato come
 \begin{lstlisting}
 def writefile(filepath, newcontent=None, force=False):
 
-    if not newcontent:
-        try:
-            with open(filepath, 'r') as content:
-                return content.read()
-        except FileNotFoundError:
-            return command_error( returncode=10, stderr='No file found on path : "'+filepath+'"' )
-
     if not force:
         md5new = hashlib.md5()
 
@@ -401,18 +394,6 @@ Sono 3 i paramentri accettati da questa funzione:
 \end{itemize}
 \paragraph{Funzionamento}
 ~\\
-\begin{lstlisting}
-    if not newcontent:
-        try:
-            with open(filepath, 'r') as content:
-                return content.read()
-        except FileNotFoundError:
-            return command_error( returncode=10, stderr='No file found on path : "'+filepath+'"' )
-\end{lstlisting}
-Oltre a scrivere i file la funzione può essere utilizzata per restituire all'utente o al frontend il contenuto di un file.
-Come si vede dal primo \texttt{if} se il parametro \texttt{newcontent} è nullo semplicemente il file viene aperto in lettura
-e ne viene restituito il suo contenuto. Questa variabile dovrebbe contenere il nuovo contenuto del file.
-\\~\\
 \begin{lstlisting}
     if not force:
         md5new = hashlib.md5()
@@ -459,8 +440,33 @@ Una volta effettuato i controlli e memorizzati in mongo i dati necessari si proc
 tramite le funzioni Python per la gestione dei file. Si invoca infine \texttt{command\string_success} passandogli il \texttt{logid}.
 \paragraph{Return}
 Restituisce il \textit{dizionario di successo} generato dalla funzione \texttt{command\string_success} con all'interno
-il solo \texttt{logid} dell'operazione. Il \texttt{returncode} di questo dizionario indica se la scrittura del file è andata
-a buon fine (=0) o meno (!=0).
+il solo \texttt{logid} dell'operazione ad indicare la corretta scrittura del file.
+Il \texttt{returncode} di questo dizionario indica se la scrittura del file è andata a buon fine (=0) o meno (!=0).
+In caso questo returncode sia diverso di zero si ottiene il dizionario di errore con un breve messaggio con informazioni
+sullo stesso.
+
+\subsubsection{readfile}\label{readfile}
+\begin{lstlisting}
+def readfile(filepath):
+
+    try:
+        with open(filepath, 'r') as content:
+        return command_success( data=content.read() )
+    except FileNotFoundError:
+        return command_error( returncode=10, stderr='No file found on path : "'+filepath+'"' )
+
+\end{lstlisting}
+Utile a leggere il contenuto di un file.
+\paragraph{Parametri}
+Accetta un solo parametro che è il percorso del file sul sistema.
+\paragraph{Funzionamento}
+Semplicemente apre il file utilizzando la \texttt{with open}, ne legge il contenuto con la \texttt{read()} e ne restituisce
+quindi il contenuto nel dizionario di successo.
+Durante l'operazione viene controllato che non sia lanciata l'eccezione \texttt{FileNotFoundError} ad indicare che il file
+non esiste sulla macchina.
+\paragraph{Return}
+Restituisce il dizionario di successo contenente al campo \texttt{data} il contenuto del file indicato nell'unico
+parametro che accetta.
 
 \subsubsection{filediff}\label{filediff}
 \begin{lstlisting}
@@ -899,7 +905,7 @@ def addusertogroups(user, *groups):
     
     try:
     	for group in groups:
-            command = ['adduser', user, group],
+            command = ['adduser', user, group]
             check_call(command)
     except CalledProcessError as e:
         return command_error( e, command, logid )
@@ -908,14 +914,14 @@ def addusertogroups(user, *groups):
     return command_success( logid=logid )
 \end{lstlisting}
 La funzione nasce per aggiungere un utente ad uno o più gruppi di sistema. Ovviamente l'utente 
-non deve appartenere al/ai gruppo/i a cui si sta aggiungendo. È possibile ricavare una lista di questi gruppi
+non deve appartenere al/ai gruppo/i a cui si sta aggiungendo. È possibile ottenere una lista di questi gruppi
 utilizzando la funzione \nameref{getusernotgroups}.
 \paragraph{Parametri}
 \begin{itemize}
 	\item{\texttt{user}: la prima non poteva che essere l'utente che si vuole aggiungere ai gruppi}
 	\item{\texttt{*groups}: la seconda è una variabile accumulativa di Python, ciò significa che
-		dopo aver passato \texttt{user} si possono passare quanti gruppo si vuole e verranno sempre unificati
-		in questa variabile, per poi essere scorsi un pò alla volta. Questo ci da la possibilità di poter
+		dopo aver passato \texttt{user} tutto ciò che si passa dopo viene assemblato in questa variabile
+		per poi essere scorsi un pò alla volta. Questo ci da la possibilità di poter
 		aggiungere l'utente a quanti gruppi si vuole chiamando questa funzione una sola volta}
 \end{itemize}
 \paragraph{Funzionamento}

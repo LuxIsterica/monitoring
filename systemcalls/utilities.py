@@ -91,13 +91,6 @@ def command_error( e=None, command=[], logid=None, returncode=1, stderr='No mess
 #else let user know that file has not been written because no changes has been made
 def writefile(filepath, newcontent=None, force=False):
 
-    if not newcontent:
-        try:
-            with open(filepath, 'r') as content:
-                return command_success( data=content.read() )
-        except FileNotFoundError:
-            return command_error( returncode=10, stderr='No file found on path : "'+filepath+'"' )
-
     if not force:
         #If force is not specified then calculate md5sum to check whether the file has changed.
         #If file hasn't changed it is not written
@@ -130,8 +123,13 @@ def writefile(filepath, newcontent=None, force=False):
 
     return command_success( logid=logid )
 
-def readfile(filepath): return writefile(filepath)
+def readfile(filepath):
 
+    try:
+        with open(filepath, 'r') as content:
+        return command_success( data=content.read() )
+    except FileNotFoundError:
+        return command_error( returncode=10, stderr='No file found on path : "'+filepath+'"' )
 
 
 
