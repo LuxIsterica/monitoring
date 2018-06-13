@@ -266,10 +266,10 @@ def newHostname():
 
 
 ########## FUNZIONALITÀ network.py ##########
-#@app.route('/network')
-#def network():
-#	facestat = ifacestat()
-#	return render_template('network.html', facestat=facestat)
+'''@app.route('/network')
+def network():
+	facestat = ifacestat()
+	return render_template('network.html', facestat=facestat)'''
 
 
 
@@ -411,6 +411,21 @@ def retrieveContentModule():
 	contentMods = readfile(apacheconfdir+"mods-available/"+nameMods)
 	return render_template('apache-module-content.html', contentMods=contentMods, nameMods=nameMods)
 
+'''@app.route('/updateContentMods/<string:nameMods>', methods=['POST'])
+def updateContentMods(nameMods):
+	try:
+		error = None
+		updatedContentVhost = request.form['contentTextarea']
+		newContent = writefile(apacheconfdir+"mods-available/"+nameSite,updatedContentVhost)
+		if(newContent['returncode'] != 0):
+			error = "Errore in fase di modifica"
+			return render_template('apache-site.html',error=error)
+		else:
+			flash("Modifica avvenuta correttamente")
+			return redirect(url_for('sites'))
+	except Exception:
+		return internal_server_error(500) '''
+
 @app.route('/configurations')
 def configurations():
 	error=None
@@ -421,6 +436,27 @@ def configurations():
 		return redirect(url_for('sites'))
 	else:
 		return render_template('apache-configurations.html', conf=conf)
+
+'''@app.route('/retrieveContentConfiguration', methods=['POST'])
+def retrieveContentConfiguration():
+	nameConf = request.form['retrieveCM']
+	contentConf = readfile(apacheconfdir+"conf-available/"+nameConf)
+	return render_template('apache-module-content.html', contentConf=contentConf, nameConf=nameConf)
+
+@app.route('/updateContentConf/<string:nameConf>', methods=['POST'])
+def updateContentConf(nameConf):
+	try:
+		error = None
+		updatedContentVhost = request.form['contentTextarea']
+		newContent = writefile(apacheconfdir+"conf-available/"+nameSite,updatedContentVhost)
+		if(newContent['returncode'] != 0):
+			error = "Errore in fase di modifica"
+			return render_template('apache-site.html',error=error)
+		else:
+			flash("Modifica avvenuta correttamente")
+			return redirect(url_for('sites'))
+	except Exception:
+		return internal_server_error(500) '''
 
 #creating a view function without returning a response in Flask
 # return HTTP/1.1" 204
