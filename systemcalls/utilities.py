@@ -127,7 +127,7 @@ def readfile(filepath):
 
     try:
         with open(filepath, 'r') as content:
-        return command_success( data=content.read() )
+            return command_success( data=content.read() )
     except FileNotFoundError:
         return command_error( returncode=10, stderr='No file found on path : "'+filepath+'"' )
 

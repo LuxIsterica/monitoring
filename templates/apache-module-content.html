@@ -3,7 +3,7 @@
 
 <h2>Content: {{nameMods}}</h2>
 
-<form id="form" action="/updateContentSite/{{ nameMods }}" role="form" method = "POST">
+<form id="form" action="/updateContentMods/{{ nameMods }}" role="form" method = "POST">
 	<div id="loadTextArea">
 		{% if contentMods %}
 			<textarea rows="15" name="contentTextarea" id="contentTextarea" style="width: 55em;">{{ contentMods.data }}</textarea>

@@ -387,7 +387,7 @@ def updateContentSite(nameSite):
 		newContent = writefile(apacheconfdir+"sites-available/"+nameSite,updatedContentVhost)
 		if(newContent['returncode'] != 0):
 			error = "Errore in fase di modifica"
-			return render_template('apache-site.html',error=error)
+			return render_template('apache-sites.html',error=error)
 		else:
 			flash("Modifica avvenuta correttamente")
 			return redirect(url_for('sites'))
@@ -411,20 +411,20 @@ def retrieveContentModule():
 	contentMods = readfile(apacheconfdir+"mods-available/"+nameMods)
 	return render_template('apache-module-content.html', contentMods=contentMods, nameMods=nameMods)
 
-'''@app.route('/updateContentMods/<string:nameMods>', methods=['POST'])
+@app.route('/updateContentMods/<string:nameMods>', methods=['POST'])
 def updateContentMods(nameMods):
 	try:
 		error = None
-		updatedContentVhost = request.form['contentTextarea']
-		newContent = writefile(apacheconfdir+"mods-available/"+nameSite,updatedContentVhost)
+		updatedContentMods = request.form['contentTextarea']
+		newContent = writefile(apacheconfdir+"mods-available/"+nameMods,updatedContentMods)
 		if(newContent['returncode'] != 0):
 			error = "Errore in fase di modifica"
-			return render_template('apache-site.html',error=error)
+			return render_template('apache-modules.html',error=error)
 		else:
 			flash("Modifica avvenuta correttamente")
-			return redirect(url_for('sites'))
+			return redirect(url_for('modules'))
 	except Exception:
-		return internal_server_error(500) '''
+		return internal_server_error(500) 
 
 @app.route('/configurations')
 def configurations():
