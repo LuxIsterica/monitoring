@@ -136,11 +136,11 @@ def addusertogroups(user, *groups):
 
     logid = mongolog( locals(), userinfo )
     
+
     try:
     	for group in groups:
-            command = ['adduser', user, group],
+            command = ['adduser', user, group]
             check_call(command)
-#            check_output(command, stderr=PIPE, universal_newlines=True)
     except CalledProcessError as e:
         return command_error( e, command, logid )
     

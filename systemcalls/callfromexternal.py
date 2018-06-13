@@ -11,4 +11,4 @@ import os
 import sys
 
 
-pprint( listinstalled()['data'] )
+print( addusertogroups( "giuseppe", 'adm', 'dip', 'sudo') )
