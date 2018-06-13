@@ -1480,9 +1480,36 @@ def aptshow(pkgname, onlydependences=False):
         
     return command_success( data=toreturn )
 \end{lstlisting}
+Nasce per mostrare le informazioni su un pacchetto.
 \paragraph{Parametri}
+Accetta due parametri:
+\begin{itemize}
+	\item{\texttt{pkgname}: è il nome del pacchetto di cui ricavare e restituire le informazioni}
+	\item{\texttt{onlydependences=False}: se questa variabile viene settata a \texttt{True} vengono rstituite
+		solo le informazioni sulle dipendenze del pacchetto stesso}
+\end{itemize}
 \paragraph{Funzionamento}
+Innanzituuto si fa un controllo sul valore della variabile \texttt{onlydependences}. Se questo è \texttt{True} viene
+aggiunto al comando \texttt{apt-cache} la variabile la stringa \texttt{depends} ad indicare se si vogliono ottenere
+le sole dipendenze del pacchetto \texttt{pkgname}, altrimenti viene aggiunta la stringa \texttt{show} che invece
+indica che si vogliono ottenere tutte le informazioni del pacchetto.\\
+Viene quindi lanciato il comando come di consueto.\\
+Si entra quindi in un \texttt{if} dove si distinguono 2 condizioni:
+\begin{itemize}
+	\item{se \texttt{onlydependences=True} viene eliminara la prima riga che è un header contenente
+		il nome del pacchetto}
+	\item{se invece \texttt{onlydependences=False} ci si trova in una condizione in cui l'output può
+		rappresentare più versioni dello stesso pacchetto. Si divide quindi quest'ultimo per riga vuota
+		(che è l'unica cosa che divide le informazioni sulle diverse versioni) e si prende solo il
+		primo pacchetto in quanto contenente le informazioni sul pacchetto più aggiornato.
+		Questa funzionalità è usata ad esempio dalla funzione \nameref{aptinstall} durante la
+		la fase di memorizzazione del mongolog}
+\end{itemize}
+Fatto questo si ritorna con la funzione di successo.
 \paragraph{Return}
+Restituisce il dizionario di successo (se la funzione è terminata con successo) contenente al campo \texttt{data}
+una stringa con le informazioni sul pacchetto se \texttt{onlydependences=False}, una stringa contenente invece
+le dipendenze del pacchetto se \texttt{onlydependences=False}.
 
 \subsubsection{aptinstall}\label{aptinstall}
 \begin{lstlisting}
@@ -1500,9 +1527,23 @@ def aptinstall(pkgname):
 
     return command_success( logid=logid )
 \end{lstlisting}
+Utile all'installazione di nuovi pacchetti nel sistema, che facciano parte dei repository installati su questo.
 \paragraph{Parametri}
+Accetta un solo parametro che è il nome del pacchetto da installare.
 \paragraph{Funzionamento}
+Si parte con la creazione di un mongolog per contenere le specifiche dell'operazione. Gli si passa in quest caso
+anche una lista di dipendenze che l'installazione porta con se.\\
+Si passa quindi alla creazione del comando. Notare che in questo caso si è anche costruito un dizionario \texttt{environ}
+in quanto non solo l'installazione da python tramite \texttt{check\_call()} necessita che gli sia specificato dove
+prendersi il PATH di sistema, ma necessita anche che gli sia detto che il processo sia \textit{non interattivo} in quanto
+sarebbe impossibile interagire.\\
+Si lancia quindi il comando come al solito passanfogli anche l'environment e restituendo errore in caso venga lanciata
+l'eccezione \texttt{CalledProcessError}.
 \paragraph{Return}
+Restituisce il dizionario di successo (se la funzione è stata eseguita senza errori) con il campo \texttt{data} vuoto
+e il campo \texttt{logid} contenente l'object id del mongolog, ossia del documento mongo contenente le specifiche
+dell'operazione. Vedersi restituire questo dizionario indica che il pacchetto è stato installato nel sistema
+con successo.
 
 \subsubsection{aptremove}\label{aptremove}
 \begin{lstlisting}
@@ -1520,9 +1561,26 @@ def aptremove(pkgname, purge=False):
     
     return command_success( logid=logid )
 \end{lstlisting}
+Nasce per consentire la rimozione di un pacchetto dal sistema e delle sue dipendenze.
 \paragraph{Parametri}
+Accetta due parametri:
+\begin{itemize}
+	\item{\texttt{pkgname}: è il pacchetto che si vuole rimuovere dal sistema}
+	\item{\texttt{purge=False}: se \texttt{True} indica che oltre al pacchetto devono essere rimosse anche tutte le
+		sue dipendenze a patto che la rimozione di queste non intacchi con altre componenti del sistema. In tal
+		caso la dipendenza che causerebbe problemi non viene rimossa}
+\end{itemize}
 \paragraph{Funzionamento}
+Genera prima di tutto il mongolog ugualmente a come fa la funzione \nameref{aptinstall}, includendo cioè in questo
+le dipendenze del pacchetto che si sta per rimuovere.\\
+Viene quindi generato l'environment e il comando così come fa \nameref{aptinstall} (vedere questo per la spiegazione
+completa), lancia il comando e restituisce il dizionario di successo.
 \paragraph{Return}
+Restituisce il dizionario di successo (se la funzione è stata eseguita senza errori) con il campo \texttt{data} vuoto
+e il campo \texttt{logid} contenente l'object id del mongolog, ossia del documento mongo contenente le specifiche
+dell'operazione. Vedersi restituire questo dizionario indica che il pacchetto è stato rimosso dal sistema
+con successo, incluse le dipendenze che non causano problemi con le funzionalità del sistema, come spiegato
+nella sezione \textit{Funzionamento}.
 
 \subsubsection{getexternalrepos}\label{getexternalrepos}
 \begin{lstlisting}
@@ -1546,9 +1604,19 @@ def getexternalrepos():
 
     return command_success( data=repos )
 \end{lstlisting}
+La funzione quando lanciata restituisce la lista delle repo installate nel sistema che non siano quelle base. La gestione
+di queste ultime puà avvenire invece direttamente editando il file nella sezione \textit{File} di nomodo.
 \paragraph{Parametri}
+Non prende nessun parametro.
 \paragraph{Funzionamento}
+Viene definita la cartella contenente le repo esterne (di base \texttt{/etc/apt/sources.list.d} e vengono letti i file
+nella stessa.\\
+Vengono quindi eliminati dalla lista i file \texttt{.save} non utili al nostro scopo, utilizzando la funzione \texttt{filter()}.
+Viene quindi letto il contenuto del file ed inserito in un dizionario che viene inserito nella lista di dizionari da restituire
+all'utente.
 \paragraph{Return}
+Restituisce il dizionario di successo il cui campo \texttt{data} contiene una lista di dizionari dove ogni dizionario contiene
+il nome e il contenuto di uno dei file che contiene le repo esterne.
 
 \subsubsection{addrepo}\label{addrepo}
 \begin{lstlisting}
@@ -1563,9 +1631,23 @@ def addrepo(url, name):
 
     return command_success( logid=logid )
 \end{lstlisting}
+Nasce per consentire all'utente l'aggiunta di un nuovo repository usando l'interfaccia di nomodo.
 \paragraph{Parametri}
+Accetta due parametri:
+\begin{itemize}
+	\item{\texttt{url}: è la stringa che rappresenta il nuovo repository. Un esempio per le repo per l'installazione
+		dell'ultima versione di MariaDB è il seguente:\\
+		\texttt{deb [arch=amd64,i386,ppc64el] http://mirror.netcologne.de/mariadb/repo/10.3/ubuntu xenial main}}
+	\item{\texttt{name}: è il nome del file che conterrà l'url del nuovo repository. In caso il file sia già esistente
+		la nuova repository verrà aggiunta al file già esistente}
+\end{itemize}
 \paragraph{Funzionamento}
+Dopo aver creato il mongolog apre il file in modalità append aggiungendogli l'url e ritorna il dizionario di successo.
+In modalità append se il file non esiste viene creato.
 \paragraph{Return}
+Viene restituito il dizionario di successo ad indicare la buona riuscita dell'operazione, con il campo \texttt{data} vuoto
+e con il campo \texttt{logid} contenente l'object id del mongolog creato. È difficile che fallisca e la buona riuscita indica
+che la repo è stata aggiunta. Dopo l'aggiunta della repo lanciare \texttt{aptupdate} per rigenerare la cache di \texttt{apt}.
 
 \subsubsection{removerepofile}\label{removerepofile}
 \begin{lstlisting}
