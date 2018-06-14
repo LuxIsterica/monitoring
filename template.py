@@ -12,9 +12,7 @@ from utilities import readfile, writefile
 
 from flask import Flask, render_template, flash, request, redirect, url_for, send_file
 
-
 from flask_bootstrap import Bootstrap
-from collections import defaultdict
 
 app = Flask(__name__, template_folder = "templates", static_folder = "static", static_url_path = "/static")
 app.secret_key = 'random string'
@@ -437,13 +435,13 @@ def configurations():
 	else:
 		return render_template('apache-configurations.html', conf=conf)
 
-'''@app.route('/retrieveContentConfiguration', methods=['POST'])
+@app.route('/retrieveContentConfiguration', methods=['POST'])
 def retrieveContentConfiguration():
-	nameConf = request.form['retrieveCM']
+	nameConf = request.form['retrieveCC']
 	contentConf = readfile(apacheconfdir+"conf-available/"+nameConf)
-	return render_template('apache-module-content.html', contentConf=contentConf, nameConf=nameConf)
+	return render_template('apache-configuration-content.html', contentConf=contentConf, nameConf=nameConf)
 
-@app.route('/updateContentConf/<string:nameConf>', methods=['POST'])
+'''@app.route('/updateContentConf/<string:nameConf>', methods=['POST'])
 def updateContentConf(nameConf):
 	try:
 		error = None

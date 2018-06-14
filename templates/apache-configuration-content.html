@@ -1,16 +1,16 @@
 {% extends "index.html" %}
 {% block page_content %}
 
-<h2>Content: {{nameSite}}</h2>
+<h2>Content: {{nameConf}}</h2>
 
-<form id="form" action="/updateContentSite/{{ nameSite }}" role="form" method = "POST">
+<form id="form" action="/updateContentConf/{{ nameConf }}" role="form" method = "POST">
 	<div id="loadTextArea">
-		{% if contentVhost %}
-			<textarea rows="15" name="contentVhost" id="contentVhost" style="width: 55em;">{{ contentVhost.data }}</textarea>
+		{% if contentConf %}
+			<textarea rows="15" name="contentConf" id="contentConf" style="width: 55em;">{{ contentConf.data }}</textarea>
 		{% endif %}
 	</div>
 	<div class="input-group-btn">
-    	<button type="submit" class="btn btn-primary" id="modificaContentSite" style="margin-top: 1em;margin-left: 56em;" disabled>Modifica</button>
+    	<button type="submit" class="btn btn-primary" id="modificaContentConf" style="margin-top: 1em;margin-left: 56em;" disabled>Modifica</button>
   	</div>
 </form>
 

@@ -2,6 +2,7 @@
 {% block page_content %}
 
 <h1 class="title">APACHE</h1>
+
 	{% with messages = get_flashed_messages() %}
 	  {% if messages %}
 	    <ul class=flashes>
@@ -9,7 +10,7 @@
 	      <li>{{ message }}</li>
 	    {% endfor %}
 	    </ul>
-	    <meta http-equiv="refresh" content="5;URL=http://localhost:5000/sites">
+	    <meta http-equiv="refresh" content="3;URL=http://localhost:5000/modules">
 	  {% endif %}
 	{% endwith %}
 
@@ -49,54 +50,53 @@
 	<p id="pText" hidden> To activate new settings you must restart or reload apache </p>
 </div>
 
-	<div class="tab-content">
-	  {% if mods and mods|length > 0 %}
-	    <div id="sites">
-	        <h3 class="title">Modules</h3>
-		  	{% for m in mods.data %}
-		      <div class="row apacheRow">
-		        	<div class="col-md-6"> 
-			        	<form id="form" action="/retrieveContentModule" role="form" method = "POST">
-	        		  		<h2 style="text-align: center;">
-	        					<input type = "submit" value="{{m['filename']}}" id="retrieveCM" name="retrieveCM" class="btn btn-link" style="font-size: 28px;"/>
-							</h2>
-		        		</form>
-			      	</div>
-			        <div class="col-md-4" style="padding-top: 18px;"> 
-			          <table>
-			            <tr>
-			             <td> Site Folder (DocumentRoot): &ensp;</td>
-			             <td> {{ m['DocumentRoot'] }} </td>
-			            </tr>
-			            <tr>
-			             <td> filename: &ensp;</td>
-			             <td> {{ m['filename'] }} </td>
-			            </tr>
-			            <tr>
-			             <td> active: &ensp;</td>
-			             {% if m['active'] == 1 %}
-				            <td>
-					            <form id="deactivateMods" action="/deactivateMods" role="form" method="POST">
-					           		<input type="hidden" value="{{m['filename']}}" name="clickDeactiv">
-				       		 		<button class="button b-round-g" id="buttonMClickDeactiv"></button>
-				    			</form>
-			    			</td>
-			             <!--<td><button class="button b-round-g" value="" id="buttonClickActiv"></button></td>-->
-			             {% else %}
-				            <td>
-					            <form id="activateMods" action="/activateMods" role="form" method="POST">
-					           		<input type="hidden" value="{{m['filename']}}" name="clickActiv">
-				       		 		<button class="button b-round-r" id="buttonMClickActiv"></button>
-				    			</form>
-			    			</td>
-			             {% endif %}
-			            </tr> 
-			        </table>
-			      </div>		
-		      </div>
-		  	{% endfor %}
-		</div>
-	  {% endif %}
-	</div> 
+
+<div class="tab-content">
+    <div id="sites">
+        <h3 class="title">Modules</h3>
+	  	{% for m in mods.data %}
+	     <div class="row apacheRow">
+	        	<div class="col-md-6"> 
+	        		<form id="form" action="/retrieveContentMods" role="form" method = "POST">
+	        		  <h2 style="text-align: center;">
+	        			<input type = "submit" value="{{m['filename']}}" id="retrieveCM" name="retrieveCM" class="btn btn-link" style="font-size: 28px;"/>
+	  				  </h2>
+		        	</form>
+		      	</div>
+		        <div class="col-md-4" style="padding-top: 18px;"> 
+		          <table>
+		            <tr>
+		             <td> Site Folder (DocumentRoot): &ensp;</td>
+		             <td> {{ m['DocumentRoot'] }} </td>
+		            </tr>
+		            <tr>
+		             <td> filename: &ensp;</td>
+		             <td> {{ m['filename'] }} </td>
+		            </tr>
+		            <tr>
+		             <td> active: &ensp;</td>
+		             {% if m['active'] == 1 %}
+			            <td>
+				            <form id="deactivateMods" action="/deactivateMods" role="form" method="POST">
+				           		<input type="hidden" value="{{m['filename']}}" name="clickDeactiv">
+			       		 		<button class="button b-round-g" id="buttonMClickDeactiv"></button>
+			    			</form>
+		    			</td>
+		             {% else %}
+			            <td>
+				            <form id="activateMods" action="/activateMods" role="form" method="POST">
+				           		<input type="hidden" value="{{m['filename']}}" name="clickActiv">
+			       		 		<button class="button b-round-r" id="buttonMClickActiv"></button>
+			    			</form>
+		    			</td>
+		             {% endif %}
+		            </tr> 
+		        </table>
+		      </div>		
+	      </div>
+	    {% endfor %}
+	</div>
+</div>
+
 
 {% endblock %}
