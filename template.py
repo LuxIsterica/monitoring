@@ -441,20 +441,20 @@ def retrieveContentConfiguration():
 	contentConf = readfile(apacheconfdir+"conf-available/"+nameConf)
 	return render_template('apache-configuration-content.html', contentConf=contentConf, nameConf=nameConf)
 
-'''@app.route('/updateContentConf/<string:nameConf>', methods=['POST'])
+@app.route('/updateContentConf/<string:nameConf>', methods=['POST'])
 def updateContentConf(nameConf):
 	try:
 		error = None
-		updatedContentVhost = request.form['contentTextarea']
-		newContent = writefile(apacheconfdir+"conf-available/"+nameSite,updatedContentVhost)
+		updatedContentConf = request.form['contentTextarea']
+		newContent = writefile(apacheconfdir+"conf-available/"+nameConf,updatedContentConf)
 		if(newContent['returncode'] != 0):
 			error = "Errore in fase di modifica"
-			return render_template('apache-site.html',error=error)
+			return render_template('apache-configurations.html',error=error)
 		else:
 			flash("Modifica avvenuta correttamente")
-			return redirect(url_for('sites'))
+			return redirect(url_for('configurations'))
 	except Exception:
-		return internal_server_error(500) '''
+		return internal_server_error(500) 
 
 #creating a view function without returning a response in Flask
 # return HTTP/1.1" 204
