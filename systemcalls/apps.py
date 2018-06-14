@@ -185,7 +185,7 @@ def removerepofile(filename):
     try:
         os.remove(repospath + filename + '.list')
         os.remove(repospath + filename + '.list.save')
-    except OSError:
-        pass
+    except FileNotFoundError:
+        return command_error( returncode=10, stderr='File to remove not found: "'+path+'"' )
 
     return command_succes( logid=logid )
