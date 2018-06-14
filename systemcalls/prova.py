@@ -12,13 +12,13 @@ import sys
 
 
 
-data = addusertogroups('lux','man')
+data = getsysteminfo()
 #data = writeusercrontab('giuseppe', 'nuovociaone')
-log = data['data']
-if log['returncode'] is 0:
+(cpu,mem,proc) = data['data']
+if data['returncode'] is 0:
     #(cpu,mem,proc) = data['data']
 	#pprint(data['data'][1]['filename'][:-5])
-	print (log)
+	print (data)
 
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments

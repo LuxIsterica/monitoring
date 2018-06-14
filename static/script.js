@@ -1,10 +1,29 @@
 
 $(document).ready(function () {
+
+	/* implementazione sidebar */
 	$('#sidebarCollapse').on('click', function () {
 		$('#sidebar').toggleClass('active');
 		$('#content').toggleClass('opacity-content');
 	});
+
+	/* implementazione accordion nella pagina file */
+	var acc = document.getElementsByClassName("accordion");
+	var i;
+
+	for (i = 0; i < acc.length; i++) {
+	    acc[i].addEventListener("click", function() {
+	        this.classList.toggle("active");
+	        var panel = this.nextElementSibling;
+	        if (panel.style.display === "block") {
+	            panel.style.display = "none";
+	        } else {
+	            panel.style.display = "block";
+	        }
+	    });
+	}
  
+ 	/* gestione bottone rosso/verde con i bottoni apache */
  	if(document.getElementById('buttonSClickDeactiv') != null){
 		document.getElementById("buttonSClickDeactiv").addEventListener("click", manage, false);
  	}
@@ -34,6 +53,7 @@ $(document).ready(function () {
 			$("#pText").show();
 	};
 
+	/* gestione modifica textarea onchange per i contenuti di site,module,configuration */
 	$('#contentTextarea').change(function(){
 		$('#contentTextarea').css("border-color","red");
 		$('#modificaTextarea').prop('disabled',false);

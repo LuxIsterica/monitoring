@@ -2,9 +2,9 @@
 {% block page_content %}
 
 <h1 class="title">DASHBOARD</h1>
-<div class="container">
-  <div class="panel-group">
 
+<div class="container">
+  
     <div class="panel panel-default">
       <div class="panel-heading"><h2>cpu</h2></div>
         <div class="panel-body">
@@ -17,7 +17,7 @@
             {% endfor %}
             </table>
         </div> <!-- end body -->
-      </div> <!-- end default -->
+    </div> <!-- end default -->
 
     <div class="panel panel-default">
       <div class="panel-heading"><h2>memory</h2></div>
@@ -40,14 +40,13 @@
             {% for p in proc %}
               <tr>
                 {% for x in p %}
-                <td style="text-align: center;"><h4>{{x}}</h4></td>
+                  <td style="text-align: center;"><h4>{{x}}</h4></td>
                 {% endfor %}
               </tr>
             {% endfor %}
           </table>
-        </div> <!-- end body -->
-    </div> <!-- end default -->
-  </div> <!-- end group -->
-</div> <!-- end container -->
+      </div> <!-- end body -->
+  </div> <!-- end default -->
 
+</div> <!-- end container -->
 {% endblock %}

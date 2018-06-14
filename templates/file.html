@@ -3,7 +3,7 @@
 
 <h2>Aggiorna database indicizzato dei file</h2>
 
-<div class="row">
+<div class="row" style="padding-left: 20px;">
   <div class="col-md-12 col-sm-12">
   	<!--
     PROVA1- <form id="form" action="/updateDbFile" role="form" method = "POST">
@@ -34,7 +34,7 @@
 
 <h2>Trova file</h2>
 
-<div class="row">
+<div class="row" style="padding-left: 20px;">
   <div class="col-md-7 col-sm-7">
   	<form id="form" action="/findFile" role="form" method = "POST">
 	    <div class="input-group input-group-sm col-xs-4 col-md-4">
@@ -43,7 +43,7 @@
 	        <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
 	      </div>
 	    </div>
-	</form>
+	  </form>
   </div>
   <div class="col-md-5 col-sm-5">
     <button type="button" class="btn btn-default" onclick="javascript:document.getElementById('pathFileFound').innerText = ''">Pulisci Lista</button>
@@ -64,24 +64,31 @@
 {% if pathFileFound|length > 0 %}
 
 <div class="container" style="top: 15px;">
-  <div class="panel-group" id="accordion">
-  	{% for pff in pathFileFound.data %}
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h4 class="panel-title">
-          <a data-toggle="collapse" data-parent="#accordion" href="#collapse1"><button class="accordion"> {{ pff }} </button></a>
-        </h4>
-      </div>
-      <div id="collapse1" class="panel-collapse collapse"> <!-- aggiungere classe in per accordion aperto -->
-        <div class="panel-body">
-        	<button type="button" class="btn btn-warning">Modifica</button>
-			<button type="button" class="btn btn-danger">Elimina</button>
+  {% for pff in pathFileFound.data %}
+    <button class="accordion">{{ pff }}</button>
+    <div class="accordionPanel">
+      <!--<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>-->
+                          
+        <!-- <button type="button" class="btn btn-warning">Modifica</button>
+        <button type="button" class="btn btn-danger">Elimina</button> -->
+        <div class="container">
+          <div class="row">
+            <div class="col-md-6 col-sm-6">
+              <form id="updateFile" action="/updateFile" role="form" method="POST">
+                <input type = "submit" class="btn btn-warning" value = "Modifica" id="updateFile" name="updateFile"/>
+              </form>
+            </div> 
+            <div class="col-md-6 col-sm-6">
+              <form id="deleteFile" action="/deleteFile" role="form" method="POST">
+                <input type = "submit" class="btn btn-danger" value = "Elimina" id="deleteFile" name="deleteFile"/>
+              </form> 
+            </div>        
+          </div>
         </div>
-      </div>
     </div>
-    {% endfor %}
-  </div> 
+  {% endfor %}
 </div>
+  
 {% endif %}
 
 {% endblock %}

@@ -235,11 +235,11 @@ img {
     color: #444;
     cursor: pointer;
     padding: 18px;
-    width: 80%;
-    border: 1px;
+    width: 92%;
+    border: none;
     text-align: left;
     outline: none;
-    font-size: 12px;
+    font-size: 15px;
     transition: 0.4s;
 }
 
@@ -247,8 +247,12 @@ img {
     background-color: #ccc; 
 }
 
-.panel {
-    width: 80%;
+.accordionPanel {
+    padding: 0 18px;
+    display: none;
+    background-color: white;
+    overflow: hidden;
+    width: 70.3em;
 }
 
 table.systeminfo {
