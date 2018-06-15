@@ -6,7 +6,7 @@
 
 body {
     font-family: 'Poppins', sans-serif;
-    background: #fafafa;
+    background-color: #dcdbcb;
 }
 
 p {
@@ -51,6 +51,7 @@ i, span {
 .wrapper {
     display: flex;
     align-items: stretch;
+    min-height: 100em;
 }
 
 #sidebar {
@@ -59,12 +60,14 @@ i, span {
     background: #138f0e;
     color: #fff;
     transition: all 0.3s;
+    min-height: 101em;
 }
 
 #sidebar.active {
     min-width: 80px;
     max-width: 90px;
     text-align: center;
+    min-height: 101em;
 }
 
 #sidebar.active .sidebar-header h3, #sidebar.active .CTAs {
@@ -106,14 +109,21 @@ i, span {
 }
 
 #sidebar .sidebar-header {
-    padding: 50px 50px 50px 50px;
-    background: #70bebe;
+    padding-bottom: 40px;
+    background-color: #000;
+    padding-top: 40px;
 }
 
-#sidebar .sidebar-header strong {
+#sidebar.active .sidebar-header {
+    padding-bottom: 35px;
+    background-color: #000;
+    padding-top: 60px;
+}
+
+/*#sidebar .sidebar-header strong {
     display: none;
     font-size: 1.8em;
-}
+}*/
 
 #sidebar ul.components {
     padding: 20px 0;
@@ -185,12 +195,12 @@ a.article, a.article:hover {
 }
 
 
-img {
+/*img {
     position: relative;
     left: 38%;
     margin-top: -60px;
     margin-bottom: -60px;
-}
+}*/
 
 /* -------------------------------------------
     CONTENT STYLE
@@ -359,13 +369,13 @@ button.b-round-r {
 ------------------------------------------ */
 
 @media (max-width: 2500px) {
-
+/*
     #sidebar {
         min-width: 250px;
         background: #028401;
         color: #fff;
         transition: all 0.3s;
-    }
+    }*/
 
     .line {
         width: 100%;
@@ -452,7 +462,7 @@ button.b-round-r {
 
 @media (min-width: 399px){
 
-#sidebar {
+/*#sidebar {
     min-width: 220px;
     max-width: 80px;
     text-align: center;
@@ -460,7 +470,6 @@ button.b-round-r {
 
 #sidebar .sidebar-header {
     padding: 50px 27px 53px 50px;
-    /*background: #70bebe;*/
     background-color: #000;
     min-width: 100%;
 }
@@ -475,7 +484,7 @@ nav.active img {
     margin-left: -50px;
     width: 85px;
     height: 85px;
-}
+}*/
 
 }
 
