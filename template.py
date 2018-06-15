@@ -4,7 +4,7 @@ from user import getusers, getuser, getgroups, getshells, updateusershell, getus
 from apps import listinstalled, aptsearch
 from systemfile import locate,updatedb
 from system import getsysteminfo, hostname
-#from network import ifacestat
+from network import ifacestat
 from apache import apachestart, apachestop, apacherestart, apachereload, apachestatus, getvhosts, getmods, getconf, activatevhost, deactivatevhost, activatemod, deactivatemod, activateconf, deactivateconf
 from apache import apacheconfdir
 from cron import listcrontabs, getcroncontent, writecron
@@ -326,10 +326,10 @@ def newHostname():
 
 
 ########## FUNZIONALITÀ network.py ##########
-'''@app.route('/network')
+@app.route('/network')
 def network():
 	facestat = ifacestat()
-	return render_template('network.html', facestat=facestat)'''
+	return render_template('network.html', facestat=facestat)
 
 
 

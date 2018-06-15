@@ -197,9 +197,10 @@ img {
 ---------------------------------------------- */
 #content {
     padding: 20px;
-    padding-left: 48px;
     min-height: 100vh;
     transition: all 0.3s;
+    background-color: #dcdbcb;
+    min-width: 178em;
 }
 
 .opacity-content {
@@ -373,15 +374,15 @@ button.b-round-r {
         margin: 40px 0
     }
 
-    #content {
-        padding: 3.4px;
-        /*padding-left: 80px;*/
-        /* min-height: 100vh; */
-        transition: all 0.3s;
-        width: 100%;
-        /*background-color: #dad6a6; */
-        background-color: #dcdbcb;
-    }
+    /*#content {
+        /*padding: 3.4px;*/
+        /*/*padding-left: 80px;*/
+        /*/* min-height: 100vh; */
+        /*transition: all 0.3s;
+        /* width: 100%;*/
+        /*/*background-color: #dad6a6; */
+        /*background-color: #dcdbcb;*/
+    /*}*/
 
     .container {
         width: 1100px;
