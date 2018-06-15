@@ -8,7 +8,7 @@ from system import getsysteminfo, hostname
 from apache import apachestart, apachestop, apacherestart, apachereload, apachestatus, getvhosts, getmods, getconf, activatevhost, deactivatevhost, activatemod, deactivatemod, activateconf, deactivateconf
 from apache import apacheconfdir
 from cron import listcrontabs, getcroncontent, writecron
-from utilities import readfile, writefile
+from utilities import readfile, writefile, delfile
 
 from flask import Flask, render_template, flash, request, redirect, url_for, send_file
 
@@ -197,7 +197,10 @@ def findFile():
 		flash(u'Operazione errata','error')
 	else:
 		pathFileFound = locate(fs);
-		return render_template('file.html', pathFileFound = pathFileFound)
+		if not pathFileFound:
+			flash(pathFileFound,'error')
+		else:
+			return render_template('file.html', pathFileFound = pathFileFound)
 		
 	return redirect(url_for('file'))
 
@@ -212,6 +215,65 @@ def updateDbFile():
 			else:
 				flash(u'Aggiornato!','info')
 				return redirect(url_for('file'))
+		else:
+			error = 'Non funzica' 
+		return render_template('file.html', error=error)
+	except Exception:
+		return internal_server_error(500)
+
+@app.route('/retriveContentFile', methods=['POST'])
+def retriveContentFile():
+	try:
+		error = None
+		if request.form['retriveContentFile'] == 'Modifica':
+			pathFile = request.form['pathFile']
+			if not pathFile:
+				error = "Path vuoto"
+				return render_template("file.html",error=error)
+			else:
+				fileContent = readfile(pathFile)
+				if(fileContent['returncode'] != 0):
+					error = fileContent['command']
+				else:
+					return render_template("file-content.html", fileContent=fileContent, pathFile=pathFile)
+		else:
+			error = 'Non funzica' 
+		return render_template('file.html', error=error)
+	except Exception:
+		return internal_server_error(500)
+
+@app.route('/updateFile', methods=['POST'])
+def updateFile():
+	#try:
+		error = None
+		pathFile = request.form['pathFile']
+		updatedContentFile = request.form['contentTextarea']
+		newContent = writefile(pathFile,updatedContentFile)
+		if(newContent['returncode'] != 0):
+			error = "Errore in fase di modifica"
+			return render_template("file.html",error=error)
+		else:
+			flash(u'Modifica avvenuta correttamente!','info')
+			return redirect(url_for('file'))
+	#except Exception:
+	#	return internal_server_error(500)
+
+@app.route('/deleteFile', methods=['POST'])
+def deleteFile():
+	try:
+		error = None
+		if request.form['deleteFile'] == 'Elimina':
+			pathFile = request.form['pathFile']
+			if not pathFile:
+				error = "Path vuoto"
+				return render_template("file.html",error=error)
+			else:
+				log = delfile(pathFile)
+				if(log['returncode'] != 0):
+					error = log['command']
+				else:
+					flash(u'File eliminato correttamente!','info')
+					return redirect(url_for('file'))
 		else:
 			error = 'Non funzica' 
 		return render_template('file.html', error=error)

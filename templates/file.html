@@ -21,16 +21,16 @@
     	<p class=error><strong>Error:</strong> {{ error }} </p>
   	{% endif %}
   </div>
-{% with msg = get_flashed_messages(category_filter=["info"]) %}
-  {% if msg %}
-    <ul class=flashes>
-    {% for m in msg %}
-      <li>{{ m }}</li>
-    {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
-</div>
+  {% with msg = get_flashed_messages(category_filter=["info"]) %}
+    {% if msg %}
+      <ul class=flashes>
+      {% for m in msg %}
+        <li>{{ m }}</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+  </div>
 
 <h2>Trova file</h2>
 
@@ -38,19 +38,16 @@
   <div class="col-md-7 col-sm-7">
   	<form id="form" action="/findFile" role="form" method = "POST">
 	    <div class="input-group input-group-sm col-xs-4 col-md-4">
-	      <input type="text" name="fileSearch" class="form-control col-xs-4 col-md-4" placeholder="Seleziona file da ricercare">
+	      <input type="text" name="fileSearch" id="fileSearch" class="form-control col-xs-4 col-md-4" placeholder="Seleziona file da ricercare">
 	      <div class="input-group-btn">
 	        <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
 	      </div>
 	    </div>
 	  </form>
   </div>
-  <div class="col-md-5 col-sm-5">
-    <button type="button" class="btn btn-default" onclick="javascript:document.getElementById('pathFileFound').innerText = ''">Pulisci Lista</button>
-  </div>
 </div>
 
-<!-- alert se non -->
+<!--  -->
 {% with errors = get_flashed_messages(category_filter=["error"]) %}
   {% if errors %}
     <ul class=flashes>
@@ -65,24 +62,60 @@
 
 <div class="container" style="top: 15px;">
   {% for pff in pathFileFound.data %}
-    <button class="accordion">{{ pff }}</button>
+    <button class="accordion" id="pff">{{ pff }}</button>
     <div class="accordionPanel">
-      <!--<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>-->
-                          
-        <!-- <button type="button" class="btn btn-warning">Modifica</button>
-        <button type="button" class="btn btn-danger">Elimina</button> -->
         <div class="container">
           <div class="row">
-            <div class="col-md-6 col-sm-6">
-              <form id="updateFile" action="/updateFile" role="form" method="POST">
-                <input type = "submit" class="btn btn-warning" value = "Modifica" id="updateFile" name="updateFile"/>
+            <div class="col-md-6 col-sm-6" style="margin-top: 10px;margin-bottom: 10px;">
+              <form id="retriveContentFile" action="/retriveContentFile" role="form" method="POST">
+                <input type="hidden" id="pathFile" name="pathFile" value="{{pff}}">
+                <input type = "submit" class="btn btn-warning" value = "Modifica" id="retriveContentFile" name="retriveContentFile"/>
               </form>
             </div> 
-            <div class="col-md-6 col-sm-6">
-              <form id="deleteFile" action="/deleteFile" role="form" method="POST">
-                <input type = "submit" class="btn btn-danger" value = "Elimina" id="deleteFile" name="deleteFile"/>
-              </form> 
+            <div class="col-md-6 col-sm-6" style="margin-top: 10px;margin-bottom: 10px;">
+              <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalConfirmDelete">Elimina</button>
             </div>        
+          </div>
+        </div>
+        <div class="modal fade" id="modalConfirmDelete" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+              </div>
+              <div class="modal-body">
+                <p>Sei sicuro di voler eliminare definitivamente "{{pff}}"?</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modalReconfirmDelete">Si</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">No, esci</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal fade" id="modalReconfirmDelete" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+              </div>
+              <div class="modal-body">
+                <p>Ma se proprio sicuro sicuro?</p>
+              </div>
+              <div class="modal-footer">
+                <div class="row">
+                  <div class="col-sm-10 col-md-10">
+                    <form id="deleteFile" action="/deleteFile" role="form" method="POST">
+                      <input type="hidden" id="pathFile" name="pathFile" value="{{pff}}">
+                      <input type = "submit" class="btn btn-danger" value = "Elimina" id="deleteFile" name="deleteFile"/>
+                    </form> 
+                  </div>
+                  <div class="col-sm-1 col-md-1">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
     </div>
@@ -92,3 +125,18 @@
 {% endif %}
 
 {% endblock %}
+
+<!-- QUESTO FUNZIONA -->
+<!-- 
+<form id="deleteFile" action="/deleteFile" role="form" method="POST">
+  <input type="hidden" id="pathFile" name="pathFile" value="{{pff}}">
+  <input type = "submit" class="btn btn-danger" value = "Elimina" id="deleteFile" name="deleteFile"/>
+</form> 
+
+
+<form id="deleteFile" action="/deleteFile" role="form" method="POST">
+  <input type="hidden" id="pathFile" name="pathFile" value="{{pff}}">
+  <input type = "submit" class="btn btn-danger" value = "Elimina" id="deleteFile" name="deleteFile"/>
+</form> 
+<button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+-->
