@@ -242,6 +242,7 @@ a.article, a.article:hover {
 }
 
 .accordion {
+    margin-top: 10px;
     background-color: #eee;
     color: #444;
     cursor: pointer;
@@ -259,15 +260,13 @@ a.article, a.article:hover {
 }
 
 .accordionPanel {
-    padding: 0 18px;
     display: none;
     background-color: white;
-    overflow: hidden;
-    width: 70.3em;
+    width: 92%;
 }
 
 .marginTitle {
-    margin-top: 2em; 
+    margin-top: 3em; 
 }
 
 .marginPanel {
@@ -276,6 +275,30 @@ a.article, a.article:hover {
 
 .marginJumb {
     margin-top: 4em; 
+}
+
+.marginRow {
+    margin-top: 5em;
+}
+
+#myTopButton {
+    display: none; /* Hidden by default */
+    position: fixed; /* Fixed/sticky position */
+    bottom: 20px; /* Place the button at the bottom of the page */
+    right: 30px; /* Place the button 30px from the right */
+    z-index: 99; /* Make sure it does not overlap */
+    border: none; /* Remove borders */
+    outline: none; /* Remove outline */
+    background-color: #da3611; /* Set a background color */
+    color: white; /* Text color */
+    cursor: pointer; /* Add a mouse pointer on hover */
+    padding: 15px; /* Some padding */
+    border-radius: 10px; /* Rounded corners */
+    font-size: 18px; /* Increase font size */
+}
+
+#myTopButton:hover {
+    background-color: #555; /* Add a dark-grey background on hover */
 }
 
 table.systeminfo {
@@ -369,11 +392,6 @@ button.b-round-r {
 
 .apacheRow {
     border-bottom: 2px solid #59d059;
-    /* margin-left: 65px; */
-    /* margin-right: 65px; */
-    /* margin-top: 15px; */
-    /* margin-bottom: 5px; */
-    margin: 15px 110px 5px 110px;
 }
 
 /* ---------------------------------------
@@ -404,11 +422,11 @@ button.b-round-r {
         /* width: 100%;*/
         /*/*background-color: #dad6a6; */
         /*background-color: #dcdbcb;*/
-    /*}*/
+    /*}
 
     .container {
         width: 1100px;
-    }
+    }*/
 
     img {
         position: relative;

@@ -1,44 +1,57 @@
 {% extends "index.html" %}
 {% block page_content %}
-<h2>Lista applicazioni installate</h2>
+<h2 class="title">Lista applicazioni installate</h2>
 
-<form id="form" action="/findPkgInstalled" role="form" method = "POST">
-    <div class="input-group input-group-sm col-xs-4">
-      <input type="text" name="pkgSearch" class="form-control col-xs-4" placeholder="Ricerca per nome applicazione">
-      <div class="input-group-btn">
-        <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
-      </div>
-    </div>
-</form>
+<div class="container">
 
-<br>
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <ul class=flashes>
-    {% for message in messages %}
-      <li>{{ message }}</li>
-    {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
-<br>
+	<div class="row marginRow">
+		<div class="col-lg-12 col-md-12 col-xs-12">
+			<form id="form" action="/findPkgInstalled" role="form" method = "POST">
+			    <div class="input-group input-group-sm col-xs-4">
+			      <input type="text" name="pkgSearch" class="form-control col-xs-4" placeholder="Ricerca per nome applicazione">
+			      <div class="input-group-btn">
+			        <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+			      </div>
+			    </div>
+			</form>
 
-<div id="appList" >
-<table id="generic-table" class="tbody-scroll" style="max-height: 250px;overflow: auto;width: 100%;display: inline-block;">
-	<tr>
-		<th> NOME </th>
-		<th> VERSIONE </th>
-		<th> ARCHITETTURA </th>
-		<th> RIEPILOGO </th>
-	</tr>
-	{% for a in listAppInst.data %}
-	<tr>
-		<td> {{ a.name }} </td>
-		<td> {{ a.version }} </td>
-		<td> {{ a.architecture }} </td>
-		<td> {{ a.summary }} </td>
-	</tr>
-	{% endfor %}		
-</table>
+			<br>
+			{% with messages = get_flashed_messages() %}
+			  {% if messages %}
+			    <ul class=flashes>
+			    {% for message in messages %}
+			      <li>{{ message }}</li>
+			    {% endfor %}
+			    </ul>
+			  {% endif %}
+			{% endwith %}
+			<br>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-lg-12 col-md-12 col-xs-12">
+			<div id="appList" >
+				<table id="generic-table" class="tbody-scroll" style="max-height: 250px;overflow: auto;width: 100%;display: inline-block;">
+					<tr>
+						<th> NOME </th>
+						<th> VERSIONE </th>
+						<th> ARCHITETTURA </th>
+						<th> RIEPILOGO </th>
+					</tr>
+					{% for a in listAppInst.data %}
+					<tr>
+						<td> {{ a.name }} </td>
+						<td> {{ a.version }} </td>
+						<td> {{ a.architecture }} </td>
+						<td> {{ a.summary }} </td>
+					</tr>
+					{% endfor %}		
+				</table>
+				</div>
+		</div>
+	</div>
+
 </div>
+
+
 {% endblock %}
