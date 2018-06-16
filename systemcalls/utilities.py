@@ -2,6 +2,7 @@
 from subprocess import PIPE, STDOUT, Popen, check_output, check_call, CalledProcessError
 from pymongo import MongoClient
 from bson.objectid import ObjectId
+from shutil import copyfile
 import datetime
 import pprint
 import inspect
@@ -181,16 +182,27 @@ def filedel(path):
     return command_success( logid=logid )
 
 
-def filerename(path, newname):
+def filerename(filepath, newname):
     
     logid = mongolog( locals() )
 
     try:
-        os.rename(path, newname)
+        newname = os.path.dirname(filepath) + '/' + newname
+        os.rename( filepath, newname )
     except FileNotFoundError:
         return command_error( returncode=10, stderr='File to rename not found: "'+path+'"' )
 
     return command_success( logid=logid )
 
-def filecopy():
-    pass
+def filecopy(src, dst):
+
+    logid = mongolog( locals() )
+
+    try:
+        if dst[-1] is '/':
+            dst = dst + os.path.basename(src)
+        copyfile(src, dst)
+    except FileNotFoundError:
+        return command_error( returncode=10, stderr='File to rename not found: "'+path+'"' )
+
+    return command_success( logid=logid )

@@ -534,6 +534,77 @@ Restituiusce il dizionario di errore costruito come si vede in codice se il file
 altrimenti, contenente nella variabile \texttt{logid} l'object id del documento mongo creato e contenente le informazioni
 sull'operazione appena eseguita.
 
+\subsubsection{filerename}\label{filerename}
+\begin{lstlisting}
+def filerename(filepath, newname):
+    
+    logid = mongolog( locals() )
+
+    try:
+        newname = os.path.dirname(filepath) + '/' + newname
+        os.rename( filepath, newname )
+    except FileNotFoundError:
+        return command_error( returncode=10, stderr='File to rename not found: "'+path+'"' )
+
+    return command_success( logid=logid )
+\end{lstlisting}
+La funzione nasce per rinominare un file.
+\paragraph{Parametri}
+Accetta 2 parametri:
+\begin{itemize}
+	\item{\texttt{filepath}: percorso+nomefile del file di cui cambiare il nome}
+	\item{\texttt{newname}: il nuovo nome da dare al file. Non richiede che al suo interno sia presente nuovamente
+		il percorso del file in quanto estratto presente nella variabile \texttt{filepath}}
+\end{itemize}
+\paragraph{Funzionamento}
+La funzione va dapprima a memorizzare un mongolog in quanto bisogna tenere traccia dell'operazione che è stata effettuata.
+Si entra quindi in un \texttt{try} dove durante le operazioni viene verificato che non venga lanciata l'eccezione
+\texttt{FileNotFoundError}, lanciata se il file non esiste.\\
+Il remane diretto con la funzione \texttt{os.rename()} richiede che il percorso del file sia presente anche nel nuovo
+nome dello stesso in quanto comportandosi come la funzione \texttt{mv} del terminale se non si specifica il percorso
+il file verrebbe spostato oltre che modificato. Si estrae quindi dalla variabile \texttt{filepath} il percorso originale
+del file che viene concatenato a \texttt{newname} nella chiamata a \texttt{os.rename} così da mantenere il percorso originale.
+\paragraph{Return}
+Restituisce il dizionario di successo col campo \texttt{logid} contenente l'object id del documento mongo contenente vecchio
+e nuovo nome file. Vedersi restituire questo dizionario vuole dire che l'operazione è andata a buon fine e che il file
+è stato rinominato con successo.
+
+\subsubsection{filecopy}\label{filecopy}
+\begin{lstlisting}
+def filecopy(src, dst):
+
+    logid = mongolog( locals() )
+
+    try:
+        if dst[-1] is '/':
+            dst = dst + os.path.basename(src)
+        copyfile(src, dst)
+    except FileNotFoundError:
+        return command_error( returncode=10, stderr='File to rename not found: "'+path+'"' )
+
+    return command_success( logid=logid )
+\end{lstlisting}
+Nasce per copiare un file sul sistema. ATTENZIONE: Usare con cautela questa funzione in quanto potrebbe sovrascrivere file
+già esistenti.
+\paragraph{Parametri}
+Accetta due parametri:
+\begin{itemize}
+	\item{\texttt{src}: è il file che deve essere copiato. Ovviamente deve essere inclusa nella stringa di questa variabile
+		il percorso del file stesso}
+	\item{\texttt{dst}: è il file di destinazione su cui il file originale verrà copiato. La variabile può anche non
+		includere il nome dell nuovo file e in questo caso questo sarà lo stesso del file originale. Questo
+		comportamento è lo stesso del comando di terminale \texttt{cp}}
+\end{itemize}
+\paragraph{Funzionamento}
+Memorizza dapprima un mongolog per tenere traccia dell'operazione. Entrando nel \texttt{try} poi se \texttt{dst} termina con
+una slash allora non è stato dato il nome del nuovo file e quindi questo sarà lo stesso di quello originale. A tale scopo a
+\texttt{dst} viene aggiunto il risultato della funzione \texttt{path.basename(src)} che è proprio il nome del file originale.\\
+Viene infine effettuata la copia lanciando la funzione \texttt{copyfile} della libreria del \texttt{shutil}.
+\paragraph{Return}
+Restituisce il dizionario di successo col campo \texttt{logid} contenente l'object id del documento mongo contenente i nomi
+del file originale e den nuovo file.Vedersi restituire questo dizionario vuole dire che l'operazione è andata a buon fine e che il file
+è stato copiato con successo.
+
 \subsection{Utenti}\label{users}
 \subsubsection{getuser}\label{getuser}
 \begin{lstlisting}
