@@ -10,22 +10,10 @@
   {% endif %}
 {% endwith %}
 
-<div class="row">
-	<div class="col-sm-12">
-		<div align="center" class="col-md-6 col-sm-6">
+<div class="container">
+	<div class="row">
+		<div class="col-lg-6 col-md-6 col-sm-6">
 			<h2>Lista utenti</h2>
-			<!--<table id="generic-table">
-				<tr>
-					<th> UID </th>
-					<th> UNAME </th>
-				</tr>
-				{% for u in users.data %}
-				<tr>
-					<td> {{ u.uid }} </td>
-					<td> <a style="font-size: 20px" href="{{ url_for('getInfoUser',uname = u.uname) }}" class="btn btn-link"> {{ u.uname }} </a></td>
-				</tr>
-				{% endfor %}
-			</table>-->
 			<table id="generic-table">
 				<tr>
 					<th> UID </th>
@@ -39,7 +27,7 @@
 				{% endfor %}
 			</table>
 		</div>
-		<div align="center" class="col-md-6 col-sm-6">
+		<div class="col-lg-6 col-md-6 col-sm-6">
 			<h2>Lista gruppi</h2>
 			<table id="generic-table">
 				<tr>

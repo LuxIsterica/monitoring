@@ -7,7 +7,7 @@ from system import getsysteminfo, hostname
 from network import ifacestat
 from apache import apachestart, apachestop, apacherestart, apachereload, apachestatus, getvhosts, getmods, getconf, activatevhost, deactivatevhost, activatemod, deactivatemod, activateconf, deactivateconf
 from apache import apacheconfdir
-from cron import listcrontabs, getcroncontent, writecron
+from cron import listcrontabs
 from utilities import readfile, writefile, delfile
 
 from flask import Flask, render_template, flash, request, redirect, url_for, send_file
@@ -136,7 +136,7 @@ def listCron():
 def getContentCrontab(cronk,cronv):
 	basedir='/etc/'
 	pathCron=basedir+cronk+'/'+cronv
-	content = getcroncontent(pathCron)
+	content = readfile(pathCron)
 	#return send_file(pathCron,attachment_filename=cronv) fa il download
 	return render_template("jobs-details.html", content=content, pathCron=pathCron)
 
@@ -150,7 +150,7 @@ def updateCrontab():
 			error = "Errore passaggio parametri: vuoti"
 			return render_template("jobs.html", error=error)
 		else:
-			newPath = writecron(path, updatedCrontab)
+			newPath = writefile(path, updatedCrontab)
 			if(newPath['returncode'] != 0):
 				error = "Modifica cron fallita"
 				return render_template("jobs.html", error=error)
@@ -198,7 +198,8 @@ def findFile():
 	else:
 		pathFileFound = locate(fs);
 		if not pathFileFound:
-			flash(pathFileFound,'error')
+			error = "Nessun file trovato"
+			return render_template('file.html',error=error)
 		else:
 			return render_template('file.html', pathFileFound = pathFileFound)
 		

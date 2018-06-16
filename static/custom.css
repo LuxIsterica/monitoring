@@ -217,9 +217,9 @@ a.article, a.article:hover {
     opacity: 0.3;
 }
 
-.container {
+/*.container {
     position: relative;
-}
+}*/
 
 #generic-table {
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
@@ -264,6 +264,18 @@ a.article, a.article:hover {
     background-color: white;
     overflow: hidden;
     width: 70.3em;
+}
+
+.marginTitle {
+    margin-top: 2em; 
+}
+
+.marginPanel {
+    margin-top: 4em;
+}
+
+.marginJumb {
+    margin-top: 4em; 
 }
 
 table.systeminfo {

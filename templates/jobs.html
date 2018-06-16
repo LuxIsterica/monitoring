@@ -1,5 +1,6 @@
 {% extends "index.html" %}
 {% block page_content %}
+
 <h2>Lista Job schedulati</h2>
 
 	{% with messages = get_flashed_messages() %}
@@ -19,7 +20,7 @@
 
 	{% if listCrontabs|length>0 %}
 		<div class="container">
-		  <div class="jumbotron">
+		  <div class="jumbotron marginJumb">
 		  	<dl>
 			    {% for key, value in listCrontabs.data.items() %}
 			      <dt><h2>{{ key }}</h2></dt>
