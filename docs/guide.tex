@@ -511,7 +511,7 @@ così chiaramente e in modo così adatto da essere inserito in un database.\\
 Restituisce un dizionario con la sola chiave \texttt{filediff} dove il valore è il diff generato tra i due file o contenuti passatogli
 in input.
 
-\subsubsection{delfile}\label{delfile}
+\subsubsection{filedel}\label{filedel}
 \begin{lstlisting}
     logid = mongolog( locals() )
 
@@ -1618,15 +1618,30 @@ all'utente.
 Restituisce il dizionario di successo il cui campo \texttt{data} contiene una lista di dizionari dove ogni dizionario contiene
 il nome e il contenuto di uno dei file che contiene le repo esterne.
 
+\subsubsection{getreponame}\label{getreponame}
+\begin{lstlisting}
+def getreponame(): return 'nomodo-' + datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+\end{lstlisting}
+Genera un nome da usare per un nuovo file di repo e funziona allo stesso modo di \nameref{getcronname}.
+Viene chiamato dal frontend per riempire il campo \textit{name} all'aggiunta di un nuovo repository.
+L'utente ovviamente ha la possibiltà di cammbiare questo nome prima dell'aggiunta dello script.
+\paragraph{Parametri}
+Non prende nessun parametro.
+\paragraph{Funzionamento}
+Semplicemente contatena la stringa "nomodo-" alla data e ora odierna col formato che si vede nel codice.
+\paragraph{Return}
+È una delle pochissime funzione che non chiama una delle due funzioni di ritorno di nomodo.
+Restituisce la stringa costruita come spiegato nel funzionamento.
+
 \subsubsection{addrepo}\label{addrepo}
 \begin{lstlisting}
-def addrepo(url, name):
+def addrepo(content, name):
 
     logid = mongolog( locals() )
 
     filename = '/etc/apt/sources.list.d/' + name + '.list'
     repofile = open( filename, 'a')
-    repofile.write(url + '\n')
+    repofile.write(content + '\n')
     repofile.close()
 
     return command_success( logid=logid )
@@ -1635,8 +1650,8 @@ Nasce per consentire all'utente l'aggiunta di un nuovo repository usando l'inter
 \paragraph{Parametri}
 Accetta due parametri:
 \begin{itemize}
-	\item{\texttt{url}: è la stringa che rappresenta il nuovo repository. Un esempio per le repo per l'installazione
-		dell'ultima versione di MariaDB è il seguente:\\
+	\item{\texttt{content}: è la stringa (anche multiriga) che contiene l'url e le specifiche del nuovo repository.
+		Un esempio per le repo per l'installazione dell'ultima versione di MariaDB è il seguente:\\
 		\texttt{deb [arch=amd64,i386,ppc64el] http://mirror.netcologne.de/mariadb/repo/10.3/ubuntu xenial main}}
 	\item{\texttt{name}: è il nome del file che conterrà l'url del nuovo repository. In caso il file sia già esistente
 		la nuova repository verrà aggiunta al file già esistente}
@@ -2291,6 +2306,8 @@ Distinguiamo 2 tipi di cron:
 		In nomodo la creazione di tali script avviene tramite la chiamata alle funzioni derivate da \nameref{adddefaultcron},
 		ad es. \texttt{adddailycron}}
 \end{itemize}
+Da notare che le funzioni per la modifica, la rimozione o il rename dei cron non sono presenti in quanto vengono usate le funzioni
+della libreria utilities per la gestione dei file quali \nameref{writefile} o \nameref{filedel}.
 
 \subsubsection{listcrontabs}
 \begin{lstlisting}
@@ -2324,33 +2341,12 @@ come spiegato nel funzionamento. Un esempio del dizionario è il seguente:
 \begin{lstlisting}
 \end{lstlisting}
 
-\subsubsection{getcroncontent}\label{getcroncontent}
-\begin{lstlisting}
-def getcroncontent(cronpath):
-
-    try:
-        with open(cronpath, 'r') as content:
-            return command_success( data=content.read() )
-    except FileNotFoundError:
-        return command_error( returncode=10, stderr='No cron file found: "'+cronpath+'"' )
-\end{lstlisting}
-La funzione dato il path di un file di cron restituisce il contenuto dello stesso.
-\paragraph{Parametri}
-Accetta l'unico parametro \texttt{cronpath} che è il percorso del file di cron di cui leggerne il contenuto.
-\paragraph{Funzionamento}
-La funzione semplicemente apre il file in lettura utilizzando \texttt{with open()} e ne restituisce il contenuto.
-Durante le sue operazioni controlla che non venga lanciata l'eccezione \texttt{FileNotFoundError} che avviene
-quando il file che si sta cercando di aprire il lettura non esiste.
-\paragraph{Return}
-Restituisce il dizionario di successo contenente alla variabile \texttt{data} il contenuto del cron indicato.
-Restituisce invece il dizionario di errore se viene generata l'eccezione \texttt{FileNotFoundError}, con
-un codice di ritorno e un messaggio di errore personalizzato e che sono quello che si vedono in codice.
-
 \subsubsection{getcronname}\label{getcronname}
 \begin{lstlisting}
 def getcronname(): return 'nomodo-' + datetime.datetime.now().strftime('%Y%m%d%H%M%S')
 \end{lstlisting}
-Genera un nome da usare per un nuovo cron. Viene usato principalmente in due fasi:
+Genera un nome da usare per un nuovo cron e funziona allo stesso modo di \nameref{getreponame}.
+Viene usata principalmente in due fasi:
 \begin{enumerate}
 	\item{Viene chiamato dal frontend per riempire il campo \textit{name} all'aggiunta di un nuovo crontab.
 		L'utente ovviamente ha la possibiltà di cammbiare questo nome prima dell'aggiunta dello script}
@@ -2495,36 +2491,6 @@ di esecuzione dello script.
 Ugualemente a \texttt{addcron} restituisce il dizionario di successo contenete il percorso del nuovo file
 nella variabile \texttt{data} e il l'object id del documento mongo contenente le informazioni sull'operazione
 nella variabile \texttt{logid}.
-
-\subsubsection{writecron}\label{writecron}
-\begin{lstlisting}
-def writecron( cronpath, newcontent ):
-    return writefile( filepath=cronpath, newcontent=newcontent+'\n' )
-\end{lstlisting}
-Nasce per scrivere il contenuto di un file di cron. Ovviamente può essere usato per sovrascrivere completamente il contenuto
-o in congiunzione con \nameref{getcroncontent} per aggiornarne il contenuto.
-\paragraph{Parametri}
-Prende 2 parametri:
-\begin{itemize}
-	\item{\texttt{cronpath}: È il percorso del file di cron che verrà scritto}
-	\item{\texttt{newcontent}: È il nuovo contenuto del file che verrà scritto nel file indicato in \texttt{cronpath}}
-\end{itemize}
-\paragraph{Funzionamento}
-La funzione è basata su \nameref{writefile} spiegata precedentemente.
-\paragraph{Return}
-Restituisce ciò che ritorna \nameref{writefile}.
-
-\subsubsection{removecron}\label{removecron}
-\begin{lstlisting}
-def removecron(cronpath): delfile( path=cronpath )
-\end{lstlisting}
-Serve ad eliminare un file di cron e quindi a fermare l'esecuzione del comando in esso contenuto.
-\paragraph{Parametri}
-Accetta un solo parametro che è il percorso del file da eliminare.
-\paragraph{Funzionamento}
-La funzione è basata sulla funzione precedentemente spiegata \nameref{delfile}.
-\paragraph{Return}
-Restituisce ciò che ritora la funzione \nameref{delfile}.
 
 \subsection{Sistema}\label{system}
 Questa libreria è relativamente piccola per adesso ma sarà riempita con altre funzione in seguito. Contiene

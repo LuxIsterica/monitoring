@@ -169,7 +169,7 @@ def filediff(filea, fileb):
 
 
 
-def delfile(path):
+def filedel(path):
 
     logid = mongolog( locals() )
 
@@ -179,3 +179,18 @@ def delfile(path):
         return command_error( returncode=10, stderr='File to remove not found: "'+path+'"' )
 
     return command_success( logid=logid )
+
+
+def filerename(path, newname):
+    
+    logid = mongolog( locals() )
+
+    try:
+        os.rename(path, newname)
+    except FileNotFoundError:
+        return command_error( returncode=10, stderr='File to rename not found: "'+path+'"' )
+
+    return command_success( logid=logid )
+
+def filecopy():
+    pass

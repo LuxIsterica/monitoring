@@ -4,7 +4,7 @@ from system import hostname, getsysteminfo
 from systemfile import updatedb, locate
 from apache import getvhosts, getmods, getconf, activatevhost, deactivatevhost, apachestatus, apachereload, apacheconfdir
 from pprint import pprint
-from utilities import filediff, writefile, readfile, delfile
+from utilities import filediff, writefile, readfile, filedel
 from network import ifacestat, getnewifacealiasname, ifacedown, ifaceup, editiface, createalias, destroyalias, getroutes, addroute, defaultroute, delroute
 from cron import listcrontabs, getcroncontent, addcron, addhourlycron, writecron
 import os

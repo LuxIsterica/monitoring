@@ -150,7 +150,6 @@ def getexternalrepos():
 
     #List to return
     repos = list()
-
     for filename in reposfiles:
         with open(repospath + filename) as opened:
             repos.append({
@@ -161,20 +160,24 @@ def getexternalrepos():
     return command_success( data=repos )
 
 
+#Meant to get and add new repos gpg key
+def addrepokey():
+    pass
+
+
+def getreponame(): return 'nomodo-' + datetime.datetime.now().strftime('%Y%m%d%H%M%S')
 
 #returns <string> containing filename where repo is added
-def addrepo(url, name):
+def addrepo( content, name ):
 
     logid = mongolog( locals() )
 
     filename = '/etc/apt/sources.list.d/' + name + '.list'
     repofile = open( filename, 'a')
-    repofile.write(url + '\n')
+    repofile.write(content + '\n')
     repofile.close()
 
     return command_success( logid=logid )
-
-
 
 def removerepofile(filename):
 
