@@ -1,0 +1,20 @@
+{% extends "index.html" %}
+{% block page_content %}
+
+<h2>Content: {{pathFile}}</h2>
+
+<form id="form" action="/updateFile" role="form" method = "POST">
+	<div id="loadTextArea">
+			<input type="hidden" name="pathFile" value="{{ pathFile }}">
+		{% if fileContent %}
+			<textarea rows="15" name="contentTextarea" id="contentTextarea" style="width: 55em;">{{ fileContent.data }}</textarea>
+		{% endif %}
+	</div>
+	<div class="input-group-btn">
+    	<button type="submit" class="btn btn-primary" id="modificaTextarea" style="margin-top: 1em;margin-left: 56em;" disabled>Modifica</button>
+  	</div>
+</form>
+
+{{ newContent }}
+
+{% endblock %}

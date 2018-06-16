@@ -4,11 +4,11 @@ from user import getusers, getuser, getgroups, getshells, updateusershell, getus
 from apps import listinstalled, aptsearch
 from systemfile import locate,updatedb
 from system import getsysteminfo, hostname
-#from network import ifacestat
+from network import ifacestat
 from apache import apachestart, apachestop, apacherestart, apachereload, apachestatus, getvhosts, getmods, getconf, activatevhost, deactivatevhost, activatemod, deactivatemod, activateconf, deactivateconf
 from apache import apacheconfdir
-from cron import listcrontabs, getcroncontent, writecron
-from utilities import readfile, writefile
+from cron import listcrontabs
+from utilities import readfile, writefile, delfile
 
 from flask import Flask, render_template, flash, request, redirect, url_for, send_file
 
@@ -136,7 +136,7 @@ def listCron():
 def getContentCrontab(cronk,cronv):
 	basedir='/etc/'
 	pathCron=basedir+cronk+'/'+cronv
-	content = getcroncontent(pathCron)
+	content = readfile(pathCron)
 	#return send_file(pathCron,attachment_filename=cronv) fa il download
 	return render_template("jobs-details.html", content=content, pathCron=pathCron)
 
@@ -150,7 +150,7 @@ def updateCrontab():
 			error = "Errore passaggio parametri: vuoti"
 			return render_template("jobs.html", error=error)
 		else:
-			newPath = writecron(path, updatedCrontab)
+			newPath = writefile(path, updatedCrontab)
 			if(newPath['returncode'] != 0):
 				error = "Modifica cron fallita"
 				return render_template("jobs.html", error=error)
@@ -197,7 +197,11 @@ def findFile():
 		flash(u'Operazione errata','error')
 	else:
 		pathFileFound = locate(fs);
-		return render_template('file.html', pathFileFound = pathFileFound)
+		if not pathFileFound:
+			error = "Nessun file trovato"
+			return render_template('file.html',error=error)
+		else:
+			return render_template('file.html', pathFileFound = pathFileFound)
 		
 	return redirect(url_for('file'))
 
@@ -212,6 +216,65 @@ def updateDbFile():
 			else:
 				flash(u'Aggiornato!','info')
 				return redirect(url_for('file'))
+		else:
+			error = 'Non funzica' 
+		return render_template('file.html', error=error)
+	except Exception:
+		return internal_server_error(500)
+
+@app.route('/retriveContentFile', methods=['POST'])
+def retriveContentFile():
+	try:
+		error = None
+		if request.form['retriveContentFile'] == 'Modifica':
+			pathFile = request.form['pathFile']
+			if not pathFile:
+				error = "Path vuoto"
+				return render_template("file.html",error=error)
+			else:
+				fileContent = readfile(pathFile)
+				if(fileContent['returncode'] != 0):
+					error = fileContent['command']
+				else:
+					return render_template("file-content.html", fileContent=fileContent, pathFile=pathFile)
+		else:
+			error = 'Non funzica' 
+		return render_template('file.html', error=error)
+	except Exception:
+		return internal_server_error(500)
+
+@app.route('/updateFile', methods=['POST'])
+def updateFile():
+	#try:
+		error = None
+		pathFile = request.form['pathFile']
+		updatedContentFile = request.form['contentTextarea']
+		newContent = writefile(pathFile,updatedContentFile)
+		if(newContent['returncode'] != 0):
+			error = "Errore in fase di modifica"
+			return render_template("file.html",error=error)
+		else:
+			flash(u'Modifica avvenuta correttamente!','info')
+			return redirect(url_for('file'))
+	#except Exception:
+	#	return internal_server_error(500)
+
+@app.route('/deleteFile', methods=['POST'])
+def deleteFile():
+	try:
+		error = None
+		if request.form['deleteFile'] == 'Elimina':
+			pathFile = request.form['pathFile']
+			if not pathFile:
+				error = "Path vuoto"
+				return render_template("file.html",error=error)
+			else:
+				log = delfile(pathFile)
+				if(log['returncode'] != 0):
+					error = log['command']
+				else:
+					flash(u'File eliminato correttamente!','info')
+					return redirect(url_for('file'))
 		else:
 			error = 'Non funzica' 
 		return render_template('file.html', error=error)
@@ -264,10 +327,10 @@ def newHostname():
 
 
 ########## FUNZIONALITÀ network.py ##########
-'''@app.route('/network')
+@app.route('/network')
 def network():
 	facestat = ifacestat()
-	return render_template('network.html', facestat=facestat)'''
+	return render_template('network.html', facestat=facestat)
 
 
 

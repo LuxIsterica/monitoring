@@ -1,13 +1,16 @@
 {% extends "index.html" %}
 {% block page_content %}
 
+<h1 class="title">Network</h1>
+
 <div class="container">
+	<h2 class="marginTitle">Interfacce</h2>
   <div class="jumbotron">
   	<dl>
 	    {% for key, value in facestat.data.items() %}
 	      <dt><h2>{{ key }}</h2></dt>
 	      {% for v in value %}
-	      	<dd>{{ v }}</dd>
+	      	<dd style="margin-left: 20px; font-size: 15px;">{{ v }}</dd>
 	      {% endfor %}
 	    {% endfor %}
     </dl>
