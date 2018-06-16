@@ -1,6 +1,6 @@
-from utilities import filerename, filecopy
+from utilities import filerename, filecopy, mongocheck, mongostart
 import os
 
 
-result = filecopy('/root/test', '/root/nomodo/testa')
-print( result['logid'] if result['returncode'] is 0 else result )
+result = mongostart()
+print( 'ok' if result['returncode'] is 0 else result )

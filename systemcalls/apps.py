@@ -159,12 +159,6 @@ def getexternalrepos():
 
     return command_success( data=repos )
 
-
-#Meant to get and add new repos gpg key
-def addrepokey():
-    pass
-
-
 def getreponame(): return 'nomodo-' + datetime.datetime.now().strftime('%Y%m%d%H%M%S')
 
 #returns <string> containing filename where repo is added
