@@ -449,18 +449,22 @@ sullo stesso.
 \begin{lstlisting}
 def readfile(filepath):
 
+    if not os.path.isfile(filepath):
+        return command_error( returncode=15, stderr="Specified file is not a file: "+filepath )
+
     try:
         with open(filepath, 'r') as content:
-        return command_success( data=content.read() )
+            return command_success( data=content.read() )
     except FileNotFoundError:
         return command_error( returncode=10, stderr='No file found on path : "'+filepath+'"' )
-
 \end{lstlisting}
 Utile a leggere il contenuto di un file.
 \paragraph{Parametri}
 Accetta un solo parametro che è il percorso del file sul sistema.
 \paragraph{Funzionamento}
-Semplicemente apre il file utilizzando la \texttt{with open}, ne legge il contenuto con la \texttt{read()} e ne restituisce
+Verifica inizialmente che la stringa passata in input identifichi davvero un file (e non una directory ad esempio) usando
+la funzione \texttt{os.path.isfile()}.
+Poi semplicemente apre il file utilizzando la \texttt{with open}, ne legge il contenuto con la \texttt{read()} e ne restituisce
 quindi il contenuto nel dizionario di successo.
 Durante l'operazione viene controllato che non sia lanciata l'eccezione \texttt{FileNotFoundError} ad indicare che il file
 non esiste sulla macchina.
@@ -513,12 +517,17 @@ in input.
 
 \subsubsection{filedel}\label{filedel}
 \begin{lstlisting}
+def filedel(filepath):
+
     logid = mongolog( locals() )
 
+    if not os.path.isfile(filepath):
+        return command_error( returncode=15, stderr="Specified file is not a file: "+filepath)
+
     try:
-        os.remove( path )
+        os.remove( filepath )
     except FileNotFoundError:
-        return command_error( returncode=10, stderr='File to remove not found: "'+path+'"' )
+        return command_error( returncode=10, stderr='File to remove not found: "'+filepath+'"' )
 
     return command_success( logid=logid )
 \end{lstlisting}
@@ -526,7 +535,8 @@ Nasce per eliminare un file dal sistema.
 \paragraph{Parametri}
 Accetta un solo parametro che è il percorso del file da rimuovere.
 \paragraph{Funzionamento}
-Semplicemente eliminare il file utilizzando la funzione \texttt{remove} della libreria \texttt{os}. Durante la rimozione
+Inizialmente verficica che il file sia effettivamente un file usando la funzione \texttt{os.path.isfile()} per evitare di mandare il programma in errore.
+Poi semplicemente elimina il file utilizzando la funzione \texttt{remove} della libreria \texttt{os}. Durante la rimozione
 verifica che non si verifichi l'eccezione \texttt{FileNotFoundError}, lanciata se il file indicato dal percorso non esiste.
 In caso l'eccezione venga lanciata viene chiamata la funzione di errore con codice e messaggio di errore personalizzati.
 \paragraph{Return}
@@ -539,6 +549,9 @@ sull'operazione appena eseguita.
 def filerename(filepath, newname):
     
     logid = mongolog( locals() )
+
+    if not os.path.isfile(filepath):
+        return command_error( returncode=15, stderr="Specified file is not a file: "+filepath)
 
     try:
         newname = os.path.dirname(filepath) + '/' + newname
@@ -557,7 +570,8 @@ Accetta 2 parametri:
 		il percorso del file in quanto estratto presente nella variabile \texttt{filepath}}
 \end{itemize}
 \paragraph{Funzionamento}
-La funzione va dapprima a memorizzare un mongolog in quanto bisogna tenere traccia dell'operazione che è stata effettuata.
+La funzione va dapprima a memorizzare un mongolog in quanto bisogna tenere traccia dell'operazione che è stata effettuata,
+e controlla se il file passato come argomento è effettivamente un file regolare.
 Si entra quindi in un \texttt{try} dove durante le operazioni viene verificato che non venga lanciata l'eccezione
 \texttt{FileNotFoundError}, lanciata se il file non esiste.\\
 Il remane diretto con la funzione \texttt{os.rename()} richiede che il percorso del file sia presente anche nel nuovo
@@ -575,9 +589,16 @@ def filecopy(src, dst):
 
     logid = mongolog( locals() )
 
+    if not os.path.isfile(filepath):
+        return command_error( returncode=15, stderr="Specified file is not a file: "+filepath)
+
     try:
-        if dst[-1] is '/':
-            dst = dst + os.path.basename(src)
+        if os.path.isdir(dst):
+            if dst[-1] is '/':
+                dst = dst + os.path.basename(src)
+            else:
+                dst = dst + '/' + os.path.basename(src)
+
         copyfile(src, dst)
     except FileNotFoundError:
         return command_error( returncode=10, stderr='File to rename not found: "'+path+'"' )
@@ -596,9 +617,10 @@ Accetta due parametri:
 		comportamento è lo stesso del comando di terminale \texttt{cp}}
 \end{itemize}
 \paragraph{Funzionamento}
-Memorizza dapprima un mongolog per tenere traccia dell'operazione. Entrando nel \texttt{try} poi se \texttt{dst} termina con
-una slash allora non è stato dato il nome del nuovo file e quindi questo sarà lo stesso di quello originale. A tale scopo a
-\texttt{dst} viene aggiunto il risultato della funzione \texttt{path.basename(src)} che è proprio il nome del file originale.\\
+Memorizza dapprima un mongolog per tenere traccia dell'operazione, e controlla se il file passato come argomento
+è effettivamente un file regolare. Entrando nel \texttt{try} se \texttt{dst} è una directory
+vuol dire che l'utente vuole mantenere il nome originale del file, quindi in base al caso viene costruito l'intero percorso
+del nuovo file.
 Viene infine effettuata la copia lanciando la funzione \texttt{copyfile} della libreria del \texttt{shutil}.
 \paragraph{Return}
 Restituisce il dizionario di successo col campo \texttt{logid} contenente l'object id del documento mongo contenente i nomi
@@ -1520,15 +1542,19 @@ Accetta due parametri:
 		dei pacchetti quali la decsrizione}
 \end{itemize}
 \paragraph{Funzionamento}
-La prima operazione è verificare che l'utente non abbia inserito una stringa vuota e ritirnare un codice di ritorno 255
+La prima operazione è verificare che l'utente non abbia inserito una stringa vuota e ritornare un codice di ritorno 255
 in tale caso. Tale controllo viene fatto anche dal frontend ma la sicurezza non è mai troppa.\\
 Viene quindi costruito il comando appenendogli il parametro \texttt{--names-only} se l'omonimo parametro è \texttt{True}
 e lanciato immagazzinando lo standard output nella variabile \texttt{output}, che diventa quindi una lista di stringhe
-(a causa della funzione splitlines()).\\
-L'output restituito è nel formato "nome\_pacchetto - descrizione" ma siccome noi vogliamo un dizionario come prima
-creiamo le chiavi del dizionario dividiamo la stringa in nome e descrizione, 
-\#TODO: Riprendere da qui: restituire un dizionario e non una lista di dizionari.
+(perchè usiamo la splitlines()).\\
+L'output restituito è nel formato "nome\_pacchetto - descrizione" ma siccome noi vogliamo un dizionario come prima cosa
+creiamo le chiavi immagazzinandole nella variabile \texttt{keys} dividiamo quindi ogni riga dell'output usando \texttt{split()}
+ricavando nome e descrizione e concateniamo infine chiavi e valori usando la funzione \texttt{zip()}. Siccome per ogni app
+è stato creato un dizionario avremo quindi che la variabile \texttt{appinfo} sarà una lista di dizionari; questa variabile
+viene quindi restituita.
 \paragraph{Return}
+Restistuisce il dizionario di successo, contenente al campo \texttt{data} una lista di dizionari dove ogni dizionario contiene
+nome e descrizione di una delle applicazioni che corrispondono alla ricerca.
 
 \subsubsection{aptshow}\label{aptshow}
 \begin{lstlisting}

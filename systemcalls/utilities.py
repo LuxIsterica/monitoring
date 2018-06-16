@@ -147,6 +147,9 @@ def writefile(filepath, newcontent=None, force=False):
 
 def readfile(filepath):
 
+    if not os.path.isfile(filepath):
+        return command_error( returncode=15, stderr="Specified file is not a file: "+filepath )
+
     try:
         with open(filepath, 'r') as content:
             return command_success( data=content.read() )
@@ -191,14 +194,17 @@ def filediff(filea, fileb):
 
 
 
-def filedel(path):
+def filedel(filepath):
 
     logid = mongolog( locals() )
 
+    if not os.path.isfile(filepath):
+        return command_error( returncode=15, stderr="Specified file is not a file: "+filepath)
+
     try:
-        os.remove( path )
+        os.remove( filepath )
     except FileNotFoundError:
-        return command_error( returncode=10, stderr='File to remove not found: "'+path+'"' )
+        return command_error( returncode=10, stderr='File to remove not found: "'+filepath+'"' )
 
     return command_success( logid=logid )
 
@@ -206,6 +212,9 @@ def filedel(path):
 def filerename(filepath, newname):
     
     logid = mongolog( locals() )
+
+    if not os.path.isfile(filepath):
+        return command_error( returncode=15, stderr="Specified file is not a file: "+filepath)
 
     try:
         newname = os.path.dirname(filepath) + '/' + newname
@@ -219,9 +228,16 @@ def filecopy(src, dst):
 
     logid = mongolog( locals() )
 
+    if not os.path.isfile(filepath):
+        return command_error( returncode=15, stderr="Specified file is not a file: "+filepath)
+
     try:
-        if dst[-1] is '/':
-            dst = dst + os.path.basename(src)
+        if os.path.isdir(dst):
+            if dst[-1] is '/':
+                dst = dst + os.path.basename(src)
+            else:
+                dst = dst + '/' + os.path.basename(src)
+
         copyfile(src, dst)
     except FileNotFoundError:
         return command_error( returncode=10, stderr='File to rename not found: "'+path+'"' )

@@ -1,6 +1,7 @@
 from utilities import filerename, filecopy, mongocheck, mongostart
 import os
 
-
-result = mongostart()
-print( 'ok' if result['returncode'] is 0 else result )
+if os.path.isdir('/tmp/filesicuramenteinesistente'):
+    print("a dir")
+else:
+    print("other")
