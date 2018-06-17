@@ -3,98 +3,98 @@
 
 <h1 class="title">APACHE</h1>
 
-	{% with messages = get_flashed_messages() %}
-	  {% if messages %}
-	    <ul class=flashes>
-	    {% for message in messages %}
-	      <li>{{ message }}</li>
-	    {% endfor %}
-	    </ul>
-	    <meta http-equiv="refresh" content="3;URL=http://localhost:5000/modules">
-	  {% endif %}
-	{% endwith %}
+<div class="container">
+	<div class="row marginRow">
+		{% with messages = get_flashed_messages() %}
+		  {% if messages %}
+		    <ul class=flashes>
+		    {% for message in messages %}
+		      <li>{{ message }}</li>
+		    {% endfor %}
+		    </ul>
+		    <meta http-equiv="refresh" content="3;URL=http://localhost:5000/modules">
+		  {% endif %}
+		{% endwith %}
 
-	{% if error %}
-		<p class=error><strong>Error:</strong> {{ error }} </p>
-	{% endif %}
+		{% if error %}
+			<p class=error><strong>Error:</strong> {{ error }} </p>
+		{% endif %}
 
-<div class="page-header button-style">
-	<ul class="nav nav-pills" style="display: flex;justify-content: space-between;">
-	  <!-- queste sono tutte form, non devo scendere su una nuova pagina -->
-	  <li role="presentation" id="startButton">
-	  	<form id="startApache" action="/startApache" role="form" method="POST">
-       		<input type = "submit" value = "Start" id="buttonStartApache" name="b-start-a"/>
-    	</form>
-	  </li>
-	  <li role="presentation" id="stopButton">
-	   	<form id="stopApache" action="/stopApache" role="form" method="POST">
-       		<input type = "submit" value = "Stop" id="buttonStopApache" name="b-stop-a"/>
-    	</form>
-	  </li>
-	  <li role="presentation" id="restartButton">
-	  	<form id="restartApache" action="/restartApache" role="form" method="POST">
-       		<input type = "submit" value = "Restart" id="buttonRestartApache" name="b-restart-a"/>
-    	</form>
-	  </li>
-	  <li role="presentation" id="reloadButton">
-	  	<form id="reloadApache" action="/reloadApache" role="form" method="POST">
-       		<input type = "submit" value = "Reload" id="buttonReloadApache" name="b-reload-a"/>
-    	</form>
-	  </li>
-	  <li role="presentation" id="statusButton" >
-	  	<form id="statusApache" action="/statusApache" role="form" method="POST">
-       		<input type = "submit" value = "Status" id="buttonStatusApache" name="b-status-a"/>
-    	</form>
-	  </li>
-	</ul>
-	<p id="pText" hidden> To activate new settings you must restart or reload apache </p>
-</div>
-
-
-<div class="tab-content">
-    <div id="sites">
-        <h3 class="title">Modules</h3>
-	  	{% for m in mods.data %}
-	     <div class="row apacheRow">
-	        	<div class="col-md-6"> 
-	        		<form id="form" action="/retrieveContentMods" role="form" method = "POST">
-	        		  <h2 style="text-align: center;">
-	        			<input type = "submit" value="{{m['filename']}}" id="retrieveCM" name="retrieveCM" class="btn btn-link" style="font-size: 28px;"/>
-	  				  </h2>
-		        	</form>
-		      	</div>
-		        <div class="col-md-4" style="padding-top: 18px;"> 
-		          <table>
-		            <tr>
-		             <td> Site Folder (DocumentRoot): &ensp;</td>
-		             <td> {{ m['DocumentRoot'] }} </td>
-		            </tr>
-		            <tr>
-		             <td> filename: &ensp;</td>
-		             <td> {{ m['filename'] }} </td>
-		            </tr>
-		            <tr>
-		             <td> active: &ensp;</td>
-		             {% if m['active'] == 1 %}
-			            <td>
-				            <form id="deactivateMods" action="/deactivateMods" role="form" method="POST">
-				           		<input type="hidden" value="{{m['filename']}}" name="clickDeactiv">
-			       		 		<button class="button b-round-g" id="buttonMClickDeactiv"></button>
-			    			</form>
-		    			</td>
-		             {% else %}
-			            <td>
-				            <form id="activateMods" action="/activateMods" role="form" method="POST">
-				           		<input type="hidden" value="{{m['filename']}}" name="clickActiv">
-			       		 		<button class="button b-round-r" id="buttonMClickActiv"></button>
-			    			</form>
-		    			</td>
-		             {% endif %}
-		            </tr> 
-		        </table>
-		      </div>		
-	      </div>
-	    {% endfor %}
+		<div class="page-header button-style">
+			<ul class="nav nav-pills" style="display: flex;justify-content: space-between;">
+			  <!-- queste sono tutte form, non devo scendere su una nuova pagina -->
+			  <li role="presentation" id="startButton">
+			  	<form id="startApache" action="/startApache" role="form" method="POST">
+		       		<input type = "submit" value = "Start" id="buttonStartApache" name="b-start-a"/>
+		    	</form>
+			  </li>
+			  <li role="presentation" id="stopButton">
+			   	<form id="stopApache" action="/stopApache" role="form" method="POST">
+		       		<input type = "submit" value = "Stop" id="buttonStopApache" name="b-stop-a"/>
+		    	</form>
+			  </li>
+			  <li role="presentation" id="restartButton">
+			  	<form id="restartApache" action="/restartApache" role="form" method="POST">
+		       		<input type = "submit" value = "Restart" id="buttonRestartApache" name="b-restart-a"/>
+		    	</form>
+			  </li>
+			  <li role="presentation" id="reloadButton">
+			  	<form id="reloadApache" action="/reloadApache" role="form" method="POST">
+		       		<input type = "submit" value = "Reload" id="buttonReloadApache" name="b-reload-a"/>
+		    	</form>
+			  </li>
+			  <li role="presentation" id="statusButton" >
+			  	<form id="statusApache" action="/statusApache" role="form" method="POST">
+		       		<input type = "submit" value = "Status" id="buttonStatusApache" name="b-status-a"/>
+		    	</form>
+			  </li>
+			</ul>
+			<p id="pText" hidden> To activate new settings you must restart or reload apache </p>
+		</div>
+	</div>
+	<div class="row">
+		<div class="tab-content">
+		    <div id="sites">
+		        <h3 class="title">Modules</h3>
+			  	{% for m in mods.data %}
+			     <div class="row apacheRow">
+			        	<div class="col-md-6"> 
+			        		<form id="form" action="/retrieveContentModule" role="form" method = "POST">
+			        		  <h2 style="text-align: center;">
+			        			<input type = "submit" value="{{m['filename']}}" id="retrieveCM" name="retrieveCM" class="btn btn-link" style="font-size: 28px;"/>
+			  				  </h2>
+				        	</form>
+				      	</div>
+				        <div class="col-md-4" style="padding-top: 18px;"> 
+				          <table>
+				            <tr>
+				             <td> filename: &ensp;</td>
+				             <td> {{ m['filename'] }} </td>
+				            </tr>
+				            <tr>
+				             <td> active: &ensp;</td>
+				             {% if m['active'] == 1 %}
+					            <td>
+						            <form id="deactivateMods" action="/deactivateMods" role="form" method="POST">
+						           		<input type="hidden" value="{{m['filename']}}" name="clickDeactiv">
+					       		 		<button class="button b-round-g" id="buttonMClickDeactiv"></button>
+					    			</form>
+				    			</td>
+				             {% else %}
+					            <td>
+						            <form id="activateMods" action="/activateMods" role="form" method="POST">
+						           		<input type="hidden" value="{{m['filename']}}" name="clickActiv">
+					       		 		<button class="button b-round-r" id="buttonMClickActiv"></button>
+					    			</form>
+				    			</td>
+				             {% endif %}
+				            </tr> 
+				        </table>
+				      </div>		
+			      </div>
+			    {% endfor %}
+			</div>
+		</div>
 	</div>
 </div>
 

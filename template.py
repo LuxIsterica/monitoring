@@ -194,7 +194,7 @@ def findFile():
 	error = None
 	fs = request.form['fileSearch'];
 	if not fs:
-		flash(u'Operazione errata','error')
+		flash(u'Impossibile cercare stringa vuota','error')
 	else:
 		pathFileFound = locate(fs);
 		if not pathFileFound:

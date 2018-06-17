@@ -1,127 +1,121 @@
 {% extends "index.html" %}
 {% block page_content %}
 
-<h2>Aggiorna database indicizzato dei file</h2>
+<h1 class="title">Gestione file</h1>
 
 <div class="container">
+  <div class="row">
+    <h3 class="marginTitle">Aggiorna database indicizzato dei file</h3>
+    <div class="col-lg-3 col-md-3 col-sm-3">
+      <form id="updateDbFile" action="/updateDbFile" role="form" method="POST">
+         <input type = "submit" value = "Aggiorna DB File" id="updateDbFile" name="updateDbFile" class="btn btn-info"/>
+      </form>
 
-</div>
 
-
-<div class="row" style="padding-left: 20px;">
-  <div class="col-lg-12 col-md-12 col-sm-12">
-
-    <form id="updateDbFile" action="/updateDbFile" role="form" method="POST">
-       <input type = "submit" value = "Aggiorna DB File" id="updateDbFile" name="updateDbFile" class="btn btn-info"/>
-    </form>
-
-  	<!-- popup alert -->
-  	{% if error %}
-    	<p class=error><strong>Error:</strong> {{ error }} </p>
-  	{% endif %}
-  </div>
-  {% with msg = get_flashed_messages(category_filter=["info"]) %}
-    {% if msg %}
-      <ul class=flashes>
-      {% for m in msg %}
-        <li>{{ m }}</li>
-      {% endfor %}
-      </ul>
-    {% endif %}
-  {% endwith %}
-  </div>
-
-<h2>Trova file</h2>
-
-<div class="row" style="padding-left: 20px;">
-  <div class="col-md-7 col-sm-7">
-  	<form id="form" action="/findFile" role="form" method = "POST">
-	    <div class="input-group input-group-sm col-xs-4 col-md-4">
-	      <input type="text" name="fileSearch" id="fileSearch" class="form-control col-xs-4 col-md-4" placeholder="Seleziona file da ricercare">
-	      <div class="input-group-btn">
-	        <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
-	      </div>
-	    </div>
-	  </form>
-  </div>
-</div>
-
-<!--  -->
-{% with errors = get_flashed_messages(category_filter=["error"]) %}
-  {% if errors %}
-    <ul class=flashes>
-    {% for err in errors %}
-      <li>{{ err }}</li>
-    {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
-
-{% if pathFileFound|length > 0 %}
-
-<div class="container" style="top: 15px;">
-  {% for pff in pathFileFound.data %}
-    <button class="accordion" id="pff">{{ pff }}</button>
-    <div class="accordionPanel">
-        <div class="container">
-          <div class="row">
-            <div class="col-md-6 col-sm-6" style="margin-top: 10px;margin-bottom: 10px;">
-              <form id="retriveContentFile" action="/retriveContentFile" role="form" method="POST">
-                <input type="hidden" id="pathFile" name="pathFile" value="{{pff}}">
-                <input type = "submit" class="btn btn-warning" value = "Modifica" id="retriveContentFile" name="retriveContentFile"/>
-              </form>
-            </div> 
-            <div class="col-md-6 col-sm-6" style="margin-top: 10px;margin-bottom: 10px;">
-              <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalConfirmDelete">Elimina</button>
-            </div>        
-          </div>
-        </div>
-        <div class="modal fade" id="modalConfirmDelete" role="dialog">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-              </div>
-              <div class="modal-body">
-                <p>Sei sicuro di voler eliminare definitivamente "{{pff}}"?</p>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modalReconfirmDelete">Si</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">No, esci</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="modal fade" id="modalReconfirmDelete" role="dialog">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-              </div>
-              <div class="modal-body">
-                <p>Ma se proprio sicuro sicuro?</p>
-              </div>
-              <div class="modal-footer">
-                <div class="row">
-                  <div class="col-sm-10 col-md-10">
-                    <form id="deleteFile" action="/deleteFile" role="form" method="POST">
-                      <input type="hidden" id="pathFile" name="pathFile" value="{{pff}}">
-                      <input type = "submit" class="btn btn-danger" value = "Elimina" id="deleteFile" name="deleteFile"/>
-                    </form> 
-                  </div>
-                  <div class="col-sm-1 col-md-1">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      {% if error %}
+        <p class=error><strong>Error:</strong> {{ error }} </p>
+      {% endif %}
+      {% with msg = get_flashed_messages(category_filter=["info"]) %}
+      {% if msg %}
+        <ul class=flashes>
+        {% for m in msg %}
+          <li>{{ m }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
     </div>
-  {% endfor %}
+    <h3 class="marginTitle">Trova file</h3>
+    <div class="col-lg-9 col-md-9 col-sm-9">
+          <div class="col-lg-12 col-md-12 col-sm-12">
+            <form id="form" action="/findFile" role="form" method = "POST">
+              <div class="input-group">
+                <input type="text" name="fileSearch" class="form-control" placeholder="Seleziona file da ricercare...">
+                <span class="input-group-btn">
+                  <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+                </span>
+              </div><!-- /input-group -->
+            </form>
+            {% with errors = get_flashed_messages(category_filter=["error"]) %}
+              {% if errors %}
+                <ul class=flashes>
+                {% for err in errors %}
+                  <li>{{ err }}</li>
+                {% endfor %}
+                </ul>
+              {% endif %}
+            {% endwith %}
+          </div>
+          <div class="col-lg-12 col-md-12 col-sm-12" id="loadResult">
+            {% if pathFileFound|length > 0 %}
+            <button id="myTopButton" title="Su"><i class="glyphicon glyphicon-arrow-up"></i></button>
+              {% for pff in pathFileFound.data %}
+                    <button class="accordion" id="pff">{{ pff }}</button>
+                    <div class="accordionPanel">
+                        <div class="container-fluid"> 
+                          <div class="row">
+                           <div class="col-md-6 col-sm-6" style="margin-top: 10px;margin-bottom: 10px;">
+                              <form id="retriveContentFile" action="/retriveContentFile" role="form" method="POST">
+                                <input type="hidden" id="pathFile" name="pathFile" value="{{pff}}">
+                                <input type = "submit" class="btn btn-warning" value = "Modifica" id="retriveContentFile" name="retriveContentFile"/>
+                              </form>
+                            </div> 
+                            <div class="col-md-6 col-sm-6" style="margin-top: 10px;margin-bottom: 10px;">
+                              <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalConfirmDelete">Elimina</button>
+                            </div>        
+                          </div>
+                        </div>
+                        <div class="modal fade" id="modalConfirmDelete" role="dialog">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                              </div>
+                              <div class="modal-body">
+                                <p>Sei sicuro di voler eliminare definitivamente "{{pff}}"?</p>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modalReconfirmDelete">Si</button>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">No, esci</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="modal fade" id="modalReconfirmDelete" role="dialog">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                              </div>
+                              <div class="modal-body">
+                                <p>Ma se proprio sicuro sicuro?</p>
+                              </div>
+                              <div class="modal-footer">
+                                <div class="row">
+                                  <div class="col-sm-10 col-md-10">
+                                    <form id="deleteFile" action="/deleteFile" role="form" method="POST">
+                                      <input type="hidden" id="pathFile" name="pathFile" value="{{pff}}">
+                                      <input type = "submit" class="btn btn-danger" value = "Elimina" id="deleteFile" name="deleteFile"/>
+                                    </form> 
+                                  </div>
+                                  <div class="col-sm-1 col-md-1">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                  {% endfor %}
+            {% endif %}
+          </div>
+    </div>
+  </div>
 </div>
-  
-{% endif %}
+
+
+
 
 {% endblock %}
 

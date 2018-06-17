@@ -1,38 +1,40 @@
 {% extends "index.html" %}
 {% block page_content %}
-<h2 class="title">Informazioni utente</h2>
-<table id="generic-table">
-	{% for key, value in infouser.data.items() %}
-		<tr>
-			<th> {{ key }} </th>
-			{% if key == 'shell' %}
-				<!--<td style="background-color: blue"> {{ value }} </td>-->
-				<td><button type="button" data-toggle="modal" class="btn btn-link" data-target="#modalUpd">{{ value }}</button></td>
-			{% else %}
-				<td> {{ value }} </td>
-			{% endif %}
-		</tr>
-	{% endfor %}
-</table>
-<br />
 
-<div class="row">
-    <div class="col-md-4">
-    	<button id = "btnAddUserGroup" class="btn btn-success btn-lg" data-toggle="modal" data-target="#modalAddToGroups">Add User To Groups</button>
-    </div>
-    <div class="col-md-4">
-        <button id = "btnRemoveUserGroup" class="btn btn-warning btn-lg" data-toggle="modal" data-target="#modalRemoveFromGroups">Remove User From Groups</button>
-    </div>
-    <div class="col-md-4">
-        <!--<button id = "btnUpdateShell" class="btn btn-info btn-lg" data-toggle="modal" data-target="#modalUpd">Update Shell</button>-->
-        <a></a>
-    </div>
+
+<div class="container">
+	<div class="row">
+		<div class="col-lg-12 col-md-12 col-xs-12">
+			<h2 class="title">Informazioni utente</h2>
+			<table id="generic-table">
+				{% for key, value in infouser.data.items() %}
+					<tr>
+						<th> {{ key }} </th>
+						{% if key == 'shell' %}
+							<!--<td style="background-color: blue"> {{ value }} </td>-->
+							<td><button type="button" data-toggle="modal" class="btn btn-link" data-target="#modalUpd">{{ value }}</button></td>
+						{% else %}
+							<td> {{ value }} </td>
+						{% endif %}
+					</tr>
+				{% endfor %}
+			</table>
+		</div>
+	</div>
+	<br>
+	<div class="row">
+	    <div class="col-lg-6 col-md-6 col-xs-6">
+	    	<button id = "btnAddUserGroup" class="btn btn-success btn-lg" data-toggle="modal" data-target="#modalAddToGroups">Add User To Groups</button>
+	    </div>
+	    <div class="col-lg-6 col-md-6 col-xs-6">
+	        <button id = "btnRemoveUserGroup" class="btn btn-warning btn-lg" data-toggle="modal" data-target="#modalRemoveFromGroups">Remove User From Groups</button>
+	    </div>
+
+	 	{% if error %}
+	    	<p class=error><strong>Error:</strong> {{ error }}
+	  	{% endif %}
+	</div>
 </div>
-
- {% if error %}
-    <p class=error><strong>Error:</strong> {{ error }}
-  {% endif %}
-
 
 <div class="modal fade" id="modalRemoveFromGroups" role="dialog">
 	<div class="modal-dialog">
