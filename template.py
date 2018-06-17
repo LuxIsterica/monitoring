@@ -1,3 +1,4 @@
+import re
 import sys
 sys.path.append('systemcalls')
 from user import getusers, getuser, getgroups, getshells, updateusershell, getusernotgroups, getusergroups, addusertogroups, removeuserfromgroups
@@ -8,7 +9,7 @@ from network import ifacestat
 from apache import apachestart, apachestop, apacherestart, apachereload, apachestatus, getvhosts, getmods, getconf, activatevhost, deactivatevhost, activatemod, deactivatemod, activateconf, deactivateconf
 from apache import apacheconfdir
 from cron import listcrontabs
-from utilities import readfile, writefile, delfile
+from utilities import readfile, writefile, filedel
 
 from flask import Flask, render_template, flash, request, redirect, url_for, send_file
 
@@ -269,7 +270,7 @@ def deleteFile():
 				error = "Path vuoto"
 				return render_template("file.html",error=error)
 			else:
-				log = delfile(pathFile)
+				log = filedel(pathFile)
 				if(log['returncode'] != 0):
 					error = log['command']
 				else:
@@ -325,12 +326,25 @@ def newHostname():
 
 
 
-
+'''questa logica non va bene'''
 ########## FUNZIONALITÀ network.py ##########
 @app.route('/network')
 def network():
-	facestat = ifacestat()
-	return render_template('network.html', facestat=facestat)
+	facestat = ifacestat()['data']
+	key_remove = []
+	als = []
+	for key,value in facestat.items():
+		if 'LOOPBACK' in value[-1]:
+			lo = key
+			key_remove.append(key)
+		elif ':' in key:
+			als.append(key)
+			key_remove.append(key)
+	for key in key_remove:
+		del facestat[key]
+
+	return render_template('network.html', facestat=facestat,lo=lo, als=als)
+
 
 
 

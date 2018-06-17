@@ -7,13 +7,15 @@
 	<h2 class="marginTitle">Interfacce</h2>
   <div class="jumbotron">
   	<dl>
-	    {% for key, value in facestat.data.items() %}
+	    {% for key, value in facestat.items() %}
 	      <dt><h2>{{ key }}</h2></dt>
 	      {% for v in value %}
 	      	<dd style="margin-left: 20px; font-size: 15px;">{{ v }}</dd>
 	      {% endfor %}
 	    {% endfor %}
+
     </dl>
   </div>     
 </div>
+
 {% endblock %}
