@@ -522,12 +522,12 @@ def filedel(filepath):
     logid = mongolog( locals() )
 
     if not os.path.isfile(filepath):
-        return command_error( returncode=15, stderr="Specified file is not a file: "+filepath)
+        return command_error( returncode=15, stderr="Specified file is not a file: "+filepath, logid=logid )
 
     try:
         os.remove( filepath )
     except FileNotFoundError:
-        return command_error( returncode=10, stderr='File to remove not found: "'+filepath+'"' )
+        return command_error( returncode=10, stderr='File to remove not found: "'+filepath+'"', logid=logid )
 
     return command_success( logid=logid )
 \end{lstlisting}
@@ -551,13 +551,13 @@ def filerename(filepath, newname):
     logid = mongolog( locals() )
 
     if not os.path.isfile(filepath):
-        return command_error( returncode=15, stderr="Specified file is not a file: "+filepath)
+        return command_error( returncode=15, stderr="Specified file is not a file: "+filepath, logid=logid)
 
     try:
         newname = os.path.dirname(filepath) + '/' + newname
         os.rename( filepath, newname )
     except FileNotFoundError:
-        return command_error( returncode=10, stderr='File to rename not found: "'+path+'"' )
+        return command_error( returncode=10, stderr='File to rename not found: "'+path+'"', logid=logid )
 
     return command_success( logid=logid )
 \end{lstlisting}
@@ -590,7 +590,7 @@ def filecopy(src, dst):
     logid = mongolog( locals() )
 
     if not os.path.isfile(filepath):
-        return command_error( returncode=15, stderr="Specified file is not a file: "+filepath)
+        return command_error( returncode=15, stderr="Specified file is not a file: "+filepath, logid=logid )
 
     try:
         if os.path.isdir(dst):
@@ -601,7 +601,7 @@ def filecopy(src, dst):
 
         copyfile(src, dst)
     except FileNotFoundError:
-        return command_error( returncode=10, stderr='File to rename not found: "'+path+'"' )
+        return command_error( returncode=10, stderr='File to rename not found: "'+path+'"', logid=logid )
 
     return command_success( logid=logid )
 \end{lstlisting}
@@ -1232,7 +1232,7 @@ def updateusershell(user, shell):
     logid = mongolog( locals() )
     
     if not shell:
-        return command_error( returncode=200, stderr="La stringa contenente il nome della shell non puo' essere vuota")
+        return command_error( returncode=200, stderr="La stringa contenente il nome della shell non puo' essere vuota", logid=logid )
 
 
     command = ['chsh', user, '-s', shell]
@@ -1773,7 +1773,7 @@ def removerepofile(filename):
         os.remove(repospath + filename + '.list')
         os.remove(repospath + filename + '.list.save')
     except FileNotFoundError:
-        return command_error( returncode=10, stderr='File to remove not found: "'+path+'"' )
+        return command_error( returncode=10, stderr='File to remove not found: "'+path+'"', logid=logid )
 
     return command_succes( logid=logid )
 \end{lstlisting}
@@ -2343,7 +2343,7 @@ def delroute(route):
     logid = mongolog( locals() )
 
     if not type(route) is type(dict()):
-        command_error( returncode=202, stderr='delroute function can only accept a dictionary as argument' )
+        command_error( returncode=202, stderr='delroute function can only accept a dictionary as argument', logid=logid )
 
     command = [ 'route', 'del', '-net', route['Destination'], 'netmask', route['Genmask'], 'gw', route['Gateway'] ]
 
@@ -2607,7 +2607,10 @@ def hostname(newhostname=""):
     try:
         hostname = check_output(command, stderr=PIPE, universal_newlines=True)
     except CalledProcessError as e:
-        return command_error( e, command )
+        if newhostname:
+            return command_error( e, command, logid )
+        else:
+            return command_error( e, command )
 
     if newhostname:
         return command_success( logid=logid )

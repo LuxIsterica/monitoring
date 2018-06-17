@@ -22,7 +22,10 @@ def hostname(newhostname=""):
     try:
         hostname = check_output(command, stderr=PIPE, universal_newlines=True)
     except CalledProcessError as e:
-        return command_error( e, command )
+        if newhostname:
+            return command_error( e, command, logid )
+        else:
+            return command_error( e, command )
 
     if newhostname:
         return command_success( logid=logid )

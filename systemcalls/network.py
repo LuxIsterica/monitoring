@@ -212,7 +212,7 @@ def delroute(route):
     logid = mongolog( locals() )
 
     if not type(route) is type(dict()):
-        command_error( returncode=202, stderr='delroute function can only accept a dictionary as argument' )
+        command_error( returncode=202, stderr='delroute function can only accept a dictionary as argument', logid=logid )
 
     command = [ 'route', 'del', '-net', route['Destination'], 'netmask', route['Genmask'], 'gw', route['Gateway'] ]
 

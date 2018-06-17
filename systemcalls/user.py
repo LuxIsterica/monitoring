@@ -219,7 +219,7 @@ def updateusershell(user, shell):
     logid = mongolog( locals() )
     
     if not shell:
-        return command_error( returncode=200, stderr="La stringa contenente il nome della shell non può essere vuota")
+        return command_error( returncode=200, stderr="La stringa contenente il nome della shell non può essere vuota", logid=logid )
 
 
     command = ['chsh', user, '-s', shell]
@@ -241,7 +241,7 @@ def adduser(user, password, shell="/bin/bash"):
     logid = mongolog( locals() )
     
     if not shell:
-    	return command_error( returncode=200, stderr="La stringa contenente il nome della shell non può essere vuota" )
+    	return command_error( returncode=200, stderr="La stringa contenente il nome della shell non può essere vuota", logid=logid )
     
     try:
         command = ['useradd', '-m', '-p', password, '-s', shell, user]

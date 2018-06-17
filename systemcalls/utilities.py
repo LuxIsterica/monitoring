@@ -199,12 +199,12 @@ def filedel(filepath):
     logid = mongolog( locals() )
 
     if not os.path.isfile(filepath):
-        return command_error( returncode=15, stderr="Specified file is not a file: "+filepath)
+        return command_error( returncode=15, stderr="Specified file is not a file: "+filepath, logid=logid )
 
     try:
         os.remove( filepath )
     except FileNotFoundError:
-        return command_error( returncode=10, stderr='File to remove not found: "'+filepath+'"' )
+        return command_error( returncode=10, stderr='File to remove not found: "'+filepath+'"', logid=logid )
 
     return command_success( logid=logid )
 
@@ -214,13 +214,13 @@ def filerename(filepath, newname):
     logid = mongolog( locals() )
 
     if not os.path.isfile(filepath):
-        return command_error( returncode=15, stderr="Specified file is not a file: "+filepath)
+        return command_error( returncode=15, stderr="Specified file is not a file: "+filepath, logid=logid)
 
     try:
         newname = os.path.dirname(filepath) + '/' + newname
         os.rename( filepath, newname )
     except FileNotFoundError:
-        return command_error( returncode=10, stderr='File to rename not found: "'+path+'"' )
+        return command_error( returncode=10, stderr='File to rename not found: "'+path+'"', logid=logid )
 
     return command_success( logid=logid )
 
@@ -229,7 +229,7 @@ def filecopy(src, dst):
     logid = mongolog( locals() )
 
     if not os.path.isfile(filepath):
-        return command_error( returncode=15, stderr="Specified file is not a file: "+filepath)
+        return command_error( returncode=15, stderr="Specified file is not a file: "+filepath, logid=logid )
 
     try:
         if os.path.isdir(dst):
@@ -240,6 +240,6 @@ def filecopy(src, dst):
 
         copyfile(src, dst)
     except FileNotFoundError:
-        return command_error( returncode=10, stderr='File to rename not found: "'+path+'"' )
+        return command_error( returncode=10, stderr='File to rename not found: "'+path+'"', logid=logid )
 
     return command_success( logid=logid )

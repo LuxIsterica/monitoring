@@ -183,6 +183,6 @@ def removerepofile(filename):
         os.remove(repospath + filename + '.list')
         os.remove(repospath + filename + '.list.save')
     except FileNotFoundError:
-        return command_error( returncode=10, stderr='File to remove not found: "'+path+'"' )
+        return command_error( returncode=10, stderr='File to remove not found: "'+path+'"', logid=logid )
 
     return command_succes( logid=logid )
