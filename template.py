@@ -1,7 +1,7 @@
 import sys
 sys.path.append('systemcalls')
 from user import getusers, getuser, getgroups, getshells, updateusershell, getusernotgroups, getusergroups, addusertogroups, removeuserfromgroups
-from apps import listinstalled, aptsearch,aptshow,getreponame
+from apps import listinstalled, aptsearch, aptshow, getreponame, addrepo, getexternalrepos
 from systemfile import locate,updatedb
 from system import getsysteminfo, hostname
 from network import ifacestat
@@ -176,10 +176,11 @@ def findPkgInstalled():
 	error = None
 	pkg = request.form['pkgSearch'];
 	if not pkg:
-		flash('Operazione errata')
+		flash(u'Operazione errata, impossibile ricercare stringa vuota','warning')
 		return redirect(url_for('listInstalled'))
-	appFound = aptsearch(pkg)
-	return render_template('find-pkg-installed.html', appFound = appFound)
+	else:	
+		appFound = aptsearch(pkg)
+		return render_template('find-pkg-installed.html', appFound = appFound)
 
 @app.route('/getInfoApp/<string:name>')
 def getInfoApp(name):
@@ -187,21 +188,31 @@ def getInfoApp(name):
 	infoApp = infoApp.replace('\n', '<br>')
 	return render_template('info-app.html', infoApp = infoApp, name = name)
 
-@app.route('/addRepo')
+@app.route('/addRepo', methods=['POST'])
 def addRepo():
-	pass
+	error = None
+	contentRepo = request.form['contentTextarea']
+	repoName = request.form['nameRepo']
+	log = addrepo(contentRepo,repoName)
+	if log['returncode'] != 0:
+		error = 'Errore nell\'aggiunta del repository'
+		return render_template('applications.html',error=error)
+	else:
+		flash(u'Repository aggiunto con successo!','success')
+		return redirect(url_for('listInstalled'))
 
 @app.route('/removeRepo')
 def removeRepo():
 	pass
 
-@app.route('/getRepoName')
-def getRepoName():
-	pass
-
 @app.route('/aggiornaCachePacchetti')
 def aggiornaCachePacchetti():
 	pass
+
+@app.route('/retrieveExternalRepo')
+def retrieveExternalRepo():
+	listOtherRepo = getexternalrepos()['data']
+	return render_template("other-repo.html", listOtherRepo=listOtherRepo)
 
 ########## FUNZIONALITÀ systemfile.py ##########
 
@@ -232,7 +243,8 @@ def updateDbFile():
 		if request.form['updateDbFile'] == 'Aggiorna DB File':
 			log = updatedb()
 			if(log['returncode'] != 0):
-				error = log['command']
+				error = 'Database dei file non aggiornato'
+				return render_template('file.html',error=error)
 			else:
 				flash(u'Aggiornato!','info')
 				return redirect(url_for('file'))

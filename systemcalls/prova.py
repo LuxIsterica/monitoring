@@ -10,8 +10,13 @@ from cron import listcrontabs, addcron, addhourlycron
 import os
 import sys
 
-data = aptshow("account-plugin-facebook")
-print(data)
+data = getexternalrepos()
+if data['returncode'] != 0:
+	print(ko)
+else: 
+	for data in data["data"]:
+		for d in data:
+			print(d+""+data[d])
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments
 exit()

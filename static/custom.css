@@ -314,7 +314,7 @@ table.systeminfo {
 }
 
 .table-apps {
-    max-height: 250px;
+    max-height: 300px;
     overflow: auto;
     width: 100%;
     display: inline-block;
