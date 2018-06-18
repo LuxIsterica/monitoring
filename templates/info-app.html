@@ -1,0 +1,13 @@
+{% extends "index.html" %}
+{% block page_content %}
+
+	<div class="container">
+	<h2>App: {{name}}</h2>
+		<ul class="list-unstyled marginList">
+		{% autoescape false %}
+	          <li><h5>{{infoApp}}</h5></li>
+		{% endautoescape %}
+	    </ul>
+	</div>
+
+{% endblock %}

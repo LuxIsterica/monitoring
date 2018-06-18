@@ -10,24 +10,8 @@ from cron import listcrontabs, addcron, addhourlycron
 import os
 import sys
 
-facestat = ifacestat()['data']
-key_remove = []
-als = []
-for key,value in facestat.items():
-	if 'LOOPBACK' in value[-1]:
-		lo = facestat[key].copy()
-		key_remove.append(key)
-	elif ':' in key:
-		als.append(facestat[key])
-		key_remove.append(key)
-for key in key_remove:
-	del facestat[key]
-
-if len(als) > 0:
-	for a in als:
-		print(a)	
-
-print(facestat)
+data = aptshow("account-plugin-facebook")
+print(data)
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments
 exit()

@@ -5,17 +5,37 @@
 
 <div class="container">
 	<h2 class="marginTitle">Interfacce</h2>
-  <div class="jumbotron">
-  	<dl>
-	    {% for key, value in facestat.items() %}
-	      <dt><h2>{{ key }}</h2></dt>
-	      {% for v in value %}
-	      	<dd style="margin-left: 20px; font-size: 15px;">{{ v }}</dd>
-	      {% endfor %}
-	    {% endfor %}
-
-    </dl>
-  </div>     
+	    <div class="jumbotron">
+		  	<dl>
+			    {% for key, value in facestat.items() %}
+			      <dt><h2>{{ key }}</h2></dt>
+			      {% for v in value %}
+			      	<dd style="margin-left: 20px; font-size: 15px;">{{ v }}</dd>
+			      {% endfor %}
+			    {% endfor %}
+		    </dl>
+		    <dl>
+		        {% for key, value in lo.items() %}
+		          <dt><h2>{{ key }}</h2></dt>
+		          {% for v in value %}
+			        	<dd style="margin-left: 20px; font-size: 15px;">{{ v }}</dd>
+			      {% endfor %}
+			    {% endfor %}
+		    </dl>
+	    </div>
+	{% if als %}
+  	<h2 class="marginTitle">Alias</h2>
+	    <div class="jumbotron">
+		    <dl>
+			    {% for key, value in als.items() %}
+			      <dt><h2>{{ key }}</h2></dt>
+			      {% for v in value %}
+			      	<dd style="margin-left: 20px; font-size: 15px;">{{ v }}</dd>
+			      {% endfor %}
+			    {% endfor %}
+		    </dl>
+	  </div>
+	{% endif %}    
 </div>
 
 {% endblock %}

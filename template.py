@@ -1,8 +1,7 @@
-import re
 import sys
 sys.path.append('systemcalls')
 from user import getusers, getuser, getgroups, getshells, updateusershell, getusernotgroups, getusergroups, addusertogroups, removeuserfromgroups
-from apps import listinstalled, aptsearch
+from apps import listinstalled, aptsearch,aptshow
 from systemfile import locate,updatedb
 from system import getsysteminfo, hostname
 from network import ifacestat
@@ -181,6 +180,11 @@ def findPkgInstalled():
 	appFound = aptsearch(pkg)
 	return render_template('find-pkg-installed.html', appFound = appFound)
 
+@app.route('/getInfoApp/<string:name>')
+def getInfoApp(name):
+	infoApp = aptshow(name)['data']
+	infoApp = infoApp.replace('\n', '<br>')
+	return render_template('info-app.html', infoApp = infoApp, name = name)
 
 
 
@@ -330,19 +334,19 @@ def newHostname():
 ########## FUNZIONALITÀ network.py ##########
 @app.route('/network')
 def network():
+	key_remove = list()
+	lo = dict()
+	als = dict()
 	facestat = ifacestat()['data']
-	key_remove = []
-	als = []
 	for key,value in facestat.items():
 		if 'LOOPBACK' in value[-1]:
-			lo = key
+			lo.update({key:facestat[key]})
 			key_remove.append(key)
 		elif ':' in key:
-			als.append(key)
+			als.update({key:facestat[key]})
 			key_remove.append(key)
 	for key in key_remove:
 		del facestat[key]
-
 	return render_template('network.html', facestat=facestat,lo=lo, als=als)
 
 
