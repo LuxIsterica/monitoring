@@ -1,7 +1,7 @@
 import sys
 sys.path.append('systemcalls')
 from user import getusers, getuser, getgroups, getshells, updateusershell, getusernotgroups, getusergroups, addusertogroups, removeuserfromgroups
-from apps import listinstalled, aptsearch,aptshow
+from apps import listinstalled, aptsearch,aptshow,getreponame
 from systemfile import locate,updatedb
 from system import getsysteminfo, hostname
 from network import ifacestat
@@ -168,7 +168,8 @@ def updateCrontab():
 @app.route('/listInstalled')
 def listInstalled():
 	listAppInst = listinstalled(True)
-	return render_template('applications.html', listAppInst = listAppInst)
+	generatedRepoName = getreponame()
+	return render_template('applications.html', listAppInst = listAppInst, generatedRepoName=generatedRepoName)
 
 @app.route('/findPkgInstalled', methods=['POST'])
 def findPkgInstalled():
@@ -186,7 +187,21 @@ def getInfoApp(name):
 	infoApp = infoApp.replace('\n', '<br>')
 	return render_template('info-app.html', infoApp = infoApp, name = name)
 
+@app.route('/addRepo')
+def addRepo():
+	pass
 
+@app.route('/removeRepo')
+def removeRepo():
+	pass
+
+@app.route('/getRepoName')
+def getRepoName():
+	pass
+
+@app.route('/aggiornaCachePacchetti')
+def aggiornaCachePacchetti():
+	pass
 
 ########## FUNZIONALITÀ systemfile.py ##########
 

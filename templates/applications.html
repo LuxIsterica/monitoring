@@ -31,31 +31,55 @@
 	<div class="row">
 		<div class="col-lg-12 col-md-12 col-xs-12">
 			<div id="appList" >
-				<table id="generic-table" class= "table-fixed" >
-					<thead>
-						<tr>
-							<th> NOME </th>
-							<th> VERSIONE </th>
-							<th> ARCHITETTURA </th>
-							<th> RIEPILOGO </th>
-						</tr>
-					</thead>
-					<tbody>
-						{% for a in listAppInst.data %}
-						<tr>
-							<td><a href="{{ url_for('getInfoApp',name = a.name) }}" class="btn btn-link"> {{ a.name }} </a></td>
-							<td> {{ a.version }} </td>
-							<td> {{ a.architecture }} </td>
-							<td> {{ a.summary }} </td>
-						</tr>
-						{% endfor %}	
-					</tbody>	
+				<table id="generic-table" class= "table-apps" >
+					<tr>
+						<th> NOME </th>
+						<th> VERSIONE </th>
+						<th> ARCHITETTURA </th>
+						<th> RIEPILOGO </th>
+					</tr>
+
+					{% for a in listAppInst.data %}
+					<tr>
+						<td><a href="{{ url_for('getInfoApp',name = a.name) }}" class="btn btn-link"> {{ a.name }} </a></td>
+						<td> {{ a.version }} </td>
+						<td> {{ a.architecture }} </td>
+						<td> {{ a.summary }} </td>
+					</tr>
+					{% endfor %}		
 				</table>
 				</div>
 		</div>
 	</div>
+<br>
+<br>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalAddRepo">Aggiungi Repo</button>
+    <button type="button" class="btn btn-success">Rimuovi Repo</button>
+    <button type="button" class="btn btn-warning"> Aggiorna cache pacchetti</button>
+    <button type="button" class="btn btn-danger"><a href="#"> Altri repository </a></button>
 
+<div class="modal fade" id="modalAddRepo" role="dialog">
+	<div class="modal-dialog">
+	  <div class="modal-content">
+	    <div class="modal-header">
+	      <button type="button" class="close" data-dismiss="modal">&times;</button>
+	      <h4 class="modal-title">Inserisci nuova repo</h4>
+	    </div>
+	    <form id="form" action="/addRepo" role="form" method = "POST">
+		    <div class="modal-body">
+		      Content: <textarea class="form-control" rows="3" name="contentTextarea" placeholder="Seleziona nuova repo"></textarea>
+			  Nome repo:<input type="text" value="{{generatedRepoName}}" name="nameRepo">
+		    </div>
+		    <div class="modal-footer">
+		      	<input type = "submit" value = "Invio" class="btn btn-info btn-default">
+          		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		    </div>
+		</form>
+	  </div>
+	</div>
 </div>
+</div>
+
 
 
 {% endblock %}
