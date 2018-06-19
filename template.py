@@ -1,14 +1,14 @@
 import sys
 sys.path.append('systemcalls')
 from user import getusers, getuser, getgroups, getshells, updateusershell, getusernotgroups, getusergroups, addusertogroups, removeuserfromgroups
-from apps import listinstalled, aptsearch
+from apps import listinstalled, aptsearch, aptshow, getreponame, addrepo, getexternalrepos
 from systemfile import locate,updatedb
 from system import getsysteminfo, hostname
 from network import ifacestat
 from apache import apachestart, apachestop, apacherestart, apachereload, apachestatus, getvhosts, getmods, getconf, activatevhost, deactivatevhost, activatemod, deactivatemod, activateconf, deactivateconf
 from apache import apacheconfdir
 from cron import listcrontabs
-from utilities import readfile, writefile, delfile
+from utilities import readfile, writefile, filedel
 
 from flask import Flask, render_template, flash, request, redirect, url_for, send_file
 
@@ -168,20 +168,51 @@ def updateCrontab():
 @app.route('/listInstalled')
 def listInstalled():
 	listAppInst = listinstalled(True)
-	return render_template('applications.html', listAppInst = listAppInst)
+	generatedRepoName = getreponame()
+	return render_template('applications.html', listAppInst = listAppInst, generatedRepoName=generatedRepoName)
 
 @app.route('/findPkgInstalled', methods=['POST'])
 def findPkgInstalled():
 	error = None
 	pkg = request.form['pkgSearch'];
 	if not pkg:
-		flash('Operazione errata')
+		flash(u'Operazione errata, impossibile ricercare stringa vuota','warning')
 		return redirect(url_for('listInstalled'))
-	appFound = aptsearch(pkg)
-	return render_template('find-pkg-installed.html', appFound = appFound)
+	else:	
+		appFound = aptsearch(pkg)
+		return render_template('find-pkg-installed.html', appFound = appFound)
 
+@app.route('/getInfoApp/<string:name>')
+def getInfoApp(name):
+	infoApp = aptshow(name)['data']
+	infoApp = infoApp.replace('\n', '<br>')
+	return render_template('info-app.html', infoApp = infoApp, name = name)
 
+@app.route('/addRepo', methods=['POST'])
+def addRepo():
+	error = None
+	contentRepo = request.form['contentTextarea']
+	repoName = request.form['nameRepo']
+	log = addrepo(contentRepo,repoName)
+	if log['returncode'] != 0:
+		error = 'Errore nell\'aggiunta del repository'
+		return render_template('applications.html',error=error)
+	else:
+		flash(u'Repository aggiunto con successo!','success')
+		return redirect(url_for('listInstalled'))
 
+@app.route('/removeRepo')
+def removeRepo():
+	pass
+
+@app.route('/aggiornaCachePacchetti')
+def aggiornaCachePacchetti():
+	pass
+
+@app.route('/retrieveExternalRepo')
+def retrieveExternalRepo():
+	listOtherRepo = getexternalrepos()['data']
+	return render_template("other-repo.html", listOtherRepo=listOtherRepo)
 
 ########## FUNZIONALITÀ systemfile.py ##########
 
@@ -212,7 +243,8 @@ def updateDbFile():
 		if request.form['updateDbFile'] == 'Aggiorna DB File':
 			log = updatedb()
 			if(log['returncode'] != 0):
-				error = log['command']
+				error = 'Database dei file non aggiornato'
+				return render_template('file.html',error=error)
 			else:
 				flash(u'Aggiornato!','info')
 				return redirect(url_for('file'))
@@ -269,7 +301,7 @@ def deleteFile():
 				error = "Path vuoto"
 				return render_template("file.html",error=error)
 			else:
-				log = delfile(pathFile)
+				log = filedel(pathFile)
 				if(log['returncode'] != 0):
 					error = log['command']
 				else:
@@ -325,12 +357,25 @@ def newHostname():
 
 
 
-
+'''questa logica non va bene'''
 ########## FUNZIONALITÀ network.py ##########
 @app.route('/network')
 def network():
-	facestat = ifacestat()
-	return render_template('network.html', facestat=facestat)
+	key_remove = list()
+	lo = dict()
+	als = dict()
+	facestat = ifacestat()['data']
+	for key,value in facestat.items():
+		if 'LOOPBACK' in value[-1]:
+			lo.update({key:facestat[key]})
+			key_remove.append(key)
+		elif ':' in key:
+			als.update({key:facestat[key]})
+			key_remove.append(key)
+	for key in key_remove:
+		del facestat[key]
+	return render_template('network.html', facestat=facestat,lo=lo, als=als)
+
 
 
 

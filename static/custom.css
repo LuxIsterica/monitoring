@@ -224,7 +224,7 @@ a.article, a.article:hover {
 #generic-table {
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
     border-collapse: collapse;
-    width: 80%;
+    /*width: 80%;*/
 }
 
 #generic-table th, #generic-table td {
@@ -281,6 +281,10 @@ a.article, a.article:hover {
     margin-top: 5em;
 }
 
+.marginList {
+    margin-top: 5em;
+}
+
 #myTopButton {
     display: none; /* Hidden by default */
     position: fixed; /* Fixed/sticky position */
@@ -308,6 +312,14 @@ table.systeminfo {
 .systeminfo tr, .systeminfo td {
     border: 1px solid black;
 }
+
+.table-apps {
+    max-height: 300px;
+    overflow: auto;
+    width: 100%;
+    display: inline-block;
+}
+
 
 h1.title {
     text-align: center;

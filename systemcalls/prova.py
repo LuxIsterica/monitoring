@@ -6,20 +6,17 @@ from apache import getvhosts, getmods, getconf, activatevhost, deactivatevhost, 
 from pprint import pprint
 from utilities import filediff, writefile, readfile, filedel
 from network import ifacestat, getnewifacealiasname, ifacedown, ifaceup, editiface, createalias, destroyalias, getroutes, addroute, defaultroute, delroute
-from cron import listcrontabs, getcroncontent, addcron, addhourlycron, writecron
+from cron import listcrontabs, addcron, addhourlycron
 import os
 import sys
 
-
-
-data = getsysteminfo()
-#data = writeusercrontab('giuseppe', 'nuovociaone')
-(cpu,mem,proc) = data['data']
-if data['returncode'] is 0:
-    #(cpu,mem,proc) = data['data']
-	#pprint(data['data'][1]['filename'][:-5])
-	print (data)
-
+data = getexternalrepos()
+if data['returncode'] != 0:
+	print(ko)
+else: 
+	for data in data["data"]:
+		for d in data:
+			print(d+""+data[d])
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments
 exit()
