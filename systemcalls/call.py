@@ -1,24 +1,7 @@
 from pprint import pprint
 from network import ifacestat
-from pprint import pprint
-
-facestat = ifacestat()['data']
-
-test = dict()
-for key,value in facestat.items():
-    if 'LOOPBACK' in value[-1]:
-        test.update({ key: value })
-
-
-pprint( test )
+from logs import getlog
 
 
 
-exit()
-for key,value in facestat.items():
-    if 'LOOPBACK' in value[-1]:
-        print("'" + key + "' is a loopback interface")
-    elif ':' in key:
-        print("'" + key + "' is an alias interface")
-    else:
-        print("'" + key + "' is a normal interface")
+pprint( getlog( dategte="2018-06-13", datelte="2018-06-14" )['data'] )
