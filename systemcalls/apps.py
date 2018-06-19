@@ -9,6 +9,7 @@ import inspect
 #import urllib.parse
 
 
+externalreposdir = "/etc/apt/sources.list.d/"
 
 def aptupdate():
 
