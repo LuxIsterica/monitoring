@@ -1561,23 +1561,61 @@ nome e descrizione di una delle applicazioni che corrispondono alla ricerca.
 def aptshow(pkgname, onlydependences=False):
     
     mode = 'depends' if onlydependences else 'show'
-    command = ['apt-cache', mode, pkgname]
 
     try:
+        command = ['apt-cache', mode, pkgname]
         output = check_output(command, stderr=PIPE, universal_newlines=True)
     except CalledProcessError as e:
         return command_error( e, command )
     
-    #Se vengono restituiti piu' pacchetti (diverse versioni) prende solo il primo di questi
+
     if onlydependences:
         #Remove the first line (header)
         toreturn = re.sub('^.*\\n', '', output)
     else:
-        toreturn = output.split('\n\n')[0]
-        
+        #On multiple results only keep the first one
+        output = output.split('\n\n')[0]
+        output = output.splitlines() #<-- We use splitlines() here because onlydependences does not need a split-lined output
+
+        #Check whether the package is installed or not
+        isinstalled = None
+        try:
+            command = ['dpkg', '-l', pkgname]
+            check_call(command)
+        except CalledProcessError as e:
+            isinstalled = False
+        if isinstalled is None: isinstalled = True
+     
+        #Removing useless lines
+        linestomantain = ['Package:', 'Version:', 'Priority:', 'Section:', 'Origin:', 'Installed-Size:', 'Depends:', 'Description', ' ']
+        output = list( filter( lambda line: any( line.startswith(s) for s in linestomantain), output ) ) 
+
+        #Merging all of descrition lines
+        i = 0
+        n = len(output)
+
+        while i < n:
+            if output[i].startswith(' '):
+                output[i-1] = output[i-1] + output[i] #<-- Merge lines
+                del output[i] #<-- Delete current line
+                n -= 1
+            else:
+                i += 1
+
+
+        #Converting list to dictionary
+        toreturn = dict()
+        for line in output:
+            dictelems = line.split(':', maxsplit=1)
+            toreturn.update({ dictelems[0] : dictelems[1] })
+
+        #Is this package installed?
+        toreturn.update({ 'Intalled' : 1 if isinstalled else 0 })
+
+
     return command_success( data=toreturn )
 \end{lstlisting}
-Nasce per mostrare le informazioni su un pacchetto.
+La funzione nasce per mostrare le specifiche di un pacchetto, quali versione, autore, descrizione ecc.
 \paragraph{Parametri}
 Accetta due parametri:
 \begin{itemize}
@@ -1586,27 +1624,135 @@ Accetta due parametri:
 		solo le informazioni sulle dipendenze del pacchetto stesso}
 \end{itemize}
 \paragraph{Funzionamento}
-Innanzituuto si fa un controllo sul valore della variabile \texttt{onlydependences}. Se questo è \texttt{True} viene
-aggiunto al comando \texttt{apt-cache} la variabile la stringa \texttt{depends} ad indicare se si vogliono ottenere
-le sole dipendenze del pacchetto \texttt{pkgname}, altrimenti viene aggiunta la stringa \texttt{show} che invece
-indica che si vogliono ottenere tutte le informazioni del pacchetto.\\
-Viene quindi lanciato il comando come di consueto.\\
-Si entra quindi in un \texttt{if} dove si distinguono 2 condizioni:
-\begin{itemize}
-	\item{se \texttt{onlydependences=True} viene eliminara la prima riga che è un header contenente
-		il nome del pacchetto}
-	\item{se invece \texttt{onlydependences=False} ci si trova in una condizione in cui l'output può
-		rappresentare più versioni dello stesso pacchetto. Si divide quindi quest'ultimo per riga vuota
-		(che è l'unica cosa che divide le informazioni sulle diverse versioni) e si prende solo il
-		primo pacchetto in quanto contenente le informazioni sul pacchetto più aggiornato.
-		Questa funzionalità è usata ad esempio dalla funzione \nameref{aptinstall} durante la
-		la fase di memorizzazione del mongolog}
-\end{itemize}
-Fatto questo si ritorna con la funzione di successo.
+\begin{lstlisting}
+    mode = 'depends' if onlydependences else 'show'
+
+    try:
+        command = ['apt-cache', mode, pkgname]
+        output = check_output(command, stderr=PIPE, universal_newlines=True)
+    except CalledProcessError as e:
+        return command_error( e, command )
+\end{lstlisting}
+La prima parte è una parte comune della funzione, quindi viene eseguita sia se si stanno chiedendo solo le dipendenze del pacchetto
+sia se si voglino tutte le informazioni. Viene decisa l'operazione da eseguire a seconda del valore del parametro
+\texttt{onlydependences}. Si esegue quindi il comando che memorizzerà nella variabile \texttt{output} le informazioni
+desiderate in un formato rozzo. cioè un'unica stringa contenente le informazioni.
+\begin{lstlisting}
+    if onlydependences:
+        #Remove the first line (header)
+        toreturn = re.sub('^.*\\n', '', output)
+\end{lstlisting}
+Si entra poi nell'if che esegue un codice od un altro. Quindi se \texttt{onlydependences} è \texttt{True} viene semplicemente
+eliminata la prima riga che contiene l'header e ritornata la variabile \texttt{output}.
+\begin{lstlisting}
+    else:
+        #On multiple results only keep the first one
+        output = output.split('\n\n')[0]
+        output = output.splitlines() #<-- We use splitlines() here because onlydependences does not need a split-lined output
+
+        #Check whether the package is installed or not
+        isinstalled = None
+        try:
+            command = ['dpkg', '-l', pkgname]
+            check_call(command)
+        except CalledProcessError as e:
+            isinstalled = False
+        if isinstalled is None: isinstalled = True
+\end{lstlisting}
+Se invece si vogliono le informazioni sul pacchetto si inizia da questo pezzo di codice qui sopra. Siccome ci interessano
+le informazioni sul pacchetto in gerenale e non su una versione specifica vengono divise le informazioni dei diversi pacchetti
+tramite la \texttt{split()} e vengono mantenute le informazioni solo sul primo di questo che contiene la versione
+più recente dello stesso.\\
+Viene quindi diviso l'output per righe (\texttt{splitlines()}) in quanto più facile da manipolare in questo modo.\\
+Viene quindi lanciato un secondo comando che mira a verificare se il pacchetto è installato nel sistema. Viene quindi
+usato \texttt{dpkg} e memorizzata questa informazione nella variabile \texttt{isinstalled}.
+\begin{lstlisting}
+        #Removing useless lines
+        linestomantain = ['Package:', 'Version:', 'Priority:', 'Section:', 'Origin:', 'Installed-Size:', 'Depends:', 'Description', ' ']
+        output = list( filter( lambda line: any( line.startswith(s) for s in linestomantain), output ) ) 
+
+        #Merging all of descrition lines
+        i = 0
+        n = len(output)
+
+        while i < n:
+            if output[i].startswith(' '):
+                output[i-1] = output[i-1] + output[i] #<-- Merge lines
+                del output[i] #<-- Delete current line
+                n -= 1
+            else:
+                i += 1
+\end{lstlisting}
+Molto delle informazioni ottenute non ci servono, vengono quindi rimosse le linne inutili utilizzando la funzione \texttt{filter()}
+che si vede in codice.\\
+Analizzando l'output restituito ci rendiamo conto che questo è simile ad un dizionario a parte per il fatto che alcuni campi
+hanno il valore su più righe. Ad esempio per la chiave \texttt{Description} abbiamo il seguente valore:
+\texttt{
+Description: Vi IMproved - enhanced vi editor
+ Vim is an almost compatible version of the UNIX editor Vi.
+ .
+ Many new features have been added: multi level undo, syntax
+ highlighting, command line history, on-line help, filename
+ completion, block operations, folding, Unicode support, etc.
+ .
+ This package contains a version of vim compiled with a rather
+ standard set of features.  This package does not provide a GUI
+ version of Vim.  See the other vim-* packages if you need more
+ (or less).
+}
+Per usare questa informazione quindi dobbiamo prima di tutto unire tutte le righe in una sola. Si può notare che tutte le righe
+che sono il continuo di quella precedente sono precedute da uno spazio. Quindi proprio in base a questa particolarità possiamo
+distringuere le righe che contengono na chiave da quelle che sono il continuo della riga precedente.\\
+È stato quindi creato l'algoritmo che si vede in codice per ogni riga dell'output se la riga corrente contiene uno spazio
+iniziale (\texttt{startswith(' ')}) esegue il merge di questa riga con precedente e la elimina dopo la copia.
+\begin{lstlisting}
+        #Converting list to dictionary
+        toreturn = dict()
+        for line in output:
+            dictelems = line.split(':', maxsplit=1)
+            toreturn.update({ dictelems[0] : dictelems[1] })
+
+        #Is this package installed?
+        toreturn.update({ 'Intalled' : 1 if isinstalled else 0 })
+
+
+    return command_success( data=toreturn )
+\end{lstlisting}
+Uno volta aggiunstato l'output è ora di convertirlo in un dizionario chiave valore, e viene fatto tramite il \texttt{for}
+che si vede in codice. Viene alla fine aggiunto il campo \texttt{Installed} che indica se il pacchetto è installato
+o meno nel sistema usando la variabile \texttt{isinstalled} ricavata prima. Viene quindi alla fine restituito
+il dizionario creato che si presenta in questo aspetto:
+\begin{lstlisting}
+{'Depends': ' nginx-core (>= 1.10.3-0ubuntu0.16.04.2) | nginx-full (>= '
+            '1.10.3-0ubuntu0.16.04.2) | nginx-light (>= '
+            '1.10.3-0ubuntu0.16.04.2) | nginx-extras (>= '
+            '1.10.3-0ubuntu0.16.04.2), nginx-core (<< '
+            '1.10.3-0ubuntu0.16.04.2.1~) | nginx-full (<< '
+            '1.10.3-0ubuntu0.16.04.2.1~) | nginx-light (<< '
+            '1.10.3-0ubuntu0.16.04.2.1~) | nginx-extras (<< '
+            '1.10.3-0ubuntu0.16.04.2.1~)',
+ 'Description-en': ' small, powerful, scalable web/proxy server Nginx ("engine '
+                   'X") is a high-performance web and reverse proxy server '
+                   'created by Igor Sysoev. It can be used both as a '
+                   'standalone web server and as a proxy to reduce the load on '
+                   'back-end HTTP or mail servers. . This is a dependency '
+                   'package to install either nginx-core (by default), '
+                   'nginx-full, nginx-light, or nginx-extras.',
+ 'Description-md5': ' 2d277b9313aa50e3bfd675e64b49532c',
+ 'Installed-Size': ' 37',
+ 'Intalled': 1,
+ 'Origin': ' Ubuntu',
+ 'Package': ' nginx',
+ 'Priority': ' optional',
+ 'Section': ' web',
+ 'Version': ' 1.10.3-0ubuntu0.16.04.2'}
+}
+\end{lstlisting}
 \paragraph{Return}
 Restituisce il dizionario di successo (se la funzione è terminata con successo) contenente al campo \texttt{data}
-una stringa con le informazioni sul pacchetto se \texttt{onlydependences=False}, una stringa contenente invece
-le dipendenze del pacchetto se \texttt{onlydependences=False}.
+una dizionario contenente le informazioni sul pacchetto se \texttt{onlydependences=False} (inclusa l'informazione indicante
+se il pacchetto è installato o meno) o una stringa contenente le dipendenze del pacchetto stesso se il parametro
+\texttt{onlydependences} è \texttt{False}.
 
 \subsubsection{aptinstall}\label{aptinstall}
 \begin{lstlisting}
