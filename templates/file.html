@@ -55,15 +55,21 @@
                     <div class="accordionPanel">
                         <div class="container-fluid"> 
                           <div class="row">
-                           <div class="col-md-6 col-sm-6" style="margin-top: 10px;margin-bottom: 10px;">
+                           <div class="col-md-3 col-sm-3" style="margin-top: 10px;margin-bottom: 10px;">
                               <form id="retriveContentFile" action="/retriveContentFile" role="form" method="POST">
                                 <input type="hidden" id="pathFile" name="pathFile" value="{{pff}}">
                                 <input type = "submit" class="btn btn-warning" value = "Modifica" id="retriveContentFile" name="retriveContentFile"/>
                               </form>
                             </div> 
-                            <div class="col-md-6 col-sm-6" style="margin-top: 10px;margin-bottom: 10px;">
-                              <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalConfirmDelete">Elimina</button>
-                            </div>        
+                            <div class="col-md-3 col-sm-3" style="margin-top: 10px;margin-bottom: 10px;">
+                              <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modalConfirmDelete">Elimina</button>
+                            </div>
+                            <div class="col-md-3 col-sm-3" style="margin-top: 10px;margin-bottom: 10px;">
+                              <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalCopy">Copia</button>
+                            </div>
+                            <div class="col-md-3 col-sm-3" style="margin-top: 10px;margin-bottom: 10px;">
+                              <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalRename">Rinomina</button>
+                            </div>         
                           </div>
                         </div>
                         <div class="modal fade" id="modalConfirmDelete" role="dialog">
@@ -97,6 +103,58 @@
                                     <form id="deleteFile" action="/deleteFile" role="form" method="POST">
                                       <input type="hidden" id="pathFile" name="pathFile" value="{{pff}}">
                                       <input type = "submit" class="btn btn-danger" value = "Elimina" id="deleteFile" name="deleteFile"/>
+                                    </form> 
+                                  </div>
+                                  <div class="col-sm-1 col-md-1">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="modal fade" id="modalCopy" role="dialog">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                              </div>
+                              <div class="modal-body">
+                                <p>Copia file</p>
+                              </div>
+                              <div class="modal-footer">
+                                <div class="row">
+                                  <form id="copyFile" action="/copyFile" role="form" method="POST">
+                                    <div class="col-sm-11 col-md-11 col-lg-11">
+                                        <input type="hidden" id="pathFile" name="pathFile" value="{{pff}}">
+                                        Seleziona path di destinazione: <input type="text" id="destPathFile" name="destPathFile">
+                                    </div>
+                                    <div class="col-sm-12 col-md-12 col-lg-12" style="margin-top: 8px;">
+                                      <input type = "submit" class="btn btn-success" value="Copia" id="copyFile" name="copyFile"/>
+                                      <button type="button" class="btn btn-default" data-dismiss="modal">No</button>                                  
+                                    </div>
+                                  </form>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="modal fade" id="modalRename" role="dialog">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                              </div>
+                              <div class="modal-body">
+                                <p>Rinomina file</p>
+                              </div>
+                              <div class="modal-footer">
+                                <div class="row">
+                                  <div class="col-sm-10 col-md-10">
+                                    <form id="renameFile" action="/renameFile" role="form" method="POST">
+                                      <input type="hidden" id="pathFile" name="pathFile" value="{{pff}}">
+                                      Seleziona path di destinazione: <input type="text" id="destPathFile" name="destPathFile">
+                                      <input type = "submit" class="btn btn-info" value="Rinomina" id="renameFile" name="renameFile"/>
                                     </form> 
                                   </div>
                                   <div class="col-sm-1 col-md-1">

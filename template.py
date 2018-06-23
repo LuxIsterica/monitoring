@@ -8,7 +8,7 @@ from network import ifacestat
 from apache import apachestart, apachestop, apacherestart, apachereload, apachestatus, getvhosts, getmods, getconf, activatevhost, deactivatevhost, activatemod, deactivatemod, activateconf, deactivateconf
 from apache import apacheconfdir
 from cron import listcrontabs
-from utilities import readfile, writefile, filedel
+from utilities import readfile, writefile, filedel, filecopy, filerename
 
 from flask import Flask, render_template, flash, request, redirect, url_for, send_file
 
@@ -58,7 +58,6 @@ def updateShell():
 			log = updateusershell(uname, shell)
 			if(log['returncode'] != 0):
 				flash(log['stderr'])
-				flash(log['command'])
 			else:
 				flash('Comando shell modificato correttamente')
 		
@@ -86,7 +85,6 @@ def addUserGroup():
 					log = addusertogroups(uname, moreGr)
 					if(log['returncode'] != 0):
 						flash(log['stderr'])
-						flash(log['command'])
 					else:
 						flash('User aggiunto correttamente al/i gruppo/i')
 		
@@ -114,7 +112,6 @@ def removeUserGroup():
 					log = removeuserfromgroups(uname, moreGr)
 					if(log['returncode'] != 0):
 						flash(log['stderr'])
-						flash(log['command'])
 					else:
 						flash('User eliminato correttamente dal/i gruppo/i')
 		
@@ -277,7 +274,7 @@ def retriveContentFile():
 
 @app.route('/updateFile', methods=['POST'])
 def updateFile():
-	#try:
+	try:
 		error = None
 		pathFile = request.form['pathFile']
 		updatedContentFile = request.form['contentTextarea']
@@ -288,8 +285,8 @@ def updateFile():
 		else:
 			flash(u'Modifica avvenuta correttamente!','info')
 			return redirect(url_for('file'))
-	#except Exception:
-	#	return internal_server_error(500)
+	except Exception:
+		return internal_server_error(500)
 
 @app.route('/deleteFile', methods=['POST'])
 def deleteFile():
@@ -303,16 +300,50 @@ def deleteFile():
 			else:
 				log = filedel(pathFile)
 				if(log['returncode'] != 0):
-					error = log['command']
+					error = log['stderr']
+					return render_template('file.html',error=error)
 				else:
-					flash(u'File eliminato correttamente!','info')
-					return redirect(url_for('file'))
+					log = updatedb()
+					if(log['returncode'] != 0):
+						error = 'Database dei file non aggiornato'
+						return render_template('file.html',error=error)
+					else:
+						flash(u'File eliminato correttamente!','info')
+						return redirect(url_for('file'))
 		else:
 			error = 'Non funzica' 
 		return render_template('file.html', error=error)
 	except Exception:
 		return internal_server_error(500)
 
+
+@app.route('/copyFile', methods=['POST'])
+def copyFile():
+	error = None
+	if request.form['copyFile'] == 'Copia':
+		pathFile = request.form['pathFile']
+		pathDest = request.form['destPathFile']
+		if not pathFile:
+			error = "Path vuoto"
+			return render_template("file.html",error=error)
+		elif not pathDest:
+			error = "Path destinazione vuoto"
+			return render_template("file.html",error=error)
+		else:
+			log = filecopy(pathFile,pathDest)
+			if(log['returncode'] != 0):
+				error =	log['stderr']
+				return render_template("file.html",error=error)
+			else:
+				log = updatedb()
+				if(log['returncode'] != 0):
+					error = 'Database dei file non aggiornato'
+					return render_template('file.html',error=error)
+				else:
+					flash(u'File copiato correttamente!','info')
+					return redirect(url_for('file'))
+	else:
+		error = 'Non funzica'	
 
 
 
@@ -331,7 +362,6 @@ def param():
 	hname = hostname()
 	if(hname['returncode'] != 0):
 		flash(hname['stderr'])
-		flash(hname['command'])
 	else:
 		return render_template('param.html', hname=hname)
 	return render_template('param.html')
@@ -347,7 +377,6 @@ def newHostname():
 			log = hostname(hname)
 			if(log['returncode'] != 0):
 				flash(log['stderr'])
-				flash(log['command'])
 			else:
 				flash('Hostname modificato correttamente')
 		
@@ -474,7 +503,6 @@ def sites():
 	vhost=getvhosts()
 	if(vhost['returncode'] != 0):
 		flash(vhost['stderr'])
-		flash(vhost['command'])
 		return redirect(url_for('sites'))
 	else:
 		return render_template('apache-sites.html', vhost=vhost)
@@ -506,7 +534,6 @@ def modules():
 	mods=getmods()
 	if(mods['returncode'] != 0):
 		flash(mods['stderr'])
-		flash(mods['command'])
 		return redirect(url_for('sites'))
 	else:
 		return render_template('apache-modules.html', mods=mods)
@@ -538,7 +565,6 @@ def configurations():
 	conf=getconf()
 	if(conf['returncode'] != 0):
 		flash(conf['stderr'])
-		flash(conf['command'])
 		return redirect(url_for('sites'))
 	else:
 		return render_template('apache-configurations.html', conf=conf)
@@ -573,7 +599,6 @@ def activateVHost():
 		logAVHost=activatevhost(filename)
 		if(logAVHost['returncode'] != 0):
 			flash(logAVHost['stderr'])
-			flash(logAVHost['command'])
 			#return redirect(url_for('sites'))
 			return '',204
 	#return redirect(url_for('sites'))
@@ -586,7 +611,6 @@ def deactivateVHost():
 		logDAVHost=deactivatevhost(filename)
 		if(logDAVHost['returncode'] != 0):
 			flash(logDAVHost['stderr'])
-			flash(logDAVHost['command'])
 			#return redirect(url_for('sites'))
 			return '',204
 	#return redirect(url_for('sites'))
@@ -599,7 +623,6 @@ def activateMods():
 		logAMod=activatemod(filename)
 		if(logAMod['returncode'] != 0):
 			flash(logAMod['stderr'])
-			flash(logAMod['command'])
 			#return redirect(url_for('sites'))
 			return '',204
 	#return redirect(url_for('sites'))
@@ -612,7 +635,6 @@ def deactivateMods():
 		logDAMod=deactivatemod(filename)
 		if(logDAMod['returncode'] != 0):
 			flash(logDAMod['stderr'])
-			flash(logDAMod['command'])
 			#return redirect(url_for('sites'))
 			return '',204
 	#return redirect(url_for('sites'))
@@ -625,7 +647,6 @@ def activateConf():
 		logAConf=activateconf(filename)
 		if(logAConf['returncode'] != 0):
 			flash(logAConf['stderr'])
-			flash(logAConf['command'])
 			#return redirect(url_for('sites'))
 			return '',204
 	#return redirect(url_for('sites'))
@@ -638,7 +659,6 @@ def deactivateConf():
 		logDAConf=deactivateconf(filename)
 		if(logDAConf['returncode'] != 0):
 			flash(logDAConf['stderr'])
-			flash(logDAConf['command'])
 			#return redirect(url_for('sites'))
 			return '',204
 	#return redirect(url_for('sites'))

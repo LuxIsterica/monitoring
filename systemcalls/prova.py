@@ -4,13 +4,13 @@ from system import hostname, getsysteminfo
 from systemfile import updatedb, locate
 from apache import getvhosts, getmods, getconf, activatevhost, deactivatevhost, apachestatus, apachereload, apacheconfdir
 from pprint import pprint
-from utilities import filediff, writefile, readfile, filedel
+from utilities import filediff, writefile, readfile, filedel, mongocheck
 from network import ifacestat, getnewifacealiasname, ifacedown, ifaceup, editiface, createalias, destroyalias, getroutes, addroute, defaultroute, delroute
 from cron import listcrontabs, addcron, addhourlycron
 import os
 import sys
 
-data = getexternalrepos()
+data = mongocheck()
 if data['returncode'] != 0:
 	print(ko)
 else: 
