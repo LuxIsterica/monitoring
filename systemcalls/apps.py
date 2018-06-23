@@ -102,7 +102,7 @@ def aptshow(pkgname, onlydependences=False):
     else:
         #On multiple results only keep the first one
         output = output.split('\n\n')[0]
-        output = output.splitlines()
+        output = output.splitlines() #<-- We use splitlines() here because onlydependences does not need a split-lined output
 
         #Check whether the package is installed or not
         isinstalled = None
@@ -117,24 +117,32 @@ def aptshow(pkgname, onlydependences=False):
         linestomantain = ['Package:', 'Version:', 'Priority:', 'Section:', 'Origin:', 'Installed-Size:', 'Depends:', 'Description', ' ']
         output = list( filter( lambda line: any( line.startswith(s) for s in linestomantain), output ) ) 
 
-
         #Merging all of descrition lines
         i = 0
         n = len(output)
 
-        print(n)
-
-        while i < n-1:
+        while i < n:
             if output[i].startswith(' '):
-                output[i-1] = output[i-1] + output[i]
-                del output[i]
+                output[i-1] = output[i-1] + output[i] #<-- Merge lines
+                del output[i] #<-- Delete current line
+                n -= 1
             else:
                 i += 1
 
-        toreturn = output
+
+        #Converting list to dictionary
+        toreturn = dict()
+        for line in output:
+            dictelems = line.split(':', maxsplit=1)
+            toreturn.update({ dictelems[0] : dictelems[1] })
+
+        #Is this package installed?
+        toreturn.update({ 'Intalled' : 1 if isinstalled else 0 })
+
 
     return command_success( data=toreturn )
     
+
 
 
 #A Lucia: Stampare messaggio che i pacchetti vengono installati non interattivamente
