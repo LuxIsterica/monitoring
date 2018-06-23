@@ -3,13 +3,20 @@
 
 <div class="container">
 <h2>Lista applicazioni esterne</h2>
-	<ul>
+
+	<table id="generic-table" style="width: 100%;">
+		<tr>
+			<th>filename</th>
+			<th>lines</th>
+		</tr>
 		{% for lor in listOtherRepo %}
-			{% for lo in lor %}
-			<li><h4> {{ lo }}:</h4> {{lor[lo]}} </li>
-			{% endfor %}
-		{% endfor %}		
-	</ul>
+		<tr>
+			<td> {{ lor['filename'] }} </td>
+			<td> {{ lor['lines'] }} </td>
+		</tr>
+		{% endfor %}
+	</table>
+
 <br>
 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalAddRepo">Aggiungi Repo</button>
 <button type="button" class="btn btn-success">Rimuovi Repo</button>

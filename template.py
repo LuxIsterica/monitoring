@@ -8,7 +8,7 @@ from network import ifacestat
 from apache import apachestart, apachestop, apacherestart, apachereload, apachestatus, getvhosts, getmods, getconf, activatevhost, deactivatevhost, activatemod, deactivatemod, activateconf, deactivateconf
 from apache import apacheconfdir
 from cron import listcrontabs
-from utilities import readfile, writefile, filedel, filecopy, filerename, mongocheck
+from utilities import readfile, writefile, filedel, filecopy, filerename, mongocheck, mongostart
 
 from flask import Flask, render_template, flash, request, redirect, url_for, send_file
 
@@ -316,7 +316,6 @@ def deleteFile():
 	except Exception:
 		return internal_server_error(500)
 
-
 @app.route('/copyFile', methods=['POST'])
 def copyFile():
 	error = None
@@ -454,7 +453,6 @@ def startApache():
 	except Exception:
 		return internal_server_error(500)
 
-#errore 500
 @app.route('/stopApache', methods=['POST'])
 def stopApache():
 	try:
@@ -472,7 +470,6 @@ def stopApache():
 	except Exception:
 		return internal_server_error(500)
 
-# return HTTP/1.1" 302
 @app.route('/restartApache', methods=['POST'])
 def restartApache():
 	try:
@@ -692,12 +689,32 @@ def deactivateConf():
 
 
 ########### CHECK MONGODB ###########
+
+@app.route('/startMongo', methods=['POST'])
+def startMongo():
+	try:
+		error = None
+		if request.form['startMongo'] == 'Start Mongo':
+			log = mongostart()
+			if(log['returncode'] != 0):
+				error = log['stderr']
+				return render_template('mongo.html',error=error)
+			else:
+				return redirect(url_for('dash'))
+		else:
+			error = 'Non funzica' 
+			return render_template('mongo.html', error=error)
+	except Exception:
+		return internal_server_error(500)
+
+
 @app.before_request
 def before_request():
-	log = mongocheck()
-	if(log['returncode'] == 42):
-		error = log['stderr']
-		return render_template('mongo.html',error=error)
+	if request.endpoint != 'startMongo':
+		log = mongocheck()
+		if(log['returncode'] == 42):
+			error = log['stderr']
+			return render_template('mongo.html',error=error)
 
 
 ########## GESTIONE ERRORI ##########
