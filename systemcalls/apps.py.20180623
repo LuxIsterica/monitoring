@@ -4,7 +4,7 @@ from utilities import mongolog, command_success, command_error
 import os
 import re
 import datetime
-from pprint import pprint
+import pprint
 import inspect
 #import urllib.parse
 
@@ -94,37 +94,15 @@ def aptshow(pkgname, onlydependences=False):
         output = check_output(command, stderr=PIPE, universal_newlines=True)
     except CalledProcessError as e:
         return command_error( e, command )
-    
 
+    
+    #Se vengono restituiti più pacchetti (diverse versioni) prende solo il primo di questi
     if onlydependences:
         #Remove the first line (header)
         toreturn = re.sub('^.*\\n', '', output)
     else:
-        #On multiple results only keep the first one
-        output = output.split('\n\n')[0]
-        output = output.splitlines()
-
-        #Check whether the package is installed or not
-        isinstalled = None
-        try:
-            command = ['dpkg', '-l', pkgname]
-            check_call(command)
-        except CalledProcessError as e:
-            isinstalled = False
-        if isinstalled is None: isinstalled = True
-     
-        #Removing useless lines
-        linestomantain = ['Package', 'Version', 'Priority', 'Section', 'Origin', 'Installed-Size', 'Depends', 'Description', ' ']
-        output = list( filter( lambda line: any( line.startswith(s) for s in linestomantain), output ) ) 
-
-        Merging all package descrition lines
-        for i,v in enumerate(output):
-            if v.startswith(' '):
-                output[i-1] = output[i-1] + v
-                del output[i]
-
-        toreturn = output
-
+        toreturn = output.split('\n\n')[0]
+        
     return command_success( data=toreturn )
     
 
