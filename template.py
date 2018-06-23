@@ -327,7 +327,7 @@ def copyFile():
 			error = "Path vuoto"
 			return render_template("file.html",error=error)
 		elif not pathDest:
-			error = "Path destinazione vuoto"
+			error = "Path destinazione non può essere vuoto"
 			return render_template("file.html",error=error)
 		else:
 			log = filecopy(pathFile,pathDest)
@@ -345,7 +345,33 @@ def copyFile():
 	else:
 		error = 'Non funzica'	
 
-
+@app.route('/renameFile', methods=['POST'])
+def renameFile():
+	error = None
+	if request.form['renameFile'] == 'Rinomina':
+		pathFile = request.form['pathFile']
+		newName = request.form['newNameFile']
+		if not pathFile:
+			error = "Path vuoto"
+			return render_template("file.html",error=error)
+		elif not newName:
+			error = "Nessun nuovo nome inserito"
+			return render_template("file.html",error=error)
+		else:
+			log = filerename(pathFile,newName)
+			if(log['returncode'] != 0):
+				error =	log['stderr']
+				return render_template("file.html",error=error)
+			else:
+				log = updatedb()
+				if(log['returncode'] != 0):
+					error = 'Database dei file non aggiornato'
+					return render_template('file.html',error=error)
+				else:
+					flash(u'File rinominato correttamente!','info')
+					return redirect(url_for('file'))
+	else:
+		error = 'Non funzica'
 
 ########## FUNZIONALITÀ system.py ##########
 #http://localhost:5000/dash
@@ -665,7 +691,8 @@ def deactivateConf():
 	return '',204 #ritorno senza reindirizzamento con flask
 
 
-
+########### CHECK MONGODB ###########
+@app.before_request
 
 ########## GESTIONE ERRORI ##########
  

@@ -99,13 +99,13 @@
                               </div>
                               <div class="modal-footer">
                                 <div class="row">
-                                  <div class="col-sm-10 col-md-10">
+                                  <div class="col-sm-10 col-md-10 col-lg-10">
                                     <form id="deleteFile" action="/deleteFile" role="form" method="POST">
                                       <input type="hidden" id="pathFile" name="pathFile" value="{{pff}}">
                                       <input type = "submit" class="btn btn-danger" value = "Elimina" id="deleteFile" name="deleteFile"/>
                                     </form> 
                                   </div>
-                                  <div class="col-sm-1 col-md-1">
+                                  <div class="col-sm-1 col-md-1 col-lg-1">
                                     <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
                                   </div>
                                 </div>
@@ -150,16 +150,16 @@
                               </div>
                               <div class="modal-footer">
                                 <div class="row">
-                                  <div class="col-sm-10 col-md-10">
-                                    <form id="renameFile" action="/renameFile" role="form" method="POST">
-                                      <input type="hidden" id="pathFile" name="pathFile" value="{{pff}}">
-                                      Seleziona path di destinazione: <input type="text" id="destPathFile" name="destPathFile">
-                                      <input type = "submit" class="btn btn-info" value="Rinomina" id="renameFile" name="renameFile"/>
-                                    </form> 
-                                  </div>
-                                  <div class="col-sm-1 col-md-1">
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
-                                  </div>
+                                  <form id="renameFile" action="/renameFile" role="form" method="POST">
+                                    <div class="col-sm-10 col-md-10 col-lg-10">
+                                        <input type="hidden" id="pathFile" name="pathFile" value="{{pff}}">
+                                        Rinomina file: <input type="text" id="newNameFile" name="newNameFile">
+                                    </div>
+                                    <div class="col-sm-12 col-md-12 col-lg-12" style="margin-top: 8px;">
+                                      <input type = "submit" class="btn btn-info" value="Rinomina" id="renameFile" name="renameFile"/> 
+                                      <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                                    </div>
+                                  </form>
                                 </div>
                               </div>
                             </div>
