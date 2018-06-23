@@ -224,7 +224,7 @@ def filerename(filepath, newname):
 
     return command_success( logid=logid )
 
-def filecopy(src, dst):
+def filecopy(filepath, dst):
 
     logid = mongolog( locals() )
 
@@ -234,11 +234,11 @@ def filecopy(src, dst):
     try:
         if os.path.isdir(dst):
             if dst[-1] is '/':
-                dst = dst + os.path.basename(src)
+                dst = dst + os.path.basename(filepath)
             else:
-                dst = dst + '/' + os.path.basename(src)
+                dst = dst + '/' + os.path.basename(filepath)
 
-        copyfile(src, dst)
+        copyfile(filepath, dst)
     except FileNotFoundError:
         return command_error( returncode=10, stderr='File to rename not found: "'+path+'"', logid=logid )
 

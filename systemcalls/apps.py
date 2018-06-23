@@ -114,10 +114,10 @@ def aptshow(pkgname, onlydependences=False):
         if isinstalled is None: isinstalled = True
      
         #Removing useless lines
-        linestomantain = ['Package', 'Version', 'Priority', 'Section', 'Origin', 'Installed-Size', 'Depends', 'Description', ' ']
+        linestomantain = ['Package:', 'Version:', 'Priority:', 'Section:', 'Origin:', 'Installed-Size:', 'Depends:', 'Description', ' ']
         output = list( filter( lambda line: any( line.startswith(s) for s in linestomantain), output ) ) 
 
-        Merging all package descrition lines
+        #Merging all package descrition lines
         for i,v in enumerate(output):
             if v.startswith(' '):
                 output[i-1] = output[i-1] + v
