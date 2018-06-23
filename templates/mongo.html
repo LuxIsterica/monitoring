@@ -1,0 +1,58 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %} [ Nomodo ] {% endblock %}
+{% block head %}
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="Expires" content="-1">
+	{{ super() }}
+<style>
+button.buttonShake{
+	margin-left: 3em;
+    background: linear-gradient(to left, #40e535 , #0bdec1);
+    width: 8%;
+}
+
+button.buttonShake:hover {
+  animation: shake 0.8s;
+  animation-iteration-count: infinite;
+}
+
+@keyframes shake {
+  0% { transform: translate(2px, 2px) rotate(0deg); }
+  10% { transform: translate(-2px, -3px) rotate(-1deg); }
+  20% { transform: translate(-4px, 1px) rotate(1deg); }
+  30% { transform: translate(4px, 3px) rotate(0deg); }
+  40% { transform: translate(2px, -2px) rotate(1deg); }
+  50% { transform: translate(-2px, 3px) rotate(-1deg); }
+  60% { transform: translate(-4px, 2px) rotate(0deg); }
+  70% { transform: translate(4px, 2px) rotate(-1deg); }
+  80% { transform: translate(-2px, -2px) rotate(1deg); }
+  90% { transform: translate(2px, 3px) rotate(0deg); }
+  100% { transform: translate(2px, -3px) rotate(-1deg); }
+}
+</style>
+
+{% endblock %}
+	{% block body %}
+	<h1>Check If Mongo Is Running!</h1>
+
+	{% if error %}
+	<blockquote>
+	  	<p><strong>Error:&ensp;</strong>{{error}}</p>
+	 
+		<p>Would you like to start mongo service right now?</p>
+	</blockquote>
+
+	<form id="startMongo" action="/startMongo" role="form" method="POST">
+	    <input type = "submit" value = "Start Mongo" name="startMongo" class="btn buttonShake"/>
+	</form>
+
+	{% endif %}
+{% endblock %}
+
+
+
+
+

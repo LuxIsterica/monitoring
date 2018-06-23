@@ -8,7 +8,7 @@ from network import ifacestat
 from apache import apachestart, apachestop, apacherestart, apachereload, apachestatus, getvhosts, getmods, getconf, activatevhost, deactivatevhost, activatemod, deactivatemod, activateconf, deactivateconf
 from apache import apacheconfdir
 from cron import listcrontabs
-from utilities import readfile, writefile, filedel, filecopy, filerename
+from utilities import readfile, writefile, filedel, filecopy, filerename, mongocheck
 
 from flask import Flask, render_template, flash, request, redirect, url_for, send_file
 
@@ -693,6 +693,12 @@ def deactivateConf():
 
 ########### CHECK MONGODB ###########
 @app.before_request
+def before_request():
+	log = mongocheck()
+	if(log['returncode'] == 42):
+		error = log['stderr']
+		return render_template('mongo.html',error=error)
+
 
 ########## GESTIONE ERRORI ##########
  
