@@ -19,7 +19,7 @@ db = client['nomodo']
 def mongocheck():
 
     try:
-        command = ['systemctl', 'status', 'mongod', '-q', '-n0']
+        command = ['systemctl', 'status', 'mongod', '-q', '-n0', '--no-pager']
         check_call(command)
     except CalledProcessError:
         stderr='Mongo daemon is not running. Mongo is a requirement to use nomodo. To achieve this please launch this command on terminal: systemctl start mongod'

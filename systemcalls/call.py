@@ -1,9 +1,11 @@
 from pprint import pprint
-from network import ifacestat
 from logs import getlog
 from apps import aptshow
+from utilities import mongocheck
 
+print( mongocheck()['returncode'] )
 
+exit()
 pprint( aptshow('vim') )
 
 exit()

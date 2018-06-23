@@ -79,7 +79,7 @@ def manageapache(op):
     if not any(op in param for param in acceptedparams):
         return command_error( returncode=-1, stderr='Bad parameter: '+op )
     else:
-        command = ['systemctl', op, 'apache2', '-q', '-n0']
+        command = ['systemctl', op, 'apache2', '-q', '-n0', '--no-pager']
 
 
     toreturn = None
