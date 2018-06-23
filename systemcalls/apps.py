@@ -117,11 +117,19 @@ def aptshow(pkgname, onlydependences=False):
         linestomantain = ['Package:', 'Version:', 'Priority:', 'Section:', 'Origin:', 'Installed-Size:', 'Depends:', 'Description', ' ']
         output = list( filter( lambda line: any( line.startswith(s) for s in linestomantain), output ) ) 
 
-        #Merging all package descrition lines
-        for i,v in enumerate(output):
-            if v.startswith(' '):
-                output[i-1] = output[i-1] + v
+
+        #Merging all of descrition lines
+        i = 0
+        n = len(output)
+
+        print(n)
+
+        while i < n-1:
+            if output[i].startswith(' '):
+                output[i-1] = output[i-1] + output[i]
                 del output[i]
+            else:
+                i += 1
 
         toreturn = output
 
