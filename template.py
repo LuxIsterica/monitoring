@@ -1,7 +1,7 @@
 import sys
 sys.path.append('systemcalls')
 from user import getusers, getuser, getgroups, getshells, updateusershell, getusernotgroups, getusergroups, addusertogroups, removeuserfromgroups
-from apps import listinstalled, aptsearch, aptshow, getreponame, addrepo, getexternalrepos
+from apps import listinstalled, aptsearch, aptshow, getreponame, addrepo, removerepofile, getexternalrepos, aptupdate
 from systemfile import locate,updatedb
 from system import getsysteminfo, hostname
 from network import ifacestat
@@ -165,8 +165,7 @@ def updateCrontab():
 @app.route('/listInstalled')
 def listInstalled():
 	listAppInst = listinstalled(True)
-	generatedRepoName = getreponame()
-	return render_template('applications.html', listAppInst = listAppInst, generatedRepoName=generatedRepoName)
+	return render_template('applications.html', listAppInst = listAppInst)
 
 @app.route('/findPkgInstalled', methods=['POST'])
 def findPkgInstalled():
@@ -185,31 +184,76 @@ def getInfoApp(name):
 	infoApp = infoApp.replace('\n', '<br>')
 	return render_template('info-app.html', infoApp = infoApp, name = name)
 
-@app.route('/addRepo', methods=['POST'])
-def addRepo():
-	error = None
-	contentRepo = request.form['contentTextarea']
-	repoName = request.form['nameRepo']
-	log = addrepo(contentRepo,repoName)
-	if log['returncode'] != 0:
-		error = 'Errore nell\'aggiunta del repository'
-		return render_template('applications.html',error=error)
-	else:
-		flash(u'Repository aggiunto con successo!','success')
-		return redirect(url_for('listInstalled'))
-
-@app.route('/removeRepo')
-def removeRepo():
-	pass
-
-@app.route('/aggiornaCachePacchetti')
-def aggiornaCachePacchetti():
-	pass
-
 @app.route('/retrieveExternalRepo')
 def retrieveExternalRepo():
 	listOtherRepo = getexternalrepos()['data']
-	return render_template("other-repo.html", listOtherRepo=listOtherRepo)
+	generatedRepoName = getreponame()
+	return render_template("other-repo.html", listOtherRepo=listOtherRepo, generatedRepoName=generatedRepoName)
+
+@app.route('/addRepo', methods=['POST'])
+def addRepo():
+	try:
+		error = None
+		contentRepo = request.form['contentTextarea']
+		repoName = request.form['nameRepo']
+		log = addrepo(contentRepo,repoName)
+		if log['returncode'] != 0:
+			error = 'Errore nell\'aggiunta del repository'
+			return render_template('applications.html',error=error)
+		else:
+			flash(u'Repository aggiunto con successo!','success')
+			return redirect(url_for('retrieveExternalRepo'))
+	except Exception:
+		return internal_server_error(500)
+
+@app.route('/removeRepo', methods=['POST'])
+def removeRepo():
+	#try:
+	error = None
+	filenameSelected = request.form['filenameSelected']
+	if not filenameSelected:
+		error = "Nessun file selezionato"
+		return render_template("other-repo.html",error=error)
+	else:
+		if '.list' in filenameSelected:
+			newFilenameSelected = filenameSelected.replace('.list','')
+		if '.list.save' in filenameSelected:
+			newFilenameSelected = filenameSelected.replace('.list.save','')
+		else:
+			newFilenameSelected = filenameSelected
+
+		'''if newFilenameSelected == '-- Seleziona il filename --':
+			flash('Opzione non valida')
+		else:
+			log = removerepofile(newFilenameSelected)
+			if(log['returncode'] != 0):
+				flash(log['stderr'])
+			else:
+				flash('Repository eliminato correttamente!')	
+
+		return redirect(url_for('retrieveExternalRepo'))'''
+		flash(newFilenameSelected)
+		return redirect(url_for('retrieveExternalRepo'))
+	#except Exception:
+	#	return internal_server_error(500)
+
+@app.route('/aggiornaCachePacchetti', methods=['POST'])
+def aggiornaCachePacchetti():
+	try:
+		error = None
+		if request.form['aggiornaCachePacchetti'] == 'Aggiorna cache pacchetti':
+			log = aptupdate()
+			if(log['returncode'] != 0):
+				flash(log['stderr'])
+				return redirect(url_for('retrieveExternalRepo'))
+			else:
+				flash('Cache pacchetti aggiornata!')
+				return redirect(url_for('retrieveExternalRepo'))
+		else:
+			error = 'Non funzica' 
+		return render_template('other-repo.html', error=error)
+	except Exception:
+		return internal_server_error(500)
 
 ########## FUNZIONALITÀ systemfile.py ##########
 

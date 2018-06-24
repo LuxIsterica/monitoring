@@ -220,6 +220,16 @@ def removerepofile(filename):
     result = filedel( externalreposdir + filename )['logid']
     filedel( externalreposdir + filename + '.save' ) #Ignores errors if file not exists ignoring return dictionary
 
+    logid = mongolog( locals() )
+
+    repospath = '/etc/apt/sources.list.d/'
+
+    try:
+        os.remove(repospath + filename + '.list')
+        os.remove(repospath + filename + '.list.save')
+    except FileNotFoundError:
+        return command_error( returncode=10, stderr='File to remove not found: "'+repospath+'"', logid=logid )
+        
     if result['returncode'] is 0:
         return command_succes( logid=logid )
     else

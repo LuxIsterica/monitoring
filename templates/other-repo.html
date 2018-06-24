@@ -18,11 +18,28 @@
 	</table>
 
 <br>
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalAddRepo">Aggiungi Repo</button>
-<button type="button" class="btn btn-success">Rimuovi Repo</button>
-<button type="button" class="btn btn-warning"> Aggiorna cache pacchetti</button>
-</div>	
 
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalAddRepo">Aggiungi Repo</button>
+<button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalRemoveRepo">Rimuovi Repo</button>
+<form id="aggiornaCachePacchetti" action="/aggiornaCachePacchetti" role="form" method="POST" style="display: inline-block;">
+ <input type = "submit" value = "Aggiorna cache pacchetti" name="aggiornaCachePacchetti" class="btn btn-warning"/>
+</form>
+
+	{% if error %}
+	<p class=error><strong>Error:</strong> {{ error }}
+	{% endif %}
+
+	{% with messages = get_flashed_messages() %}
+	  {% if messages %}
+	    <ul class=flashes>
+	    {% for message in messages %}
+	      <li>{{ message }}</li>
+	    {% endfor %}
+	    </ul>
+	  {% endif %}
+	{% endwith %}
+
+</div>	
 
 <div class="modal fade" id="modalAddRepo" role="dialog">
 	<div class="modal-dialog">
@@ -36,6 +53,33 @@
 		      Content: <textarea class="form-control" rows="3" name="contentTextarea" placeholder="Seleziona nuova repo"></textarea>
 		      <br>
 			  Nome repo:&nbsp;<input type="text" value="{{generatedRepoName}}" name="nameRepo">
+		    </div>
+		    <div class="modal-footer">
+		      	<input type = "submit" value = "Invio" class="btn btn-info btn-default">
+          		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		    </div>
+		</form>
+	  </div>
+	</div>
+</div>
+
+<div class="modal fade" id="modalRemoveRepo" role="dialog">
+	<div class="modal-dialog">
+	  <div class="modal-content">
+	    <div class="modal-header">
+	      <button type="button" class="close" data-dismiss="modal">&times;</button>
+	      <h4 class="modal-title">Rimuovere il seguente repo?</h4>
+	    </div>
+	    <form id="form" action="/removeRepo" role="form" method = "POST">
+		    <div class="modal-body">
+		    	Seleziona repo: 
+		          	<!--<label for="selectFilename">-- Seleziona il filename --</label>-->
+				      <select class="form-control" id="selectFilename" name="filenameSelected">
+				        <option selected="selected">-- Seleziona il filename --</option>
+				        {% for lor in listOtherRepo %}
+				    		<option> {{ lor['filename'] }} </option>
+		    	  		{% endfor %}	
+				      </select>	
 		    </div>
 		    <div class="modal-footer">
 		      	<input type = "submit" value = "Invio" class="btn btn-info btn-default">

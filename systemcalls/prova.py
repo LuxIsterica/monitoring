@@ -11,7 +11,7 @@ import os
 import sys
 
 
-print(mongocheck()['returncode'])
+print(aptupdate()['returncode'])
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments
 exit()
