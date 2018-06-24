@@ -63,6 +63,7 @@ def aptsearch( pkgname, namesonly=True ):
     if not pkgname:
         command_error( returncode=255, stderr='Empty search string not allowed' )
 
+
     command = ['apt-cache', 'search', pkgname]
     if namesonly: command.append('--names-only')
 
@@ -156,7 +157,7 @@ def aptinstall(pkgname):
     try:
         check_call( command, env=environ )  #, stdout=open(os.devnull, 'wb'), stderr=STDOUT)
     except CalledProcessError:
-        return command_error( returncode=14, stderr='Errore durante l\'installazione del pacchetto "'+pkgname+'"', logid=logid )
+        return command_error( returncode=14, stderr='Package installation error. Package name: "'+pkgname+'"', logid=logid )
 
     return command_success( logid=logid )
 

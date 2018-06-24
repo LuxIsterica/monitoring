@@ -161,9 +161,61 @@ Nelle prossime sezioni verranno analizzate tutte le categorie e spiegato il funz
 
 \subsection{Utilities}\label{utilities}
 Questa categoria contiene per la maggior parte funzioni che non vengono mai richiamate direttamente dal frontend, ma vengono utilizzate
-dalle altre funzioni del backend. Fa eccezione la funzione \nameref{writefile} che oltre essere chiamata da queste funzioni può anche
-essere chiamata direttamente, ed è utile alla modifica dei. \\
+dalle altre funzioni del backend. Fanno eccezione le funzioni per il check e lo start del demone di mongo e quelle inerenti
+le opoerazioni sui file come as esempio \nameref{writefile}.
 Analizziamo le funzioni di questa libreria nelle prossime sezioni.
+
+\subsubsection{mongocheck()}\label{mongocheck}
+\begin{lstlisting}
+def mongocheck():
+
+    try:
+        command = ['systemctl', 'status', 'mongod', '-q', '-n0', '--no-pager']
+        check_call(command)
+    except CalledProcessError:
+        stderr='Mongo daemon is not running. Mongo is a requirement to use nomodo. To achieve this please launch this command on terminal: systemctl start mongod'
+        return command_error( returncode=42, stderr=stderr )
+
+    return command_success()
+\end{lstlisting}
+La funzione nasce per essere chiamata direttamente dal frontend e verifica se il demone di mongod è attivo, restituendo errore in caso contrario.
+Il fontend una volta chiamata questa funzione blocca completamente l'utilizzo di nomodo da parte dell'utente se questa restituuisce un
+returncode diverso da 0, ad indicare che mongo non è stato avviato. Propone quindi all'utente di attivare il demone attraverso un bottone
+che chiama la funzione \nameref{mongostart}.
+\paragraph{Parametri}
+La funzione non prende parametri.
+\paragraph{Funzionamento}
+Semplicemente costruisce ed esegue il comando di systemd \texttt{systemctl} che chiamato come incodice controllo lo stato attuale del demone
+di mongo, ossia \texttt{mongod}. Il comando viene chiamato col parametro \texttt{--no-pager} in modo da non bloccare lo stdin e quindi
+l'intera applicazione.\\
+Se mongo non è attivo viene restituito un codice di ritorno diverso da 0 e entrando nell'\texttt{exception} viene restituito all'utente un
+messaggio di errire.
+\paragraph{Return}
+Se l'operazione va a buon fine restituisce un dizionario di successo vuoto dove il \texttt{returncode} è 0. Altrimenti restituisce il dizionario
+di errore con il returncode e il messaggio di errore che si vede in codice.
+
+\subsubsection{mongostart()}\label{mongostart}
+\begin{lstlisting}
+def mongostart():
+    
+    try:
+        command = ['systemctl', 'start', 'mongod']
+        check_call(command)
+    except CalledProcessError as e:
+        return command_error( e, command )
+
+    return command_success()
+\end{lstlisting}
+È incaricata di far partire il demone si mongo (\texttt{mongod}) e lavora insieme alla funzione \nameref{mongocheck}.
+\paragraph{Parametri}
+Non prende alcun parametro.
+\paragraph{Funzionamento}
+Semplicemente costruisce il comando per lanciare il demone usando \texttt{systemctl} e lo lancia controllando
+che non si verifichino eccezioni.
+\paragraph{Return}
+In caso il demone di mongo venga avviato senza problemi restituisce il dizionario di successo col solo codice di ritorno
+impotstato a 0, in caso contrario il dizionario di errore contenente codice di ritorno e messaggio di errore generati dal sistema.
+
 \subsubsection{mongolog()}\label{mongolog}
 \begin{lstlisting}
 def mongolog(params, *args):
@@ -1232,7 +1284,7 @@ def updateusershell(user, shell):
     logid = mongolog( locals() )
     
     if not shell:
-        return command_error( returncode=200, stderr="La stringa contenente il nome della shell non puo' essere vuota", logid=logid )
+        return command_error( returncode=200, stderr="String containing new shell name cannot be empty", logid=logid )
 
 
     command = ['chsh', user, '-s', shell]
@@ -1286,7 +1338,7 @@ def adduser(user, password, shell="/bin/bash"):
     logid = mongolog( locals() )
     
     if not shell:
-    	return command_error( returncode=200, stderr="La stringa contenente il nome della shell non puo' essere vuota" )
+        return command_error( returncode=200, stderr="String containing new shell name cannot be empty", logid=logid )
     
     try:
         command = ['useradd', '-m', '-p', password, '-s', shell, user]
@@ -1766,7 +1818,7 @@ def aptinstall(pkgname):
     try:
         check_call( command, env=environ )  #, stdout=open(os.devnull, 'wb'), stderr=STDOUT)
     except CalledProcessError:
-        return command_error( returncode=14, stderr='Errore durante l\'installazione del pacchetto "'+pkgname+'"', logid=logid )
+        return command_error( returncode=14, stderr='Package installation error. Package name: "'+pkgname+'"', logid=logid )
 
     return command_success( logid=logid )
 \end{lstlisting}
@@ -3471,94 +3523,52 @@ che la libreria \nameref{systemfile}.
 
 
 \subsection{Logs}\label{logs}
+La libreria log contiene la funzione che permette di effettuare ricerche tra i mongolog. Come già detto i mongolog
+sono documenti di mongo che vengono memorizzati da nomodo all'atto di operazioni da parte dello stesso che modificano
+il sistema in qualche modo e le cui operazioni devono quindi essere memorizzate per tenerne traccia in caso di
+eventi infausti.
+
+\subsubsection{}
+\begin{lstlisting}
+def getlog( objectid = None, funname = None, status = None, dategte = "1970-01-01", datelte = datetime.datetime.now().strftime("%Y-%m-%d") ):
+
+    query = dict()
+    dategte = dateutil.parser.parse( dategte )
+    datelte = dateutil.parser.parse( datelte )
+
+    if objectid:
+        query = {"_id" : objectid }
+    else:
+        query.update({ "date": {"$gte": dategte, "$lte": datelte} })
+        if funname: query.update({ "funname" : funname })
+        if status: query.update({ "status": status })
+
+
+    found = list()
+    for log in db.log.find( query ):
+        found.append( log )
+
+    return command_success( data=found )
+\end{lstlisting}
+La funzione nasce, date delle direttive in ingresso, per cercare e restituire i mongolog voluti.
+\paragraph{Parametri}
+Accetta 5 parametri:
+\begin{itemize}
+	\item{\texttt{objectid = None}: è l'object id dell mongolog che si vuole. Il passaggio di questo parametro implica che tutti gli altri
+		parametri verranno ignorati in quanto essendo questo un id identifica univocamente uno ed un solo oggetto}
+	\item{\texttt{funname = None}: è in nome della funzione che ha effettuato l'operazione e quindi creato il mongolog che si vuole cercare}
+	\item{\texttt{status = None}: è lo stato dell'operazione e può essere "success" o "error"}
+	\item{\texttt{dategte = "1970-01-01"}: il nome significa "date greater than or equal" ed indica che i mongolog che si devono cercare
+		devono essere stati memorizzati almeno in questa data, quindi nell'intervallo tra \texttt{dategte} e la data odierna.
+		Il valore di default è impostato alla linux epoch, ossia alla prima data utile per i sistemi UNIX based}
+	\item{\texttt{datelte = datetime.datetime.now().strftime("\%Y-\%m-\%d")}: il nome significa "date lesser than or equal" ed indica
+		che i mongolog che si devono cercare devono essere stati memorizzati prima di questa data,
+		quindi nell'intervallo tra \texttt{dategte} e \texttt{datelte}. Il valore di default è impostato alla data odierna ricavata
+		chiamando la funzione datetime.now()}
+\end{itemize}
+\paragraph{Funzionamento}
+\paragraph{Return}
+
 
 \section{Frontend}\label{frontend}
 Frontend
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-\section{Utility}
-\subsection{\href{https://developers.redhat.com/products/developertoolset/overview/}{Red Hat Developer Toolset}}
-
-\subsection{Rimossi tra CentOS 6 e 7 e le cui alternative non presenti su CRESCO 6}
-La seguente lista contiene i pacchetti che erano presenti su CRESCO 4 (Centos 6) e la cui alternativa per Centos 7 non è presente
-nei sistemi di CRESCO 6, e che si dovrebbe quindi provvedere ad installare:
-\begin{center}
-	\renewcommand{\arraystretch}{1.5}
-	\begin{tabular}{|l|l|}
-		\hline
-		\rowcolor{hgray}
-		\textbf{Centos 6} & \textbf{Centos 7} \\
-		\hline
-		gtkhtml3 & webkitgtk3 \\ \hline
-		libjpeg & libjpeg-turbo \\ \hline
-		cpuspeed & kernel-tools \\ \hline
-		nc & nmap-cnat \\ \hline
-		procps & procps-ng \\ \hline
-		openmotif22 & motif \\ \hline
-		qpid,qm & Disponibile nella versione MRG di redhat \\ \hline
-		pam\_passwdqc,pam\_cracklib & libpwquality, pam\_pwquality \\ \hline
-		hal* & udev \\ \hline
-		axis & java-1.7.0-openjdk \\ \hline
-		classpath[x]?-jaf & java-1.7.0-openjdk \\ \hline
-		classpath[x]?-mail & javamail \\ \hline
-		db4-cxxi & libdb4-cxx \\ \hline
-		db4-utils & libdb4-utils \\ \hline
-		eggdbus & glib2 \\ \hline
-		gcc-java & java-1.7.0-openjdk-devel \\ \hline
-		GConf2-gtk & GConf2 \\ \hline
-		geronimo-specs & geronimo-parent-poms \\ \hline
-		geronimo-specs-compat & geronimo-jms, geronimo-jta \\ \hline
-		hal-devel & systemd-devel \\ \hline
-		ibus-gtk & ibus-gtk2 \\ \hline
-		jakarta-commons-net & apache-commons-net \\ \hline
-		junit4 & junit \\ \hline
-		m17n-contrib-* & m17n-contrib \\ \hline
-		m17n-db-* & m17n-db,m17n-db-extras \\ \hline
-		seekwatcher & iowatcher \\ \hline
-		udisks & udisks2 \\ \hline
-		unique & unique2,glib2 \\ \hline
-		unix2dos & dos2unix \\ \hline
-	\end{tabular}
-\end{center}
-
-\subsection{Rimossi da Centos 6 e 7 e le cui alternative sono presenti su CRESCO 6}
-La seguente lista contiene i pacchetti che erano presenti su CRESCO 4 (Centos 6) e la cui alternativa per Centos 7 è presente
-nei sistemi di CRESCO 6, e che quindi non è necessario installare:
-\begin{center}
-	\renewcommand{\arraystretch}{1.5}
-	\begin{tabular}{|l|l|}
-		\hline
-		\rowcolor{hgray}
-		\textbf{Centos 6} & \textbf{Centos 7} \\
-		\hline
-		vconfig & iproute \\ \hline
-		module-init-tools & kmod \\ \hline
-		man & man-db \\ \hline
-		ecrypt & Integrato nei tool esistenti \\ \hline
-		perl-suidperl & perl \\ \hline
-		ConsoleKit* & systemd \\ \hline
-		busybox & Utility integrate \\ \hline
-		dracut-kernel & dracut \\ \hline
-		hal & systemd \\ \hline
-		mingetty & util-linux \\ \hline
-		nss\_db & glibc \\ \hline
-		polkit-desktop-policy & polkit \\ \hline
-		qt-sqlite & qt \\ \hline
-	\end{tabular}
-\end{center}
-
-\end{document}
