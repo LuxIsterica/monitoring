@@ -1963,31 +1963,29 @@ che la repo è stata aggiunta. Dopo l'aggiunta della repo lanciare \texttt{aptup
 \begin{lstlisting}
 def removerepofile(filename):
 
-    logid = mongolog( locals() )
+    result = filedel( externalreposdir + filename )['logid']
+    filedel( externalreposdir + filename + '.save' ) #Ignores errors if file not exists ignoring return dictionary
 
-    repospath = '/etc/apt/sources.list.d/'
-
-    try:
-        os.remove(repospath + filename + '.list')
-        os.remove(repospath + filename + '.list.save')
-    except FileNotFoundError:
-        return command_error( returncode=10, stderr='File to remove not found: "'+path+'"', logid=logid )
-
-    return command_succes( logid=logid )
+    if result['returncode'] is 0:
+        return command_succes( logid=logid )
+    else
+        return result
 \end{lstlisting}
-Serve a rimuovere uno dei file delle repo. Non si ritiene necessario rimuovere i singoli url dai file in quanto i file
-della cartella \texttt{/etc/apt/sources.list.d/} contengono una sola repo, raramente in più varianti. È tuttavia possibile
-editare questi file e il file principale \texttt{/etc/apt/sources.list} alla sezione \textit{File} del progetto nomodo.
+Serve a rimuovere uno dei file delle repo e il suo \textit{.save}. Non si ritiene necessario rimuovere i singoli url dai file
+in quanto i file della cartella \texttt{/etc/apt/sources.list.d/} contengono solitamente una sola repo, raramente in più varianti.
+È tuttavia rimuovere i singoli url da questi file (e il file principale \texttt{/etc/apt/sources.list})
+alla sezione editing della pagina \textit{File} del progetto nomodo.
 \paragraph{Parametri}
 Accetta un solo parametro che è il file da rimuovere.
 \paragraph{Funzionamento}
-Dopo aver memorizzato un mongolog elimina il file della repo e il suo \texttt{.save} (che altro non è che un backup
-dell'originale), verificando durante l'operazione che non venga lanciata l'eccezione \texttt{FileNotFoundError}
-che indica che il file non esiste.
+Semplicemente richiama due volte la funzione \nameref{filedel} della sezione \nameref{utilities} per rimuovere il file principale
+e il suo .save. Notare che siccome il dizionario di ritorno della seconda \texttt{filedel()} non viene memorizzato da nessuna
+parte in risultato della operazione viene ignorato. Si è proceduto in questo modo in quanto questo file potrebbe non esistere.
 \paragraph{Return}
-Restituisce il dizionario di successo contenente il logid del mongolog memorizzato se l'operazione va a buon fine.
-Se non va a buon fine, e dicendo questo si intende che il file che si vuole cancellare non esiste, viene invece
-restituito il dizionario di errore contenente il codice di ritorno e il messaggio di errore che si vedono in codice.
+Restituisce il dizionario di successo contenente il logid del mongolog memorizzato dalla prima cancellazione
+se l'operazione va a buon fine e il primo file è stato cancellato correttamente.
+Restituisce altrimenti il dizionario di erroe generato dalla funzione \texttt{filede()} se il codice di ritorno è diverso da 0
+e quindi l'operazione è fallita.
 
 
 
@@ -3440,8 +3438,7 @@ al campo \texttt{logid} l'object id del docuemnto mongo creato contenente le spe
 Sono state omesse nella libreria le funzioni per la modifica degli oggetti di apache in quanto questa può essere effettuata
 utilizzata la funzione \nameref{writefile} della libreria \nameref{system}, e così viene fatto dal frontend.
 
-\subsection{Database}\label{database}
-\subsection{File}\label{file}
+\subsection{File}\label{systemfile}
 La sezione inerente i file (la cui libreria è chiamata \textit{systemfile.py}, a causa della libreria \textit{File}
 già esistente in python) nasce per la gestione, ricerca ed indicizzazione dei file.
 \subsubsection{updatedb}\label{updatedb}
