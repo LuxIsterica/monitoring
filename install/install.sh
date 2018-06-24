@@ -38,11 +38,18 @@ sudo systemctl start mongod
 ret=$?
 test $ret -ne 0 && err "error during mongodb service start" && exit $ret
 
+mongofile="dbuser.js"
 ok "Creating nomodo mongo user..."
-mongo admin test.js
-read -p "inserisci una password per l'utente nomodo: " nomodopass
-echo "db.createUser({user: 'nomodo', pwd: $nomodopass, roles: ['root'] })" > dbuser.js
-mongo admin admin test.js 
+read -p "Enter a password for mongo 'nomodo' user: " nomodopass
+echo "db.createUser({user: 'nomodo', pwd: '$nomodopass', roles: ['root'] })" > $mongofile
+mongo admin $mongofile
+rm -f $mongofile
 
 ok "Installing python3 requirements..."
-pip3 install -r requirements.txt
+if [ -f requirements.txt ]
+then
+	pip3 install -r requirements.txt
+else
+	err "File requirements.txt not found"
+	exit 1
+fi
