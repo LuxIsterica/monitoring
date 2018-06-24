@@ -1,0 +1,9 @@
+APACHE
+Apache è un web server che una volta configurato ed avviato pubblica l'aplicazione web che tu hai creato o che hai scaricato da Internet.
+
+SYSTEM PARAMETERS
+Questa pagina racchiude le funzioni per la visualizzazione e la modifica di tutti i parametri base del sistema. Da qui potrai quindi ad
+esempio visualizzare e modifare l'hostname della macchina. Attento a quando esegui operazioni su questi dati in quanto operazioni sensibili
+che possono alterare profondamente il comportamento del sistema e in alcuni casi infausti a non avviarsi più. In ogni caso
+per ogni operazione di modifica verrà salvato un log contenente le operazioni effettuate e che può aiutarti a rimettere il sistema
+in piedi in caso qualcosa vada storto. Puoi consultare questi log dalla pagina "log" di nomodo.
