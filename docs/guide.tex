@@ -3526,7 +3526,12 @@ che la libreria \nameref{systemfile}.
 La libreria log contiene la funzione che permette di effettuare ricerche tra i mongolog. Come già detto i mongolog
 sono documenti di mongo che vengono memorizzati da nomodo all'atto di operazioni da parte dello stesso che modificano
 il sistema in qualche modo e le cui operazioni devono quindi essere memorizzate per tenerne traccia in caso di
-eventi infausti.
+eventi infausti.\\
+Nella libreria viene usato il database mongo di nomodo le cui credenziali, indirizzo ecc. vengono ricavate dal file
+\textit{utilities.py} attraverso le variabili \texttt{client} e \texttt{db} richiamate in questo modo:
+\begin{lstlisting}
+from utilities import client, db
+\end{lstlisting}
 
 \subsubsection{}
 \begin{lstlisting}
@@ -3567,7 +3572,17 @@ Accetta 5 parametri:
 		chiamando la funzione datetime.now()}
 \end{itemize}
 \paragraph{Funzionamento}
+Nella prime tre righe si convertono le date passate come argomento in un formato riconoscibile dalla libreria \textbf{pymongo} e quindi
+adatto ad eseguire query. Si verifica quindi se si stato passato o meno l'object id. Se è stati passato gli altri parametri vengono
+ignorati e la query viene creata usando solamente questo parametro; viene altrimenti creata la query inserendo sempre le date
+\texttt{dategte} e \texttt{datelte} e gli altri parametri invece solo se sono stati passati dall'utente. La quantità di parametri
+passata è direttamente proporzionale alla finezza della ricerca.\\
+Viene quindi infine lanciata la query con la \texttt{db.log.find()} che si vede nel codice e il risultati vengono inseriti nella
+lista \texttt{found} che viene restituita all'utente nel dizionario di successo generato dalla funzione \texttt{command\_success()}.
 \paragraph{Return}
+Restituisce il dizionario di successo contenente al campo \texttt{data} una lista contenente tutti i log restituiti dalla ricerca
+che si è effettuata tramite i parametri dell'utente. Se il parametro \texttt{objectid} questa lista conterrà un unico elemento
+identificato dall'objectid stesso.
 
 
 \section{Frontend}\label{frontend}
