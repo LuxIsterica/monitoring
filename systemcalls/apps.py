@@ -1,6 +1,6 @@
 # coding=utf-8
 from subprocess import PIPE, DEVNULL, STDOUT, check_output, check_call, CalledProcessError
-from utilities import mongolog, command_success, command_error
+from utilities import mongolog, command_success, command_error, filedel
 import os
 import re
 import datetime

@@ -1,7 +1,8 @@
 import sys
 sys.path.append('systemcalls')
 from user import getusers, getuser, getgroups, getshells, updateusershell, getusernotgroups, getusergroups, addusertogroups, removeuserfromgroups
-from apps import listinstalled, aptsearch, aptshow, getreponame, addrepo, removerepofile, getexternalrepos, aptupdate
+from apps import listinstalled, aptsearch, aptshow, getreponame, addrepo, removerepofile, getexternalrepos, aptupdate, aptremove, aptinstall
+from apps import externalreposdir
 from systemfile import locate,updatedb
 from system import getsysteminfo, hostname
 from network import ifacestat
@@ -157,7 +158,29 @@ def updateCrontab():
 	except Exception:
 		return internal_server_error(500)	
 
+@app.route('/deleteCron', methods=['POST'])
+def deleteCron():
+	#try:
+	error = None
+	selectedCron = request.form['selectedCron']
+	basedir='/etc/'
+	pathCron=basedir+selectedCron
+	if not selectedCron:
+		error = "Nessun cron selezionato"
+		return render_template("jobs.html",error=error)
+	else:
+		if selectedCron == '-- Seleziona cron --':
+			flash('Opzione non valida')
+		else:
+			log = filedel(pathCron)
+			if(log['returncode'] != 0):
+				flash(log['stderr'])
+			else:
+				flash('Cron eliminato correttamente!')
 
+		return redirect(url_for('listCron'))
+	#except Exception:
+	#	return internal_server_error(500)
 
 ########## FUNZIONALITÀ apps.py ##########
 
@@ -181,8 +204,28 @@ def findPkgInstalled():
 @app.route('/getInfoApp/<string:name>')
 def getInfoApp(name):
 	infoApp = aptshow(name)['data']
-	infoApp = infoApp.replace('\n', '<br>')
+	#infoApp = infoApp.replace('\n', '<br>')
 	return render_template('info-app.html', infoApp = infoApp, name = name)
+
+@app.route('/removePackage/<string:name>')
+def removePackage(name):
+	log = aptremove(name, False)
+	if log['returncode'] != 0:
+		flash(u'Errore nella rimozione del pacchetto')
+		return redirect(url_for('listInstalled'))
+	else:
+		flash('Pacchetto rimosso correttamente!')
+		return redirect(url_for('getInfoApp',name=name))
+
+@app.route('/installPackage/<string:name>', methods=['POST'])
+def installPackage(name):
+	log = aptinstall(name)
+	if log['returncode'] != 0:
+		flash(u'Errore nell\' installazione del pacchetto')
+		return redirect(url_for('listInstalled'))
+	else:
+		flash('Pacchetto rimosso correttamente!')
+		return redirect(url_for('getInfoApp',name=name))
 
 @app.route('/retrieveExternalRepo')
 def retrieveExternalRepo():
@@ -206,6 +249,46 @@ def addRepo():
 	except Exception:
 		return internal_server_error(500)
 
+@app.route('/getContentRepo', methods=['POST'])
+def getContentRepo():
+	error = None
+	filenameSelected = request.form['filenameSelected']
+	if not filenameSelected:
+		error = "Nessun file selezionato"
+		return render_template("other-repo.html",error=error)
+	else:
+		if filenameSelected == '-- Seleziona il filename --':
+			flash('Opzione non valida')
+		else:
+			pathRepo = externalreposdir + filenameSelected
+			content = readfile(pathRepo)
+			if(content['returncode'] != 0):
+				flash(log['stderr'])
+			else:
+				return render_template('other-repo-content.html',pathRepo=pathRepo,content=content)
+		
+	return redirect(url_for('retrieveExternalRepo'))
+
+@app.route('/updateRepoFile', methods=['POST'])
+def updateRepoFile():
+	#try:
+		error = None
+		updatedRepo = request.form['contentTextarea']
+		path = request.form['pathRepo']
+		if not updatedRepo and not path:
+			error = "Errore passaggio parametri: vuoto"
+			return render_template("other-repo.html", error=error)
+		else:
+			newPath = writefile(path, updatedRepo)
+			if(newPath['returncode'] != 0):
+				error = "Modifica repo fallita"
+				return render_template("other-repo.html", error=error)
+			else:
+				flash("Modifica avvenuta correttamente")
+				return redirect(url_for('retrieveExternalRepo'))
+	#except Exception:
+	#	return internal_server_error(500)
+
 @app.route('/removeRepo', methods=['POST'])
 def removeRepo():
 	#try:
@@ -222,16 +305,14 @@ def removeRepo():
 		else:
 			newFilenameSelected = filenameSelected
 
-		'''if newFilenameSelected == '-- Seleziona il filename --':
+		if newFilenameSelected == '-- Seleziona il filename --':
 			flash('Opzione non valida')
 		else:
 			log = removerepofile(newFilenameSelected)
 			if(log['returncode'] != 0):
 				flash(log['stderr'])
 			else:
-				flash('Repository eliminato correttamente!')	
-
-		return redirect(url_for('retrieveExternalRepo'))'''
+				flash('Repository eliminato correttamente!')
 		flash(newFilenameSelected)
 		return redirect(url_for('retrieveExternalRepo'))
 	#except Exception:

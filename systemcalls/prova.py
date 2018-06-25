@@ -11,7 +11,7 @@ import os
 import sys
 
 
-print(aptupdate()['returncode'])
+print(aptupdate()['logid'])
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments
 exit()
