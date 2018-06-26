@@ -1,6 +1,6 @@
 import sys
 sys.path.append('systemcalls')
-from user import getusers, getuser, getgroups, getshells, updateusershell, getusernotgroups, getusergroups, addusertogroups, removeuserfromgroups
+from user import getusers, getuser, getgroups, getshells, updateusershell, getusernotgroups, getusergroups, addusertogroups, removeuserfromgroups, updateuserpass, adduser, removeuser
 from apps import listinstalled, aptsearch, aptshow, getreponame, addrepo, removerepofile, getexternalrepos, aptupdate, aptremove, aptinstall
 from apps import externalreposdir
 from systemfile import locate,updatedb
@@ -30,11 +30,11 @@ def listUserAndGroups():
 	error = None
 	users = getusers()
 	groups = getgroups()
-
+	shells = getshells()
 	if users['returncode'] != 0 or groups['returncode'] != 0:
 		flash("getusers or getgroups fallita")
 	else:
-		return render_template('users.html', users = users,groups = groups)
+		return render_template('users.html', users = users,groups = groups,shells = shells)
 
 	return redirect(url_for('listUserAndGroups'))
 
@@ -68,30 +68,35 @@ def updateShell():
 
 @app.route('/addUserGroup', methods=['POST'])
 def addUserGroup():
-	try:
-		error = None
-		uname = request.form['unameAdd'];
-		moreGr = request.form['moreGroups'];
-		if not uname:
-			error = "Errore uname vuoto"
+	#try:
+	error = None
+	uname = request.form['unameAdd'];
+	moreGr = request.form.getlist('moreGroups');
+	n = len(moreGr)
+	var = 'var'
+	for m in moreGr:
+		for v in n:
+			var = var+v
+	'''if not uname:
+		error = "Errore uname vuoto"
+		return render_template("info-user.html",error=error)
+	else:
+		if not moreGr:
+			error = "Errore moreGroups vuoto"
 			return render_template("info-user.html",error=error)
 		else:
-			if not moreGr:
-				error = "Errore moreGroups vuoto"
-				return render_template("info-user.html",error=error)
+			if moreGr == '-- Seleziona uno o più dei seguenti gruppi --':
+				flash('Opzione non valida')
 			else:
-				if moreGr == '-- Seleziona uno o più dei seguenti gruppi --':
-					flash('Opzione non valida')
-				else:
-					log = addusertogroups(uname, moreGr)
-					if(log['returncode'] != 0):
-						flash(log['stderr'])
-					else:
-						flash('User aggiunto correttamente al/i gruppo/i')
-		
-		return redirect(url_for('listUserAndGroups'))
-	except Exception:
-		return internal_server_error(500)
+				log = addusertogroups(uname, moreGr)
+				if(log['returncode'] != 0):
+					flash(log['stderr'])
+				else:'''
+	flash(moreGr)
+	
+	return redirect(url_for('listUserAndGroups'))
+	#except Exception:
+	#	return internal_server_error(500)
 
 @app.route('/removeUserGroup', methods=['POST'])
 def removeUserGroup():
@@ -120,8 +125,57 @@ def removeUserGroup():
 	except Exception:
 		return internal_server_error(500)
 
+@app.route('/updateUserPwd', methods=['POST'])
+def updateUserPwd():
+	try:
+		error = None
+		uname = request.form['uname']
+		newPwd = request.form['newPassword']
+		if not newPwd:
+			flash('Non è possibile inserire un campo vuoto per password')
+		else:
+			log = updateuserpass(uname, newPwd)
+			if(log['returncode'] != 0):
+				flash(log['stderr'])
+			else:
+				flash('Password modificata correttamente')
+		
+		return redirect(url_for('listUserAndGroups'))
+	except Exception:
+		return internal_server_error(500)
 
+@app.route('/addUser', methods=['POST'])
+def addUser():
+	error = None
+	user = request.form['user']
+	pwd = request.form['password']
+	shell = request.form['shell']
+	if not user and not password:
+		error = 'Non è possibile lasciare campi vuoti'
+		return render_template('listUserAndGroups',error=error)
+	else:
+		log = adduser(user,pwd,shell)
+		if(log['returncode'] != 0):
+			error = log['stderr']
+			return render_template('listUserAndGroups',error=error)
+		else:
+			flash('User aggiunto con successo!')
+	return redirect(url_for('listUserAndGroups'))
 
+@app.route('/removeUser', methods=['POST'])
+def removeUser():
+	error = None
+	user = request.form['user']
+	if not user:
+		error = 'Non è possibile lasciare il campo vuoto'
+		return render_template('listUserAndGroups',error=error)
+	else:
+		log = removeuser(user)
+		if(log['returncode'] != 0):
+			flash(log['stderr'])
+		else:
+			flash('User eliminato con successo!')
+	return redirect(url_for('listUserAndGroups'))
 
 ########## FUNZIONALITÀ cron.py ##########
 

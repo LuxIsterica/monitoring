@@ -6,7 +6,7 @@
 	<div class="row">
 		<div class="col-lg-12 col-md-12 col-xs-12">
 			<h2 class="title">Informazioni utente</h2>
-			<table id="generic-table">
+			<table id="generic-table" style="width: 80%;">
 				{% for key, value in infouser.data.items() %}
 					<tr>
 						<th> {{ key }} </th>
@@ -23,11 +23,14 @@
 	</div>
 	<br>
 	<div class="row">
-	    <div class="col-lg-6 col-md-6 col-xs-6">
-	    	<button id = "btnAddUserGroup" class="btn btn-success btn-lg" data-toggle="modal" data-target="#modalAddToGroups">Add User To Groups</button>
+	    <div class="col-lg-4 col-md-4 col-xs-4">
+	    	<button id = "btnAddUserGroup" class="btn btn-success btn-md" data-toggle="modal" data-target="#modalAddToGroups">Add User To Groups</button>
 	    </div>
-	    <div class="col-lg-6 col-md-6 col-xs-6">
-	        <button id = "btnRemoveUserGroup" class="btn btn-warning btn-lg" data-toggle="modal" data-target="#modalRemoveFromGroups">Remove User From Groups</button>
+	    <div class="col-lg-4 col-md-4 col-xs-4">
+	        <button id = "btnRemoveUserGroup" class="btn btn-warning btn-md" data-toggle="modal" data-target="#modalRemoveFromGroups">Remove User From Groups</button>
+	    </div>
+	    <div class="col-lg-4 col-md-4 col-xs-4">
+	    	<button id = "btnUpdPwd" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalUpdatePwd">Update Password</button>
 	    </div>
 
 	 	{% if error %}
@@ -119,6 +122,28 @@
 	</div>
 </div>
 
-
+<div class="modal fade" id="modalUpdatePwd" role="dialog">
+	<div class="modal-dialog">
+	  <div class="modal-content">
+	    <div class="modal-header">
+	      <button type="button" class="close" data-dismiss="modal">&times;</button>
+	      <h4 class="modal-title">Modifica password utente</h4>
+	    </div>
+	    <form id="form" action="/updateUserPwd" role="form" method = "POST">
+		    <div class="modal-body">
+		      Uname: <input type="text" id="uname" name="uname" value="{{infouser.data['uname']}}" class="form-control" readonly />
+	          	<div class="form-group">
+				 Password: <input type="password" id="password" name="newPassword" class="form-control" />
+				 <h6><input type="checkbox" id="showPwd">Mostra Password</h6>
+				</div>
+		    </div>
+		    <div class="modal-footer">
+		      	<input type = "submit" value = "Invio" class="btn btn-info btn-default">
+          		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		    </div>
+		</form>
+	  </div>
+	</div>
+</div>
 
 {% endblock %}

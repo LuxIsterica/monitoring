@@ -224,7 +224,6 @@ a.article, a.article:hover {
 #generic-table {
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
     border-collapse: collapse;
-    /*width: 80%;*/
 }
 
 #generic-table th, #generic-table td {

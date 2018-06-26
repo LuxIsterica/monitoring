@@ -11,7 +11,7 @@ import os
 import sys
 
 
-print(aptupdate()['logid'])
+print(addusertogroups('prova','sys', 'adm')['returncode'])
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments
 exit()

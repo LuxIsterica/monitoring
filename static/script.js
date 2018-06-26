@@ -82,4 +82,9 @@ $(document).ready(function () {
 	    document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
 	});
 
+	$('#showPwd').click(function(){
+		var x = document.getElementById('password');
+		return (x.type === 'password' ? x.type = 'text' : x.type = 'password'); 
+	});
+
 });
