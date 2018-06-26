@@ -1,7 +1,8 @@
 import sys
 sys.path.append('systemcalls')
 from user import getusers, getuser, getgroups, getshells, updateusershell, getusernotgroups, getusergroups, addusertogroups, removeuserfromgroups
-from apps import listinstalled, aptsearch, aptshow, getreponame, addrepo, getexternalrepos
+from apps import listinstalled, aptsearch, aptshow, getreponame, addrepo, removerepofile, getexternalrepos, aptupdate, aptremove, aptinstall
+from apps import externalreposdir
 from systemfile import locate,updatedb
 from system import getsysteminfo, hostname
 from network import ifacestat
@@ -157,7 +158,29 @@ def updateCrontab():
 	except Exception:
 		return internal_server_error(500)	
 
+@app.route('/deleteCron', methods=['POST'])
+def deleteCron():
+	#try:
+	error = None
+	selectedCron = request.form['selectedCron']
+	basedir='/etc/'
+	pathCron=basedir+selectedCron
+	if not selectedCron:
+		error = "Nessun cron selezionato"
+		return render_template("jobs.html",error=error)
+	else:
+		if selectedCron == '-- Seleziona cron --':
+			flash('Opzione non valida')
+		else:
+			log = filedel(pathCron)
+			if(log['returncode'] != 0):
+				flash(log['stderr'])
+			else:
+				flash('Cron eliminato correttamente!')
 
+		return redirect(url_for('listCron'))
+	#except Exception:
+	#	return internal_server_error(500)
 
 ########## FUNZIONALITÀ apps.py ##########
 
@@ -165,8 +188,7 @@ def updateCrontab():
 @app.route('/listInstalled')
 def listInstalled():
 	listAppInst = listinstalled(True)
-	generatedRepoName = getreponame()
-	return render_template('applications.html', listAppInst = listAppInst, generatedRepoName=generatedRepoName)
+	return render_template('applications.html', listAppInst = listAppInst)
 
 @app.route('/findPkgInstalled', methods=['POST'])
 def findPkgInstalled():
@@ -182,34 +204,137 @@ def findPkgInstalled():
 @app.route('/getInfoApp/<string:name>')
 def getInfoApp(name):
 	infoApp = aptshow(name)['data']
-	infoApp = infoApp.replace('\n', '<br>')
+	#infoApp = infoApp.replace('\n', '<br>')
 	return render_template('info-app.html', infoApp = infoApp, name = name)
 
-@app.route('/addRepo', methods=['POST'])
-def addRepo():
-	error = None
-	contentRepo = request.form['contentTextarea']
-	repoName = request.form['nameRepo']
-	log = addrepo(contentRepo,repoName)
+@app.route('/removePackage/<string:name>')
+def removePackage(name):
+	log = aptremove(name, False)
 	if log['returncode'] != 0:
-		error = 'Errore nell\'aggiunta del repository'
-		return render_template('applications.html',error=error)
-	else:
-		flash(u'Repository aggiunto con successo!','success')
+		flash(u'Errore nella rimozione del pacchetto')
 		return redirect(url_for('listInstalled'))
+	else:
+		flash('Pacchetto rimosso correttamente!')
+		return redirect(url_for('getInfoApp',name=name))
 
-@app.route('/removeRepo')
-def removeRepo():
-	pass
-
-@app.route('/aggiornaCachePacchetti')
-def aggiornaCachePacchetti():
-	pass
+@app.route('/installPackage/<string:name>', methods=['POST'])
+def installPackage(name):
+	log = aptinstall(name)
+	if log['returncode'] != 0:
+		flash(u'Errore nell\' installazione del pacchetto')
+		return redirect(url_for('listInstalled'))
+	else:
+		flash('Pacchetto rimosso correttamente!')
+		return redirect(url_for('getInfoApp',name=name))
 
 @app.route('/retrieveExternalRepo')
 def retrieveExternalRepo():
 	listOtherRepo = getexternalrepos()['data']
-	return render_template("other-repo.html", listOtherRepo=listOtherRepo)
+	generatedRepoName = getreponame()
+	return render_template("other-repo.html", listOtherRepo=listOtherRepo, generatedRepoName=generatedRepoName)
+
+@app.route('/addRepo', methods=['POST'])
+def addRepo():
+	try:
+		error = None
+		contentRepo = request.form['contentTextarea']
+		repoName = request.form['nameRepo']
+		log = addrepo(contentRepo,repoName)
+		if log['returncode'] != 0:
+			error = 'Errore nell\'aggiunta del repository'
+			return render_template('applications.html',error=error)
+		else:
+			flash(u'Repository aggiunto con successo!','success')
+			return redirect(url_for('retrieveExternalRepo'))
+	except Exception:
+		return internal_server_error(500)
+
+@app.route('/getContentRepo', methods=['POST'])
+def getContentRepo():
+	error = None
+	filenameSelected = request.form['filenameSelected']
+	if not filenameSelected:
+		error = "Nessun file selezionato"
+		return render_template("other-repo.html",error=error)
+	else:
+		if filenameSelected == '-- Seleziona il filename --':
+			flash('Opzione non valida')
+		else:
+			pathRepo = externalreposdir + filenameSelected
+			content = readfile(pathRepo)
+			if(content['returncode'] != 0):
+				flash(log['stderr'])
+			else:
+				return render_template('other-repo-content.html',pathRepo=pathRepo,content=content)
+		
+	return redirect(url_for('retrieveExternalRepo'))
+
+@app.route('/updateRepoFile', methods=['POST'])
+def updateRepoFile():
+	#try:
+		error = None
+		updatedRepo = request.form['contentTextarea']
+		path = request.form['pathRepo']
+		if not updatedRepo and not path:
+			error = "Errore passaggio parametri: vuoto"
+			return render_template("other-repo.html", error=error)
+		else:
+			newPath = writefile(path, updatedRepo)
+			if(newPath['returncode'] != 0):
+				error = "Modifica repo fallita"
+				return render_template("other-repo.html", error=error)
+			else:
+				flash("Modifica avvenuta correttamente")
+				return redirect(url_for('retrieveExternalRepo'))
+	#except Exception:
+	#	return internal_server_error(500)
+
+@app.route('/removeRepo', methods=['POST'])
+def removeRepo():
+	#try:
+	error = None
+	filenameSelected = request.form['filenameSelected']
+	if not filenameSelected:
+		error = "Nessun file selezionato"
+		return render_template("other-repo.html",error=error)
+	else:
+		if '.list' in filenameSelected:
+			newFilenameSelected = filenameSelected.replace('.list','')
+		if '.list.save' in filenameSelected:
+			newFilenameSelected = filenameSelected.replace('.list.save','')
+		else:
+			newFilenameSelected = filenameSelected
+
+		if newFilenameSelected == '-- Seleziona il filename --':
+			flash('Opzione non valida')
+		else:
+			log = removerepofile(newFilenameSelected)
+			if(log['returncode'] != 0):
+				flash(log['stderr'])
+			else:
+				flash('Repository eliminato correttamente!')
+		flash(newFilenameSelected)
+		return redirect(url_for('retrieveExternalRepo'))
+	#except Exception:
+	#	return internal_server_error(500)
+
+@app.route('/aggiornaCachePacchetti', methods=['POST'])
+def aggiornaCachePacchetti():
+	try:
+		error = None
+		if request.form['aggiornaCachePacchetti'] == 'Aggiorna cache pacchetti':
+			log = aptupdate()
+			if(log['returncode'] != 0):
+				flash(log['stderr'])
+				return redirect(url_for('retrieveExternalRepo'))
+			else:
+				flash('Cache pacchetti aggiornata!')
+				return redirect(url_for('retrieveExternalRepo'))
+		else:
+			error = 'Non funzica' 
+		return render_template('other-repo.html', error=error)
+	except Exception:
+		return internal_server_error(500)
 
 ########## FUNZIONALITÀ systemfile.py ##########
 

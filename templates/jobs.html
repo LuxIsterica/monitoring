@@ -10,7 +10,6 @@
 	      <li>{{ message }}</li>
 	    {% endfor %}
 	    </ul>
-	    <meta http-equiv="refresh" content="5;URL=http://localhost:5000/sites">
 	  {% endif %}
 	{% endwith %}
 
@@ -30,7 +29,37 @@
 			      {% endfor %}
 			    {% endfor %}
 		    </dl>
-		  </div>     
+		  </div>  
+
+	<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalDeleteCron">Rimuovi Cron</button>
+	<div class="modal fade" id="modalDeleteCron" role="dialog">
+		<div class="modal-dialog">
+		  <div class="modal-content">
+		    <div class="modal-header">
+		      <button type="button" class="close" data-dismiss="modal">&times;</button>
+		      <h4 class="modal-title">Scegli il cron che vuoi eliminare</h4>
+		    </div>
+		    <form id="form" action="/deleteCron" role="form" method = "POST">
+			    <div class="modal-body">
+			      Seleziona cron: 
+		          	<!--<label for="selectFilename">-- Seleziona il filename --</label>-->
+				      <select class="form-control" id="selectedCron" name="selectedCron">
+				        <option selected="selected">-- Seleziona cron --</option>
+				        {% for key, value in listCrontabs.data.items() %}
+				        	{% for v in value %}
+				    		<option> {{key}}/{{ v }} </option>
+				    		{% endfor %}
+		    	  		{% endfor %}	
+				      </select>	
+			    </div>
+			    <div class="modal-footer">
+			      	<input type = "submit" value = "Invio" class="btn btn-info btn-default">
+	          		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			    </div>
+			</form>
+		  </div>
+		</div>
+	</div>
 		</div>
 	{% endif %}
 
