@@ -11,7 +11,7 @@ import os
 import sys
 
 
-print(addusertogroups('prova','sys', 'adm')['returncode'])
+print(aptsearch('sl',False)['data'])
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments
 exit()

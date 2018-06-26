@@ -9,10 +9,15 @@
 		</tr>
 		{% for af in appFound.data %}
 		<tr>
-			<td> {{ af.name }} </td>
+			<td> 
+				<form id="installPackage" action="/installPackage/{{af.name}}" role="form" method="POST">
+			        <input type = "submit" value = "{{af.name}}" id="setLink" name="installPackage" class="btn btn-link"/>
+			    </form>
+			</td>
 			<td> {{ af.desc }} </td>
 		</tr>
 		{% endfor %}
 	</table>
 </div>
 {% endblock %}
+

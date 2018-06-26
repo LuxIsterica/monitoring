@@ -317,7 +317,7 @@ table.systeminfo {
 }
 
 .table-apps {
-    max-height: 300px;
+    max-height: 550px;
     overflow: auto;
     width: 100%;
     display: inline-block;
@@ -410,6 +410,10 @@ button.b-round-r {
     border-bottom: 2px solid #59d059;
 }
 
+#setLink{
+    color: #337ab7 !important;
+    text-decoration: underline !important;
+}
 
 /* ---------------------------------------
                 MEDIAQUERIES

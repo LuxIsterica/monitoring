@@ -138,7 +138,7 @@ def aptshow(pkgname, onlydependences=False):
             toreturn.update({ dictelems[0] : dictelems[1] })
 
         #Is this package installed?
-        toreturn.update({ 'Intalled' : 1 if isinstalled else 0 })
+        toreturn.update({ 'Installed' : 1 if isinstalled else 0 })
 
 
     return command_success( data=toreturn )

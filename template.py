@@ -68,59 +68,44 @@ def updateShell():
 
 @app.route('/addUserGroup', methods=['POST'])
 def addUserGroup():
-	#try:
-	error = None
-	uname = request.form['unameAdd'];
-	moreGr = request.form.getlist('moreGroups');
-	n = len(moreGr)
-	var = 'var'
-	for m in moreGr:
-		for v in n:
-			var = var+v
-	'''if not uname:
-		error = "Errore uname vuoto"
-		return render_template("info-user.html",error=error)
-	else:
-		if not moreGr:
-			error = "Errore moreGroups vuoto"
-			return render_template("info-user.html",error=error)
+	try:
+		error = None
+		uname = request.form['unameAdd'];
+		moreGr = request.form.getlist('moreGroups');
+		if not uname:
+			error = "Errore uname vuoto"
+			return render_template("users.html",error=error)
 		else:
-			if moreGr == '-- Seleziona uno o più dei seguenti gruppi --':
+			if '-- Seleziona uno o più gruppi --' in moreGr:
 				flash('Opzione non valida')
 			else:
-				log = addusertogroups(uname, moreGr)
+				log = addusertogroups(uname, *moreGr)
 				if(log['returncode'] != 0):
 					flash(log['stderr'])
-				else:'''
-	flash(moreGr)
-	
-	return redirect(url_for('listUserAndGroups'))
-	#except Exception:
-	#	return internal_server_error(500)
+				else:
+					flash('User aggiunto correttamente al/i gruppo/i!')
+		return redirect(url_for('listUserAndGroups'))
+	except Exception:
+		return internal_server_error(500)
 
 @app.route('/removeUserGroup', methods=['POST'])
 def removeUserGroup():
 	try:
 		error = None
 		uname = request.form['unameRem'];
-		moreGr = request.form['moreGroups'];
+		moreGr = request.form.getlist('moreGroups');
 		if not uname:
 			error = "Errore uname vuoto"
-			return render_template("info-user.html",error=error)
+			return render_template("users.html",error=error)
 		else:
-			if not moreGr:
-				error = "Errore moreGroups vuoto"
-				return render_template("info-user.html",error=error)
+			if '-- Seleziona uno o più gruppi --' in moreGr:
+				flash('Opzione non valida')
 			else:
-				if moreGr == '-- Seleziona uno o più dei seguenti gruppi --':
-					flash('Opzione non valida')
+				log = removeuserfromgroups(uname, *moreGr)
+				if(log['returncode'] != 0):
+					flash(log['stderr'])
 				else:
-					log = removeuserfromgroups(uname, moreGr)
-					if(log['returncode'] != 0):
-						flash(log['stderr'])
-					else:
-						flash('User eliminato correttamente dal/i gruppo/i')
-		
+					flash('User eliminato correttamente dal/i gruppo/i')
 		return redirect(url_for('listUserAndGroups'))
 	except Exception:
 		return internal_server_error(500)
@@ -247,13 +232,20 @@ def listInstalled():
 @app.route('/findPkgInstalled', methods=['POST'])
 def findPkgInstalled():
 	error = None
-	pkg = request.form['pkgSearch'];
+	pkg = request.form['pkgSearch']
 	if not pkg:
 		flash(u'Operazione errata, impossibile ricercare stringa vuota','warning')
 		return redirect(url_for('listInstalled'))
-	else:	
-		appFound = aptsearch(pkg)
-		return render_template('find-pkg-installed.html', appFound = appFound)
+	else:
+		if request.form['filterName'] is 'on':
+			appFound = aptsearch(pkg,True)
+			return render_template('find-pkg-not-installed.html', appFound = appFound)
+		else:
+			appFound = aptsearch(pkg,False)
+			return render_template('find-pkg-not-installed.html', appFound = appFound)
+	return redirect(url_for('listInstalled'))
+	box = request.form['filterName']
+	
 
 @app.route('/getInfoApp/<string:name>')
 def getInfoApp(name):
@@ -275,11 +267,11 @@ def removePackage(name):
 def installPackage(name):
 	log = aptinstall(name)
 	if log['returncode'] != 0:
-		flash(u'Errore nell\' installazione del pacchetto')
+		flash(u'Errore nell\' installazione del pacchetto','error')
 		return redirect(url_for('listInstalled'))
 	else:
-		flash('Pacchetto rimosso correttamente!')
-		return redirect(url_for('getInfoApp',name=name))
+		flash(u'Pacchetto installato correttamente!','success')
+		return redirect(url_for('listInstalled'))
 
 @app.route('/retrieveExternalRepo')
 def retrieveExternalRepo():

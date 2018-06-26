@@ -33,9 +33,6 @@
 	    	<button id = "btnUpdPwd" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalUpdatePwd">Update Password</button>
 	    </div>
 
-	 	{% if error %}
-	    	<p class=error><strong>Error:</strong> {{ error }}
-	  	{% endif %}
 	</div>
 </div>
 
@@ -49,7 +46,7 @@
 	    <form id="form" action="/removeUserGroup" role="form" method = "POST">
 	    	<div class="modal-body">
 	      		User: <input type="text" id="unameRem" name="unameRem" value="{{infouser.data['uname']}}" class="form-control" readonly />
-		          	<label for="sel2">-- Seleziona uno o più dei seguenti gruppi --</label>
+		          	<label for="sel2">Seleziona uno o più dei seguenti gruppi</label>
 				      <select multiple class="form-control" id="sel3" name="moreGroups">
 				        <option selected="selected">-- Seleziona uno o più gruppi --</option>
 				        {% for gu in groupsuser.data %}
@@ -76,7 +73,7 @@
 	    <form id="form" action="/addUserGroup" role="form" method = "POST">
 		    <div class="modal-body">
 		      User: <input type="text" id="unameAdd" name="unameAdd" value="{{infouser.data['uname']}}" class="form-control" readonly />
-				<label for="sel2">-- Seleziona uno o più dei seguenti gruppi --</label>
+				<label for="sel2">Seleziona uno o più dei seguenti gruppi</label>
 			      <select multiple class="form-control" id="sel2" name="moreGroups">
 			        <option selected="selected">-- Seleziona uno o più gruppi --</option>
 			        {% for ng in nogroups.data %}
