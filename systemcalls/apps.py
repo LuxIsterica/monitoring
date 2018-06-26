@@ -222,5 +222,5 @@ def removerepofile(filename):
 
     if result['returncode'] is 0:
         return command_succes( logid=logid )
-    else
+    else:
         return result

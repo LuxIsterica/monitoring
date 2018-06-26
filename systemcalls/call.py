@@ -1,4 +1,4 @@
 from pprint import pprint
-from apps import aptupdate
+from apps import aptupdate, aptremove
 
-pprint( aptupdate()['data'] )
+pprint( aptremove('sl', purge=True) )
