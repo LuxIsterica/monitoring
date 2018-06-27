@@ -10,8 +10,11 @@ from cron import listcrontabs, addcron, addhourlycron
 import os
 import sys
 
-
-print(aptsearch('sl',False)['data'])
+als = list()
+face = ifacestat()['data']
+for key, value in face.items():
+	als.append(getnewifacealiasname(key))
+print(lista)
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments
 exit()

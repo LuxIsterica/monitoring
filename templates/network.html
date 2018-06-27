@@ -6,6 +6,7 @@
 <div class="container">
 	<h2 class="marginTitle">Interfacce</h2>
 	    <div class="jumbotron">
+	    {% if facestat %}
 		  	<dl>
 			    {% for key, value in facestat.items() %}
 			      <dt><h2>{{ key }}</h2></dt>
@@ -14,6 +15,8 @@
 			      {% endfor %}
 			    {% endfor %}
 		    </dl>
+		    {% endif %}
+		    {% if lo %}
 		    <dl>
 		        {% for key, value in lo.items() %}
 		          <dt><h2>{{ key }}</h2></dt>
@@ -22,16 +25,14 @@
 			      {% endfor %}
 			    {% endfor %}
 		    </dl>
+		    {% endif %}
 	    </div>
 	{% if als %}
   	<h2 class="marginTitle">Alias</h2>
 	    <div class="jumbotron">
 		    <dl>
-			    {% for key, value in als.items() %}
-			      <dt><h2>{{ key }}</h2></dt>
-			      {% for v in value %}
-			      	<dd style="margin-left: 20px; font-size: 15px;">{{ v }}</dd>
-			      {% endfor %}
+			    {% for a in als %}
+			      <dt><h2>{{ a }}</h2></dt>
 			    {% endfor %}
 		    </dl>
 	  </div>

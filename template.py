@@ -5,7 +5,7 @@ from apps import listinstalled, aptsearch, aptshow, getreponame, addrepo, remove
 from apps import externalreposdir
 from systemfile import locate,updatedb
 from system import getsysteminfo, hostname
-from network import ifacestat
+from network import ifacestat, getnewifacealiasname
 from apache import apachestart, apachestop, apacherestart, apachereload, apachestatus, getvhosts, getmods, getconf, activatevhost, deactivatevhost, activatemod, deactivatemod, activateconf, deactivateconf
 from apache import apacheconfdir
 from cron import listcrontabs
@@ -237,14 +237,15 @@ def findPkgInstalled():
 		flash(u'Operazione errata, impossibile ricercare stringa vuota','warning')
 		return redirect(url_for('listInstalled'))
 	else:
-		if request.form['filterName'] is 'on':
-			appFound = aptsearch(pkg,True)
+		if request.form.get('filterName') is not None:
+			appFound = aptsearch(pkg)
+			flash('sono nell\' if')
 			return render_template('find-pkg-not-installed.html', appFound = appFound)
 		else:
-			appFound = aptsearch(pkg,False)
+			appFound = aptsearch(pkg,namesonly=False)
+			flash('sono nell\' else')
 			return render_template('find-pkg-not-installed.html', appFound = appFound)
 	return redirect(url_for('listInstalled'))
-	box = request.form['filterName']
 	
 
 @app.route('/getInfoApp/<string:name>')
@@ -588,19 +589,19 @@ def newHostname():
 def network():
 	key_remove = list()
 	lo = dict()
-	als = dict()
+	als = list()
 	facestat = ifacestat()['data']
 	for key,value in facestat.items():
+		als.append(getnewifacealiasname(key)['data'])
 		if 'LOOPBACK' in value[-1]:
 			lo.update({key:facestat[key]})
 			key_remove.append(key)
-		elif ':' in key:
+		'''elif ':' in key:
 			als.update({key:facestat[key]})
-			key_remove.append(key)
+			key_remove.append(key)'''
 	for key in key_remove:
 		del facestat[key]
-	return render_template('network.html', facestat=facestat,lo=lo, als=als)
-
+	return render_template('network.html', facestat=facestat, lo=lo, als=als)
 
 
 
