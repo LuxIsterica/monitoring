@@ -1,0 +1,18 @@
+{% extends "index.html" %}
+{% block page_content %}
+
+
+
+<div class="container">
+  <div class="jumbotron">
+    <h1 class="title">Logs</h1>   
+
+        {% for x in logs.data %}
+          <p style="text-align: center;"><h4>{{x}}</h4></p>
+        {% endfor %}
+          
+  </div>
+    
+</div>
+
+{% endblock %}

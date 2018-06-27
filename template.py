@@ -10,8 +10,9 @@ from apache import apachestart, apachestop, apacherestart, apachereload, apaches
 from apache import apacheconfdir
 from cron import listcrontabs
 from utilities import readfile, writefile, filedel, filecopy, filerename, mongocheck, mongostart
+from logs import getlog
 
-from flask import Flask, render_template, flash, request, redirect, url_for, send_file
+from flask import Flask, render_template, flash, request, redirect, url_for, send_file, jsonify
 
 from flask_bootstrap import Bootstrap
 
@@ -859,6 +860,11 @@ def deactivateConf():
 	#return redirect(url_for('sites'))
 	return '',204 #ritorno senza reindirizzamento con flask
 
+########## FUNZIONALITÀ logs.py ##########
+@app.route('/logs')
+def logs():
+	logs = getlog()
+	return render_template('logs.html',logs=logs)
 
 ########### CHECK MONGODB ###########
 

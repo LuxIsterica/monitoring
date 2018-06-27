@@ -7,14 +7,16 @@ from pprint import pprint
 from utilities import filediff, writefile, readfile, filedel, mongocheck
 from network import ifacestat, getnewifacealiasname, ifacedown, ifaceup, editiface, createalias, destroyalias, getroutes, addroute, defaultroute, delroute
 from cron import listcrontabs, addcron, addhourlycron
+from logs import getlog
 import os
 import sys
 
-als = list()
+'''als = list()
 face = ifacestat()['data']
 for key, value in face.items():
 	als.append(getnewifacealiasname(key))
-print(lista)
+print(lista)'''
+print(getlog()['data'])
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments
 exit()
