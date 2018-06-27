@@ -2571,7 +2571,7 @@ dizionario (che è il terzo) e passarlo per intero al questa funzione:
 \paragraph{Funzionamento}
 L'opreazione è classificata "sensibile" viene quindi creato un mongolog contenente le informazioni sull'operazione.
 Viene poi controllato il tipo di parametro in ingresso, e se non è un dizionario viene generato un errore personalizzato
-usando la funzione \nameref{commadn\string_error}.\\
+usando la funzione \nameref{command\string_error}.\\
 La costruzione del comando avviene come si vede in codice, mixando le direttive alle informazioni contenute
 nel dizionario in input. Infine viene lanciato il comando, verificato che non sono successe eccezioni e se tutto
 è andato a buon fine viene chiamata la funzione di successo passandogli l'object id del documento mongo creato.
@@ -2579,7 +2579,7 @@ nel dizionario in input. Infine viene lanciato il comando, verificato che non so
 Restituisce il dizionario di successo senza dati (\texttt{data=None}) ma con l'object id del mongolog creato
 alla chiave \texttt{logid}.
 
-\subsection{Cron}
+\subsection{Cron}\label{cron}
 Il cron è un software incluso in tutte le distribuzioni Linux che copre il compito di eseguire
 detereminati task (definiti dall'utente) con una certa frequenza e a specifici giorni e orari.\\
 Un esempio di task ricorrente può essere ad esempio l'aggiornamento del database dei file per
@@ -2674,7 +2674,7 @@ def addcron( command, name="", user="root", minute='*', hour='*', dom='*', month
 \end{lstlisting}
 La funzione nsace per la creazione di uno script di cron vero che si vada ad aggiungere a quelli presenti nella cartella
 \texttt{/etc/cron.d/}. Per "script di cron vero" si intende un file di direttive che contenga la sintassi del cron; come spiegato
-nell'introduzione alla sezione \nameref{cron} questi si differenziano dagli script specifici in quanto questi ultimi sono
+nell'introduzione alla sezione \ref{cron} questi si differenziano dagli script specifici in quanto questi ultimi sono
 veri e propri applicativi, usualmente scritti in bash, mentre gli script di cron contengono anche le informazioni
 sulla tempistica dell'esecuzione del comando e il comando deve essere contenuto in una linea o deve essere la chiamata
 ad un applicativo.\\
@@ -3584,3 +3584,5 @@ identificato dall'objectid stesso.
 
 \section{Frontend}\label{frontend}
 Frontend
+
+\end{document}
