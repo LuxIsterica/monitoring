@@ -12,7 +12,11 @@ from cron import listcrontabs
 from utilities import readfile, writefile, filedel, filecopy, filerename, mongocheck, mongostart
 from logs import getlog
 
-from flask import Flask, render_template, flash, request, redirect, url_for, send_file, jsonify
+import json
+from bson import json_util
+from markupsafe import Markup
+
+from flask import Flask, render_template, flash, request, redirect, url_for, jsonify
 
 from flask_bootstrap import Bootstrap
 
