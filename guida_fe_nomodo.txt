@@ -17,7 +17,7 @@ Questo meccanismo della mappatura dell'URL e la funzione è detto route.
 Gli URL che contengono stringhe dinamiche, vengono configurati con una mappatura particolare, ad esempio '/url/<tipo:variabile>' dove <tipo:variabile> è il segmento dinamico.
 Il file contine una serie di import alle funzioni backend che sono servite a implementare i servizi all'interno del file e affinchè potessimo gestire la response in python dei dati restituiti, prima di mostrarli in pagina.
 Altre funzioni utili importate sono: 
-- render_template che è un metodo che attiva il motore di template e renderizza ai modelli specificati nel primo parametro; 
+- render_template che è un metodo che attiva il motore di template e renderizza ai modelli specificati nel primo parametro mentre gli altri parametri sono coppie chiave/valore che rappresentano valori effettivi per le variabili a cui si fa riferimento nel modello; 
 - flash che semplifica il logging all'interno dell'applicativo; l'oggetto request che rappresentano i dati dalla pagina Web di un client che vengono inviati al server;
 - l'oggetto redirect restituisce un oggetto response (un'applicazione WSGI) che, se chiamato, reindirizza il client nella posizione di destinazione; 
 - l'oggetto url_for che, abbinato ad un altro metodo, genera un URL per l'endpoint specificato. 
@@ -26,18 +26,30 @@ L'istanza dell'applicazione ha un metodo run che avvia il server Web:
 app.run(debug=True)}
 Una volta avviato, il server entra in un ciclo che attende le request e le assiste e durante lo sviluppo è conventiente abilitare la modalità debug.
 Prima di assistere ad una qualsiasi richiesta, per preparare l'app affinchè funzioni correttamente usiamo before_request, mappato come @app.before_request:
-{funzione}
+3.1.1 before_request
 La funzione è senza argomenti e registra una funzione da eseguire prima di ogni richiesta. In questro caso richiamiamo la funzione mongocheck() affinchè verifichi lo stato del servizio mongo:
-se lo stato è 42, renderizza alla pagina mongo.html utilizzando la funzione render_template() dove, il primo parametro è il modello di riferimento, mentre gli altri parametri sono coppie chiave/valore che rappresentano valori effettivi per le variabili a cui si fa riferimento nel modello.
-
-{mongo.html}
-Se si presenta questa pagina, significa che lo stato di mongo non è attivo, ed è possibile attivarlo al click del bottone shakerato.
-Altrimenti, l'utente viene riportato alla pagina iniziale.
-{dash.html} 
-
-
-
-
-
+se lo stato è 42, renderizza alla pagina mongo.html utilizzando la funzione render_template() dove, il primo parametro è il modello di riferimento mentre error è la variabile passata per mostrare il messaggio ritornato da mongocheck().
+3.1.2 startMongo
+Questo servizio viene richiamato nel modulo mongo.html. Il servizio è mappato come una richiesta di tipo POST, non accetta parametri in ingresso, però recupera il dato (scelto come hidden) in pagina attraverso l'oggetto form di request.
+Il servizio richiama il metodo backend mongostart() e, in caso di successo, riinvia l'utente alla pagina principale, altrimenti mostra un errore in pagina.
+Il meccanismo di logging all'utente è stati sviluppato utilizzando il message flashing.
+3.1.3 dash
+Il servizio richiama il metodo getsysteminfo(), che restituisce in output una tupla con le informazioni sulla cpu, sulla memoria e sui processi e li mostra nella pagina dash.html.
+3.1.4 network
+Il servizio di network mostra in pagina le interfacce si sistema disponibili. L'elaborazione del servizio è più complessa perchè i dati ricevuti dal metodo ifacestat() sono stati divisi in base a diversi controlli:
+- se tra i valori dell'interfaccia analizzata nel ciclo è presente la parola loopback (cioè se è l'interfaccia che identifica la macchina locale) viene salvata in un nuovo dizionario e la chiave che rappresenta l'interfaccia viene eliminata dal dizionario iniziale.
+- se nella chiave  che identifica il nome dell'interfaccia, sono presenti i ':', allora si tratta di un alias e viene salvata in un nuovo dizionario e eliminata la chiave dal dizionario iniziale.
+Lo sviluppo è stato deciso in questo modo perchè in pagina venivano fatti dei controlli su bottoni diversi in base all'entità esaminata.
+3.1.5 createAlias
+Il servizio è mappato come una richiesta di tipo POST non accetta parametri in ingresso, però recupera i parametri dal modello network.html., utilizza la funzione getnewifacealiasname() per la generazione dell'nome dell'alias per poi chiamare la funzione createalias() che accetta in ingresso 4 parametri: nome dell'interfaccia generata, l'indirizzo, la netmask e l'indirizzo di broadcast.
+Questa funzione viene applicata per le interfacce che non rappresentano la macchina locale e non sono alias.
+3.1. param
+Il servizio param richiama il metodo hostname() che restituisce una stringa che rappresenta il nome host e lo rimanda alla pagina param.html. 
+3.1. newHostname
+Il servizio permette di effettuare una modifica sul hostname precedentemente recuperato. Il servizio è mappato come una richiesta di tipo POST, non accetta parametri in ingresso, però recupera il dato in pagina attraverso l'oggetto form di request.
+Se l'utente non inserisce alcun nuovo dato in input, stampa un errore, altrimenti restituisce un messaggio di modifica effettuata correttamente.
+3.1. listUserAndGroup
+Il servizio richiama i metodi getusers(), getgroups() e getshells() e li mostra nella pagina users.html
+3.1. getInfoUser
 
  
