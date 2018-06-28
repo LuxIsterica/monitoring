@@ -5,6 +5,18 @@
 
 <div class="container">
 	<h2 class="marginTitle">Interfacce</h2>
+	{% if error %}
+		<p class=error><strong>Error:</strong> {{ error }} </p>
+	{% endif %}
+	{% with msg = get_flashed_messages() %}
+      {% if msg %}
+        <ul class=flashes>
+        {% for m in msg %}
+          <li>{{ m }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
 	    <div class="jumbotron">
 	    {% if facestat %}
 		  	<dl>
@@ -12,11 +24,18 @@
 			      <dt><h2>{{ key }}</h2></dt>
 			      {% for v in value %}
 			      	<dd style="margin-left: 20px; font-size: 15px;">{{ v }}</dd>
+			      	{% if 'UP' in v %}
+			      	<form id="downIface" action="/downIface/{{ key }}" role="form" method="POST">
+			      		<input type = "submit" value = "Down" name = "down" style="margin-left: 40em;" class="btn btn-warning btn-md">
+			      	</form>
+			      	{% elif 'DOWN' in v %}
+			      		<button type="button" class="btn btn-success btn-md" data-toggle="modal" data-target="#upIface" style="margin-left: 40em;">Up</button>
+			      	{% endif %}
 			      {% endfor %}
 			    {% endfor %}
 		    </dl>
-		    {% endif %}
-		    {% if lo %}
+	    {% endif %}
+	    {% if lo %}
 		    <dl>
 		        {% for key, value in lo.items() %}
 		          <dt><h2>{{ key }}</h2></dt>
@@ -31,12 +50,120 @@
   	<h2 class="marginTitle">Alias</h2>
 	    <div class="jumbotron">
 		    <dl>
-			    {% for a in als %}
-			      <dt><h2>{{ a }}</h2></dt>
+			    {% for key, value in als.items() %}
+			      <dt><h2>{{ key }}</h2></dt>
+		          {% for v in value %}
+			        	<dd style="margin-left: 20px; font-size: 15px;">{{ v }}</dd>
+			      {% endfor %}
 			    {% endfor %}
 		    </dl>
 	  </div>
-	{% endif %}    
+	{% endif %} 
+
+	<button type="button" class="btn btn-success btn-md" data-toggle="modal" data-target="#createAlias">Crea Alias</button>
+	<button type="button" class="btn btn-danger btn-md" data-toggle="modal" data-target="#destroyAlias">Elimina Alias</button>
+
+<div id="createAlias" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Crea nuovo alias</h4>
+      </div>
+      <form id="form" action="/createAlias" role="form" method = "POST">
+	      <div class="modal-body">
+	      {% if facestat %}
+	        <label for="sel1">Interfaccia*</label>
+		        <select class="form-control" id="sel1" name="iface">
+			        <option selected="selected">-- Seleziona interfaccia --</option>
+			        {% for key, value in facestat.items() %}
+			    		<option> {{key}} </option>
+			  		{% endfor %}	
+		        </select>
+		    {% endif %}	
+	        	Address*: <input type="text" name="address" class="form-control" />
+	        	Netmask: <input type="text" name="netmask" class="form-control" />
+	        	Broadcast: <input type="text" name="broadcast" class="form-control" />
+	      </div>
+	      <div class="modal-footer">
+	      	<input type = "submit" value = "Invio" class="btn btn-info btn-default">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	      </div>
+      </form>
+    </div>
+
+  </div>
 </div>
+
+<div id="destroyAlias" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Elimina alias</h4>
+      </div>
+      <form id="form" action="/destroyAlias" role="form" method = "POST">
+	      <div class="modal-body">
+	      {% if als %}
+	        <label for="sel1">Interfaccia*</label>
+		        <select class="form-control" id="sel1" name="alias">
+			        <option selected="selected">-- Seleziona alias --</option>
+			        {% for key, value in als.items() %}
+			    		<option> {{key}} </option>
+			  		{% endfor %}	
+		        </select>
+		    {% endif %}	
+	      </div>
+	      <div class="modal-footer">
+	      	<input type = "submit" value = "Invio" class="btn btn-info btn-default">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	      </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+<div id="upIface" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Up Iface</h4>
+      </div>
+      <form id="form" action="/upIface" role="form" method = "POST">
+	      <div class="modal-body">
+	      {% if facestat %}
+	        <label>Interfaccia*</label>
+			    <input list="iface" name="inputIface">
+				<datalist id="iface" name=iface>
+				    {% for key, value in facestat.items() %}
+			    		<option> {{key}} </option>
+			  		{% endfor %}
+				</datalist>	
+		    {% endif %}
+			Address: <input type="text" name="address" class="form-control" />
+        	Netmask: <input type="text" name="netmask" class="form-control" />
+        	Broadcast: <input type="text" name="broadcast" class="form-control" />
+	      </div>
+	      <div class="modal-footer">
+	      	<input type = "submit" value = "Invio" class="btn btn-info btn-default">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	      </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+
 
 {% endblock %}

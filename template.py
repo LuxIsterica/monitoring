@@ -5,7 +5,7 @@ from apps import listinstalled, aptsearch, aptshow, getreponame, addrepo, remove
 from apps import externalreposdir
 from systemfile import locate,updatedb
 from system import getsysteminfo, hostname
-from network import ifacestat, getnewifacealiasname
+from network import ifacestat, getnewifacealiasname, createalias, destroyalias, ifaceup,ifacedown
 from apache import apachestart, apachestop, apacherestart, apachereload, apachestatus, getvhosts, getmods, getconf, activatevhost, deactivatevhost, activatemod, deactivatemod, activateconf, deactivateconf
 from apache import apacheconfdir
 from cron import listcrontabs
@@ -37,7 +37,7 @@ def listUserAndGroups():
 	groups = getgroups()
 	shells = getshells()
 	if users['returncode'] != 0 or groups['returncode'] != 0:
-		flash("getusers or getgroups fallita")
+		flash("getusers or getgroups failed")
 	else:
 		return render_template('users.html', users = users,groups = groups,shells = shells)
 
@@ -59,13 +59,13 @@ def updateShell():
 		uname = request.form['unameUpdate'];
 		shell = request.form['newShell'];
 		if shell == '-- Seleziona nuova shell --':
-			flash('Opzione nuova shell non valida')
+			flash('Invalid option')
 		else:
 			log = updateusershell(uname, shell)
 			if(log['returncode'] != 0):
 				flash(log['stderr'])
 			else:
-				flash('Comando shell modificato correttamente')
+				flash('Shell changed correctly!')
 		
 		return redirect(url_for('listUserAndGroups'))
 	except Exception:
@@ -78,17 +78,17 @@ def addUserGroup():
 		uname = request.form['unameAdd'];
 		moreGr = request.form.getlist('moreGroups');
 		if not uname:
-			error = "Errore uname vuoto"
+			error = "uname empty"
 			return render_template("users.html",error=error)
 		else:
 			if '-- Seleziona uno o più gruppi --' in moreGr:
-				flash('Opzione non valida')
+				flash('Invalid option')
 			else:
 				log = addusertogroups(uname, *moreGr)
 				if(log['returncode'] != 0):
 					flash(log['stderr'])
 				else:
-					flash('User aggiunto correttamente al/i gruppo/i!')
+					flash('User added correctly to groups!')
 		return redirect(url_for('listUserAndGroups'))
 	except Exception:
 		return internal_server_error(500)
@@ -100,17 +100,17 @@ def removeUserGroup():
 		uname = request.form['unameRem'];
 		moreGr = request.form.getlist('moreGroups');
 		if not uname:
-			error = "Errore uname vuoto"
+			error = "uname empty"
 			return render_template("users.html",error=error)
 		else:
 			if '-- Seleziona uno o più gruppi --' in moreGr:
-				flash('Opzione non valida')
+				flash('Invalid option')
 			else:
 				log = removeuserfromgroups(uname, *moreGr)
 				if(log['returncode'] != 0):
 					flash(log['stderr'])
 				else:
-					flash('User eliminato correttamente dal/i gruppo/i')
+					flash('User deleted correctly to groups!')
 		return redirect(url_for('listUserAndGroups'))
 	except Exception:
 		return internal_server_error(500)
@@ -122,13 +122,13 @@ def updateUserPwd():
 		uname = request.form['uname']
 		newPwd = request.form['newPassword']
 		if not newPwd:
-			flash('Non è possibile inserire un campo vuoto per password')
+			flash('Password empty')
 		else:
 			log = updateuserpass(uname, newPwd)
 			if(log['returncode'] != 0):
 				flash(log['stderr'])
 			else:
-				flash('Password modificata correttamente')
+				flash('Password updated correctly')
 		
 		return redirect(url_for('listUserAndGroups'))
 	except Exception:
@@ -141,7 +141,7 @@ def addUser():
 	pwd = request.form['password']
 	shell = request.form['shell']
 	if not user and not password:
-		error = 'Non è possibile lasciare campi vuoti'
+		error = 'User and password empty'
 		return render_template('listUserAndGroups',error=error)
 	else:
 		log = adduser(user,pwd,shell)
@@ -149,7 +149,7 @@ def addUser():
 			error = log['stderr']
 			return render_template('listUserAndGroups',error=error)
 		else:
-			flash('User aggiunto con successo!')
+			flash('User added correctly!')
 	return redirect(url_for('listUserAndGroups'))
 
 @app.route('/removeUser', methods=['POST'])
@@ -157,14 +157,14 @@ def removeUser():
 	error = None
 	user = request.form['user']
 	if not user:
-		error = 'Non è possibile lasciare il campo vuoto'
+		error = 'User empty'
 		return render_template('listUserAndGroups',error=error)
 	else:
 		log = removeuser(user)
 		if(log['returncode'] != 0):
 			flash(log['stderr'])
 		else:
-			flash('User eliminato con successo!')
+			flash('User deleted correctly!')
 	return redirect(url_for('listUserAndGroups'))
 
 ########## FUNZIONALITÀ cron.py ##########
@@ -194,10 +194,10 @@ def updateCrontab():
 		else:
 			newPath = writefile(path, updatedCrontab)
 			if(newPath['returncode'] != 0):
-				error = "Modifica cron fallita"
+				error = "Edit cron failed"
 				return render_template("jobs.html", error=error)
 			else:
-				flash("Modifica avvenuta correttamente")
+				flash("Cron updated correctly")
 				return redirect(url_for('listCron'))
 	except Exception:
 		return internal_server_error(500)	
@@ -210,17 +210,17 @@ def deleteCron():
 	basedir='/etc/'
 	pathCron=basedir+selectedCron
 	if not selectedCron:
-		error = "Nessun cron selezionato"
+		error = "No cron selected"
 		return render_template("jobs.html",error=error)
 	else:
 		if selectedCron == '-- Seleziona cron --':
-			flash('Opzione non valida')
+			flash('Invalid option')
 		else:
 			log = filedel(pathCron)
 			if(log['returncode'] != 0):
 				flash(log['stderr'])
 			else:
-				flash('Cron eliminato correttamente!')
+				flash('Cron deleted correctly!')
 
 		return redirect(url_for('listCron'))
 	#except Exception:
@@ -239,7 +239,7 @@ def findPkgInstalled():
 	error = None
 	pkg = request.form['pkgSearch']
 	if not pkg:
-		flash(u'Operazione errata, impossibile ricercare stringa vuota','warning')
+		flash(u'Wrong operation, impossible to search empty string','warning')
 		return redirect(url_for('listInstalled'))
 	else:
 		if request.form.get('filterName') is not None:
@@ -263,20 +263,20 @@ def getInfoApp(name):
 def removePackage(name):
 	log = aptremove(name, False)
 	if log['returncode'] != 0:
-		flash(u'Errore nella rimozione del pacchetto')
+		flash(u'Error package deletion failed')
 		return redirect(url_for('listInstalled'))
 	else:
-		flash('Pacchetto rimosso correttamente!')
+		flash('Package deleted correctly!')
 		return redirect(url_for('getInfoApp',name=name))
 
 @app.route('/installPackage/<string:name>', methods=['POST'])
 def installPackage(name):
 	log = aptinstall(name)
 	if log['returncode'] != 0:
-		flash(u'Errore nell\' installazione del pacchetto','error')
+		flash(u'Package installation error','error')
 		return redirect(url_for('listInstalled'))
 	else:
-		flash(u'Pacchetto installato correttamente!','success')
+		flash(u'Package installed correctly!','success')
 		return redirect(url_for('listInstalled'))
 
 @app.route('/retrieveExternalRepo')
@@ -293,10 +293,10 @@ def addRepo():
 		repoName = request.form['nameRepo']
 		log = addrepo(contentRepo,repoName)
 		if log['returncode'] != 0:
-			error = 'Errore nell\'aggiunta del repository'
+			error = 'Repository added failed'
 			return render_template('applications.html',error=error)
 		else:
-			flash(u'Repository aggiunto con successo!','success')
+			flash(u'Repository added correctly!','success')
 			return redirect(url_for('retrieveExternalRepo'))
 	except Exception:
 		return internal_server_error(500)
@@ -306,11 +306,11 @@ def getContentRepo():
 	error = None
 	filenameSelected = request.form['filenameSelected']
 	if not filenameSelected:
-		error = "Nessun file selezionato"
+		error = "No file selected"
 		return render_template("other-repo.html",error=error)
 	else:
 		if filenameSelected == '-- Seleziona il filename --':
-			flash('Opzione non valida')
+			flash('Invalid option')
 		else:
 			pathRepo = externalreposdir + filenameSelected
 			content = readfile(pathRepo)
@@ -328,15 +328,15 @@ def updateRepoFile():
 		updatedRepo = request.form['contentTextarea']
 		path = request.form['pathRepo']
 		if not updatedRepo and not path:
-			error = "Errore passaggio parametri: vuoto"
+			error = "Parameters empty"
 			return render_template("other-repo.html", error=error)
 		else:
 			newPath = writefile(path, updatedRepo)
 			if(newPath['returncode'] != 0):
-				error = "Modifica repo fallita"
+				error = "Updated repository failed"
 				return render_template("other-repo.html", error=error)
 			else:
-				flash("Modifica avvenuta correttamente")
+				flash("Change successful!")
 				return redirect(url_for('retrieveExternalRepo'))
 	#except Exception:
 	#	return internal_server_error(500)
@@ -347,7 +347,7 @@ def removeRepo():
 	error = None
 	filenameSelected = request.form['filenameSelected']
 	if not filenameSelected:
-		error = "Nessun file selezionato"
+		error = "No file selected"
 		return render_template("other-repo.html",error=error)
 	else:
 		if '.list' in filenameSelected:
@@ -358,13 +358,13 @@ def removeRepo():
 			newFilenameSelected = filenameSelected
 
 		if newFilenameSelected == '-- Seleziona il filename --':
-			flash('Opzione non valida')
+			flash('Invalid option')
 		else:
 			log = removerepofile(newFilenameSelected)
 			if(log['returncode'] != 0):
 				flash(log['stderr'])
 			else:
-				flash('Repository eliminato correttamente!')
+				flash('Repository deleted correctly!')
 		flash(newFilenameSelected)
 		return redirect(url_for('retrieveExternalRepo'))
 	#except Exception:
@@ -380,7 +380,7 @@ def aggiornaCachePacchetti():
 				flash(log['stderr'])
 				return redirect(url_for('retrieveExternalRepo'))
 			else:
-				flash('Cache pacchetti aggiornata!')
+				flash('Cache packages updated!')
 				return redirect(url_for('retrieveExternalRepo'))
 		else:
 			error = 'Non funzica' 
@@ -399,11 +399,11 @@ def findFile():
 	error = None
 	fs = request.form['fileSearch'];
 	if not fs:
-		flash(u'Impossibile cercare stringa vuota','error')
+		flash(u'Impossible to search empty string','error')
 	else:
 		pathFileFound = locate(fs);
 		if not pathFileFound:
-			error = "Nessun file trovato"
+			error = "No file found"
 			return render_template('file.html',error=error)
 		else:
 			return render_template('file.html', pathFileFound = pathFileFound)
@@ -417,10 +417,10 @@ def updateDbFile():
 		if request.form['updateDbFile'] == 'Aggiorna DB File':
 			log = updatedb()
 			if(log['returncode'] != 0):
-				error = 'Database dei file non aggiornato'
+				error = 'File database not updated'
 				return render_template('file.html',error=error)
 			else:
-				flash(u'Aggiornato!','info')
+				flash(u'Db updated!','info')
 				return redirect(url_for('file'))
 		else:
 			error = 'Non funzica' 
@@ -435,7 +435,7 @@ def retriveContentFile():
 		if request.form['retriveContentFile'] == 'Modifica':
 			pathFile = request.form['pathFile']
 			if not pathFile:
-				error = "Path vuoto"
+				error = "Path empty"
 				return render_template("file.html",error=error)
 			else:
 				fileContent = readfile(pathFile)
@@ -457,10 +457,10 @@ def updateFile():
 		updatedContentFile = request.form['contentTextarea']
 		newContent = writefile(pathFile,updatedContentFile)
 		if(newContent['returncode'] != 0):
-			error = "Errore in fase di modifica"
+			error = "Error during modification"
 			return render_template("file.html",error=error)
 		else:
-			flash(u'Modifica avvenuta correttamente!','info')
+			flash(u'Change successful!!','info')
 			return redirect(url_for('file'))
 	except Exception:
 		return internal_server_error(500)
@@ -472,7 +472,7 @@ def deleteFile():
 		if request.form['deleteFile'] == 'Elimina':
 			pathFile = request.form['pathFile']
 			if not pathFile:
-				error = "Path vuoto"
+				error = "Path empty"
 				return render_template("file.html",error=error)
 			else:
 				log = filedel(pathFile)
@@ -482,10 +482,10 @@ def deleteFile():
 				else:
 					log = updatedb()
 					if(log['returncode'] != 0):
-						error = 'Database dei file non aggiornato'
+						error = 'File database not updated'
 						return render_template('file.html',error=error)
 					else:
-						flash(u'File eliminato correttamente!','info')
+						flash(u'File deleted correctly!','info')
 						return redirect(url_for('file'))
 		else:
 			error = 'Non funzica' 
@@ -500,10 +500,10 @@ def copyFile():
 		pathFile = request.form['pathFile']
 		pathDest = request.form['destPathFile']
 		if not pathFile:
-			error = "Path vuoto"
+			error = "Path empty"
 			return render_template("file.html",error=error)
 		elif not pathDest:
-			error = "Path destinazione non può essere vuoto"
+			error = "Destination path cannot be empty"
 			return render_template("file.html",error=error)
 		else:
 			log = filecopy(pathFile,pathDest)
@@ -516,7 +516,7 @@ def copyFile():
 					error = 'Database dei file non aggiornato'
 					return render_template('file.html',error=error)
 				else:
-					flash(u'File copiato correttamente!','info')
+					flash(u'File copiato correctly!','info')
 					return redirect(url_for('file'))
 	else:
 		error = 'Non funzica'	
@@ -528,7 +528,7 @@ def renameFile():
 		pathFile = request.form['pathFile']
 		newName = request.form['newNameFile']
 		if not pathFile:
-			error = "Path vuoto"
+			error = "Path empty"
 			return render_template("file.html",error=error)
 		elif not newName:
 			error = "Nessun nuovo nome inserito"
@@ -544,7 +544,7 @@ def renameFile():
 					error = 'Database dei file non aggiornato'
 					return render_template('file.html',error=error)
 				else:
-					flash(u'File rinominato correttamente!','info')
+					flash(u'File rinominato correctly!','info')
 					return redirect(url_for('file'))
 	else:
 		error = 'Non funzica'
@@ -574,42 +574,124 @@ def newHostname():
 		error = None
 		hname = request.form['newHname'];
 		if not hname:
-			flash('Hostname non può essere vuoto!')
+			flash('Hostname cannot be empty!')
 		else:
 			log = hostname(hname)
 			if(log['returncode'] != 0):
 				flash(log['stderr'])
 			else:
-				flash('Hostname modificato correttamente')
+				flash('Hostname changed correctly!')
 		
 		return redirect(url_for('param'))
 	except Exception:
 		return internal_server_error(500)
 
-
-
-'''questa logica non va bene'''
 ########## FUNZIONALITÀ network.py ##########
 @app.route('/network')
 def network():
 	key_remove = list()
 	lo = dict()
-	als = list()
+	als = dict()
+	faceUp = dict()
+	faceDown = dict()
 	facestat = ifacestat()['data']
 	for key,value in facestat.items():
-		als.append(getnewifacealiasname(key)['data'])
 		if 'LOOPBACK' in value[-1]:
 			lo.update({key:facestat[key]})
 			key_remove.append(key)
-		'''elif ':' in key:
+		elif ':' in key:
 			als.update({key:facestat[key]})
-			key_remove.append(key)'''
+			key_remove.append(key)
+
 	for key in key_remove:
 		del facestat[key]
 	return render_template('network.html', facestat=facestat, lo=lo, als=als)
 
+@app.route('/createAlias', methods=['POST'])
+def createAlias():
+	try:
+		error = None
+		iface = request.form['iface']
+		address = request.form['address']
+		netmask = request.form['netmask']
+		broadcast = request.form['broadcast']
+		if not iface or iface == '-- Seleziona interfaccia --':
+			error = 'Invalid option'
+		else:
+			generatedAliasName = getnewifacealiasname(iface)
+			if not address:
+				error = 'Address empty'
+			else:
+				log = createalias(generatedAliasName['data'],address,netmask,broadcast)
+				if(log['returncode'] != 0):
+					error = log['stderr']
+				else:
+					flash("Alias created correctly")
+					return redirect(url_for('network'))
+		return render_template('network.html', error=error)
+	except Exception:
+		return internal_server_error(500)
 
+@app.route('/destroyAlias', methods=['POST'])
+def destroyAlias():
+	try:
+		error = None
+		alias = request.form['alias']
+		if not alias or alias == '-- Seleziona alias --':
+			error = 'Invalid option'
+		else:
+			log = destroyalias(alias)
+			if(log['returncode'] != 0):
+				error = log['stderr']
+			else:
+				flash("Alias deleted correctly")
+				return redirect(url_for('network'))
+		return render_template('network.html', error=error)
+	except Exception:
+		return internal_server_error(500)
 
+@app.route('/upIface', methods=['POST'])
+def upIface():
+	inputIface = request.form['inputIface']
+	iface = request.form['iface']
+	address = request.form['address']
+	netmask = request.form['netmask']
+	broadcast = request.form['broadcast']
+	if inputIface:
+		generatedAliasName = getnewifacealiasname(iface)
+		if not address:
+			error = 'Address empty'
+		else:
+			log = createalias(generatedAliasName['data'],address,netmask,broadcast)
+			if(log['returncode'] != 0):
+				error = log['stderr']
+			else:
+				flash("Alias created correctly")
+				return redirect(url_for('network'))
+	elif iface:
+		log = ifaceup(iface)
+		if(log['returncode'] != 0):
+			error = log['stderr']
+		else:
+			flash("Interface up!")
+			return redirect(url_for('network'))
+	else:
+		error = "Non funzica"
+	return render_template('network.html', error=error)
+
+@app.route('/downIface/<string:iface>', methods=['POST'])
+def downIface(iface):
+	error = None
+	if request.form['down'] == 'Down':
+		log = ifacedown(iface)
+		if(log['returncode'] != 0):
+			error = log['stderr']
+		else:
+			flash('Interface down!')
+			return redirect(url_for('network'))
+	else:
+		error = 'Non funzica' 
+	return render_template('network.html', error=error)
 
 ########## FUNZIONALITÀ apache.py ##########
 
@@ -622,7 +704,7 @@ def startApache():
 			if(log['returncode'] != 0):
 				error = log['stderr']
 			else:
-				flash("Apache startato correttamente")
+				flash("Apache started correctly")
 				return redirect(url_for('sites'))
 		else:
 			error = 'Non funzica' 
@@ -639,7 +721,7 @@ def stopApache():
 			if(log['returncode'] != 0):
 				error = log['stderr']
 			else:
-				flash("Apache stoppato correttamente")
+				flash("Apache stopped correctly")
 				return redirect(url_for('sites'))
 		else:
 			error = 'Non funzica' 
@@ -656,7 +738,7 @@ def restartApache():
 			if(log['returncode'] != 0):
 				error = log['stderr']
 			else:
-				flash("Restart Apache avvenuto correttamente")
+				flash("Apache restarted correctly")
 				return redirect(url_for('sites'))
 		else:
 			error = 'Non funzica' 
@@ -673,7 +755,7 @@ def reloadApache():
 			if(log['returncode'] != 0):
 				error = log['stderr']
 			else:
-				flash("Reload Apache avvenuto correttamente")
+				flash("Apache reloaded correctly")
 				return redirect(url_for('sites'))
 		else:
 			error = 'Non funzica' 
@@ -720,10 +802,10 @@ def updateContentSite(nameSite):
 		updatedContentVhost = request.form['contentTextarea']
 		newContent = writefile(apacheconfdir+"sites-available/"+nameSite,updatedContentVhost)
 		if(newContent['returncode'] != 0):
-			error = "Errore in fase di modifica"
+			error = "Error during modification"
 			return render_template('apache-sites.html',error=error)
 		else:
-			flash("Modifica avvenuta correttamente")
+			flash("Change successful!")
 			return redirect(url_for('sites'))
 	except Exception:
 		return internal_server_error(500)
@@ -751,10 +833,10 @@ def updateContentMods(nameMods):
 		updatedContentMods = request.form['contentTextarea']
 		newContent = writefile(apacheconfdir+"mods-available/"+nameMods,updatedContentMods)
 		if(newContent['returncode'] != 0):
-			error = "Errore in fase di modifica"
+			error = "Error during modification"
 			return render_template('apache-modules.html',error=error)
 		else:
-			flash("Modifica avvenuta correttamente")
+			flash("Change successful!")
 			return redirect(url_for('modules'))
 	except Exception:
 		return internal_server_error(500) 
@@ -782,10 +864,10 @@ def updateContentConf(nameConf):
 		updatedContentConf = request.form['contentTextarea']
 		newContent = writefile(apacheconfdir+"conf-available/"+nameConf,updatedContentConf)
 		if(newContent['returncode'] != 0):
-			error = "Errore in fase di modifica"
+			error = "Error during modification"
 			return render_template('apache-configurations.html',error=error)
 		else:
-			flash("Modifica avvenuta correttamente")
+			flash("Change successful!")
 			return redirect(url_for('configurations'))
 	except Exception:
 		return internal_server_error(500) 

@@ -4,12 +4,17 @@
 
 
 <div class="container">
+<button id="myTopButton" title="Su"><i class="glyphicon glyphicon-arrow-up"></i></button>  
   <div class="jumbotron">
     <h1 class="title">Logs</h1>   
 
 
         {% for x in logs.data %}
-        	<p style="text-align: center;"><h4>{{x}}</h4></p>
+        <div style="margin-top: 3em;">
+        	{% for k,v in x.items() %}
+        	<p style="text-align: center;"><h4>{{k}}:{{v}}</h4></p>
+        	{% endfor %}
+        </div>
         {% endfor %}
 
   </div>

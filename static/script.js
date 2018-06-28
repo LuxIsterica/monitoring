@@ -64,7 +64,7 @@ $(document).ready(function () {
 	window.onscroll = function() {scrollFunction()};
 
 	function scrollFunction() {
-	    if (document.body.scrollTop > 10 || document.documentElement.scrollTop > 10) {
+	    if (document.body.scrollTop > 25 || document.documentElement.scrollTop > 25) {
 	    	if(document.getElementById("myTopButton") != null){
 	    		document.getElementById("myTopButton").style.display = "block";
 	    	}

@@ -16,7 +16,7 @@ face = ifacestat()['data']
 for key, value in face.items():
 	als.append(getnewifacealiasname(key))
 print(lista)'''
-print(getlog()['data'])
+print(destroyalias('enp0s3:0')['data'])
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments
 exit()
