@@ -85,4 +85,15 @@ Ad esempio alla modifica e salvataggio di un file vengiono memorizzate nel mongo
 Puoi utilizzare i filtri di ricerca per la ricerca selettiva tra i risultati.
 
 
+
+
 USER
+Da questa pagina è possibile gestire ogni aspetto degli utenti del sistema, quali creazione, cambio password ecc...
+
+#TODO: Completare
+
+
+
+
+NETWORK
+Da questa pagina è possibile gestire diversi aspetti di quella che è la rete del sistema, quali aggiunta interfacce, cambio IP ecc...
