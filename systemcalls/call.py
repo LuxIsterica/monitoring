@@ -1,7 +1,4 @@
 from pprint import pprint
-from apps import aptupdate, aptremove, listinstalled
+from logs import getlog
 
-pprint( listinstalled()['data'] )
-
-exit()
-pprint( aptremove('sl', purge=True) )
+pprint( getlog()['data'] )
