@@ -5,6 +5,7 @@
 
 <div class="container">
 	<h2 class="marginTitle">Interfacce</h2>
+	    <div class="jumbotron">
 	{% if error %}
 		<p class=error><strong>Error:</strong> {{ error }} </p>
 	{% endif %}
@@ -17,7 +18,6 @@
         </ul>
       {% endif %}
     {% endwith %}
-	    <div class="jumbotron">
 	    {% if facestat %}
 		  	<dl>
 			    {% for key, value in facestat.items() %}
@@ -139,18 +139,24 @@
       </div>
       <form id="form" action="/upIface" role="form" method = "POST">
 	      <div class="modal-body">
-	      {% if facestat %}
-	        <label>Interfaccia*</label>
-			    <input list="iface" name="inputIface">
-				<datalist id="iface" name=iface>
-				    {% for key, value in facestat.items() %}
-			    		<option> {{key}} </option>
-			  		{% endfor %}
-				</datalist>	
-		    {% endif %}
-			Address: <input type="text" name="address" class="form-control" />
-        	Netmask: <input type="text" name="netmask" class="form-control" />
-        	Broadcast: <input type="text" name="broadcast" class="form-control" />
+		      <div class="row">
+		      	<div class="col-md-12">
+			    	<label for="sel1">Interfaccia*</label>
+				    <select class="form-control" id="sel1"  name="iface">
+					  	<option selected="selected">-- Seleziona interfaccia --</option>
+					    {% for key, value in facestat.items() %}
+					    <option> {{key}} </option>
+			    	    {% endfor %}	
+				    </select>
+		      	</div>
+		      </div>
+		      <div class="row">
+		      	<div class="col-md-12">
+		      		Address: <input type="text" name="address" class="form-control" />
+	        		Netmask: <input type="text" name="netmask" class="form-control" />
+	        		Broadcast: <input type="text" name="broadcast" class="form-control" />
+		      	</div>
+		      </div>
 	      </div>
 	      <div class="modal-footer">
 	      	<input type = "submit" value = "Invio" class="btn btn-info btn-default">
