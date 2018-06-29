@@ -1,9 +1,88 @@
 APACHE
-Apache è un web server che una volta configurato ed avviato pubblica l'aplicazione web che tu hai creato o che hai scaricato da Internet.
+Apache è un web server in grado di gestire le richieste ai siti web che gestisce. È possibile trovare la cartella di configurazioni
+di pacahe al percoso /etc/apache2/ ma è comunque consigliato utilizzare questa pagina per la modifica delle stesse.
+In caso invece si voglia gestire manualmente le configurazioni è possibile farlo dalla pagina "system parameters" che mette
+a disposizione un editor di testo per i file di apache.
+
+
+
+
 
 SYSTEM PARAMETERS
 Questa pagina racchiude le funzioni per la visualizzazione e la modifica di tutti i parametri base del sistema. Da qui potrai quindi ad
 esempio visualizzare e modifare l'hostname della macchina. Attento a quando esegui operazioni su questi dati in quanto operazioni sensibili
-che possono alterare profondamente il comportamento del sistema e in alcuni casi infausti a non avviarsi più. In ogni caso
-per ogni operazione di modifica verrà salvato un log contenente le operazioni effettuate e che può aiutarti a rimettere il sistema
+che possono alterare profondamente il comportamento del sistema e in alcuni casi infausti compromettere il corretto avvio dello stesso.
+In ogni caso per ogni operazione di modifica verrà salvato un log contenente le operazioni effettuate e che può aiutarti a rimettere il sistema
 in piedi in caso qualcosa vada storto. Puoi consultare questi log dalla pagina "log" di nomodo.
+
+/etc/hosts
+Contiene le tuple nome-indirizz IP sulla quale il sistema fa affidaento diretto senza passare per la risoluzione dei nomi tramite DNS.
+Ad esempio se l'indirizzo del sito archlinux.org è 138.201.81.199 inserendo in questo file "archlinux.org 10.10.10.223" il nome host 
+archlinux.org sarà associato a quest'indirizzo e non a quello originale.
+
+/etc/apache2.conf
+È il file principale di configurazioni di apache. Solitamente non è necessario modificare manualmente questo file ma in ogni caso
+bisogna prestare molta attenzione in quanto un file delicato. Fare riferimento ai log di nomodo in caso qualcosa non vada come sperato.
+
+vhosts
+I vhosts di apache sono i siti che questo è in grado di gestire. Modificando ad esempio il file vhost di un sito andrai a modificare il modo
+in cui apache gestisce il sito stesso quando gli viene fatta una richiesta.
+
+mods
+I mods sono moduli aggiunti al core di apache che possono ampliarlo in vari modi. Per usi normali non avrai mai bisogno di modificare manualmente
+un modulo.
+
+confs
+File di configurazione di apache per allterarne il comportamento standard. Per usi normali non avrai mai bisogno di modificare manualmente
+un conf.
+
+/etc/profile
+È un file scritto in bash che va ad impostare l'ambiente di un utente, ad esempio assegnando variabili di ambiente, definendo funzioni,
+cambiando l'aspetto del riga di comando ecc. NON È MAI CONSIGLIATO modificare direttamente questo file in quanto nelle versioni più recenti
+dei sistemi Linux-based l'ampliamento delle funzionalità di questo file avviene attraverso l'aggiunta di file in bash nella cartella /etc/profile.d/.
+
+/etc/motd
+motd sta per "message of the day" e serve ad impostare un messaggio che verrà stampato sul terminale di ogni utente che si connette al sistema
+al momento del login. Essendo un file testuale ha un uso piuttosto limitato. Per gli utenti più esperti viene quindi consigliato di utilizzare
+gli script della cartella /etc/update.motd.d/.
+
+/etc/update.motd.d/
+Contiene vari script di bash letti in ordine lessicale la cui esecuzione avviene quando un utente effettua il login sul terminale, e che generano
+un messaggio per l'utente stesso.
+
+/etc/network/interfaces
+È il file principale per impostare i parametri delle interfacce di rete, ossia IP, netmask ecc... Di norma è consigliato scrivere dei file appositi
+per ogni interfaccia di rete ed inserirli nella cartella /etc/network/interfaces.d/ anche se purtroppo al giorno d'oggi ancora si commette
+l'errore di modificare direttamente il file principale.
+
+/etc/network/interfaces.d/
+Contiene i file per il settaggio delle impostazioni di rete delle interfacce e vengono letti dopo il file principale che è /etc/network/interfaces.
+
+/etc/crontab
+È il file principale dei crontab. NON È MAI CONSIGLIATO modifiare direttamente questo file, usare invece la pagina "Schedulazione processi" di nomodo.
+
+crontabs utenti
+sono n file, uno per ogni utente che l'ha richiesto attraverso il comando "crontab -e" la cui unica differenza rispetto alla sintassi di cron
+è quella di non dover specificare l'utente con cui verrà lanciato il processo in quanto ogni file è associato ad un utente per il conto della quale
+i job vengono eseguiti.
+
+
+
+
+SYSTEMFILE
+Questa sezione consente la ricerca, modifica, copia e rimozione di file dal sistema. Per iniziare inserire il nome del file su cui si vuole opoerare
+all'interno della casella di ricerca. Si ricorda che le operazioni sensibili eseguite sui file lasciano un log per tenere traccia dell'operazione
+in caso qualcosa vada storto e si voglia revertire l'operazione.
+
+
+
+
+LOGS
+Da questa pagina è possibile accedere a tutti i log che contengono le informazioni sulle operazioni sensibili, per tentare un ripristino in caso
+di comportamento inaspettato da parte del sistema. Si ricorda quindi che per ogni operazione sensibile esguita sul sistema (ad esempio la modifica
+di un file) vengono memorizzati nel database mongo dei mongolog, ossia stringhe che identificano le informazioni sull'operazione eseguita.
+Ad esempio alla modifica e salvataggio di un file vengiono memorizzate nel mongolog le differenze tra il file originale e quello modificato.
+Puoi utilizzare i filtri di ricerca per la ricerca selettiva tra i risultati.
+
+
+USER
