@@ -12,10 +12,6 @@ from cron import listcrontabs
 from utilities import readfile, writefile, filedel, filecopy, filerename, mongocheck, mongostart
 from logs import getlog
 
-import json
-from bson import json_util
-from markupsafe import Markup
-
 from flask import Flask, render_template, flash, request, redirect, url_for, jsonify
 
 from flask_bootstrap import Bootstrap
@@ -23,8 +19,6 @@ from flask_bootstrap import Bootstrap
 app = Flask(__name__, template_folder = "templates", static_folder = "static", static_url_path = "/static")
 app.secret_key = 'random string'
 bootstrap = Bootstrap(app)
-
-
 
 
 ########## FUNZIONALITÀ user.py ##########
@@ -605,6 +599,10 @@ def network():
 
 	for key in key_remove:
 		del facestat[key]
+	
+	for key, value in facestat.items():
+		if not 'UP' in value[-1]:
+			facestat[key].append('DOWN')
 	return render_template('network.html', facestat=facestat, lo=lo, als=als)
 
 @app.route('/createAlias', methods=['POST'])
@@ -652,32 +650,24 @@ def destroyAlias():
 
 @app.route('/upIface', methods=['POST'])
 def upIface():
-	inputIface = request.form['inputIface']
 	iface = request.form['iface']
 	address = request.form['address']
 	netmask = request.form['netmask']
 	broadcast = request.form['broadcast']
-	if inputIface:
-		generatedAliasName = getnewifacealiasname(iface)
-		if not address:
-			error = 'Address empty'
-		else:
-			log = createalias(generatedAliasName['data'],address,netmask,broadcast)
+	facestat = ifacestat()['data']
+	if '-- Seleziona interfaccia --' in iface:
+		flash('Invalid option')
+	else:
+		if iface in facestat:
+			log = ifaceup(iface)
 			if(log['returncode'] != 0):
 				error = log['stderr']
 			else:
-				flash("Alias created correctly")
+				flash("Interface up!")
 				return redirect(url_for('network'))
-	elif iface:
-		log = ifaceup(iface)
-		if(log['returncode'] != 0):
-			error = log['stderr']
-		else:
-			flash("Interface up!")
-			return redirect(url_for('network'))
-	else:
-		error = "Non funzica"
+				
 	return render_template('network.html', error=error)
+
 
 @app.route('/downIface/<string:iface>', methods=['POST'])
 def downIface(iface):
