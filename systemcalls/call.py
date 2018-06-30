@@ -1,4 +1,5 @@
 from pprint import pprint
-from logs import getlog
+from  utilities import readdir
 
-pprint( getlog()['data'] )
+dircontent = readdir( '/etc/apache' )
+pprint( dircontent['data'] if dircontent['returncode'] is 0 else dircontent['stderr'] )

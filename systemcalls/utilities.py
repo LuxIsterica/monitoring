@@ -243,3 +243,12 @@ def filecopy(filepath, dst):
         return command_error( returncode=10, stderr='File to rename not found: "'+path+'"', logid=logid )
 
     return command_success( logid=logid )
+
+def readdir( dirpath ):
+    
+    if not os.path.isdir( dirpath ):
+        return command_error( returncode=11, stderr='Dir not found: "' + dirpath + '"' )
+    
+    dircontent = os.listdir( dirpath )
+
+    return command_success( data=dircontent )

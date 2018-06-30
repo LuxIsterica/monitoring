@@ -25,7 +25,7 @@
 \contentsline {paragraph}{Return}{9}{section*.16}
 \contentsline {subsubsection}{\numberline {2.1.6}command\_error}{9}{subsubsection.2.1.6}
 \contentsline {paragraph}{Parametri}{9}{section*.17}
-\contentsline {paragraph}{Funzionamento}{9}{section*.18}
+\contentsline {paragraph}{Funzionamento}{10}{section*.18}
 \contentsline {paragraph}{Return}{10}{section*.19}
 \contentsline {subsubsection}{\numberline {2.1.7}writefile}{10}{subsubsection.2.1.7}
 \contentsline {paragraph}{Parametri}{11}{section*.20}
@@ -34,12 +34,12 @@
 \contentsline {subsubsection}{\numberline {2.1.8}readfile}{12}{subsubsection.2.1.8}
 \contentsline {paragraph}{Parametri}{12}{section*.23}
 \contentsline {paragraph}{Funzionamento}{12}{section*.24}
-\contentsline {paragraph}{Return}{12}{section*.25}
-\contentsline {subsubsection}{\numberline {2.1.9}filediff}{12}{subsubsection.2.1.9}
+\contentsline {paragraph}{Return}{13}{section*.25}
+\contentsline {subsubsection}{\numberline {2.1.9}filediff}{13}{subsubsection.2.1.9}
 \contentsline {paragraph}{Parametri}{13}{section*.26}
 \contentsline {paragraph}{Funzionamento}{13}{section*.27}
-\contentsline {paragraph}{Return}{13}{section*.28}
-\contentsline {subsubsection}{\numberline {2.1.10}filedel}{13}{subsubsection.2.1.10}
+\contentsline {paragraph}{Return}{14}{section*.28}
+\contentsline {subsubsection}{\numberline {2.1.10}filedel}{14}{subsubsection.2.1.10}
 \contentsline {paragraph}{Parametri}{14}{section*.29}
 \contentsline {paragraph}{Funzionamento}{14}{section*.30}
 \contentsline {paragraph}{Return}{14}{section*.31}

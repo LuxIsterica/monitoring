@@ -1,0 +1,10 @@
+[Unit]
+Description=nomodo system manager daemon
+
+[Service]
+Type=forking
+User=root
+ExecStart=/usr/bin/python3 /root/nomodo/template.py
+
+[Install]
+WantedBy=default.target

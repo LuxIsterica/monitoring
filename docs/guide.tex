@@ -79,6 +79,19 @@ una modifica effettuata direttamente sul sistema ad esempio tramite il terminale
 e ogni modifica potrebbe essere irreversibile. In questi casi fare riferimento ai log del sistema che è possibile trovare
 al percorso \texttt{/var/log/} o sul pannello web alla sezione \texttt{Log}. }
 
+\section{Installazione}\label{install}
+Questa sezione spiega brevemente come effettuare l'installazione del progetto \texttt{nomodo}.
+\begin{enumerate}
+		\item{Assicurarsi che ci si trovi su un sistema Ubuntu lanciando il comando \texttt{cat /etc/os-release}.
+			Se il file non esiste o non contiene la stringa "Ubuntu" allora il sistema non è adatto
+			all'installazione di nomodo (per adesso)}
+		\item{Assicurarsi che il sistema sia connesso ad internet}
+		\item{Spostarsi nella cartella \textit{install} del progetto e lanciare l'eseguibile \textit{install.sh}.
+			Lo script provvederà all'installazione e chiederà ad un certo punto la password per l'utente mongo.
+			Inserire una password a propria scelta}
+		\item{Se non si sono verificati errori l'esecuzione è terminata e nomodo è stato installato sul pc}
+\end{enumerate}
+
 \section{Backend}\label{backend}
 Come anticipato in sezione \ref{backendintro} il backend è composto da una serie di funzioni raggruppate per categoria
 che fanno utilizzo di varie librerie python per compiere operazioni che possono o meno alterare lo stato del sistema.
