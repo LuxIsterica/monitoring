@@ -15,12 +15,17 @@ che possono alterare profondamente il comportamento del sistema e in alcuni casi
 In ogni caso per ogni operazione di modifica verrà salvato un log contenente le operazioni effettuate e che può aiutarti a rimettere il sistema
 in piedi in caso qualcosa vada storto. Puoi consultare questi log dalla pagina "log" di nomodo.
 
+
+hostname
+È il nome della macchina su cui nomodo è in esecuzione. Sui sistemi server e HPC solitamente il nome macchina corrisponde al nome
+DNS che risolve verso la macchina stessa. Da qui puoi cambiarlo in un nome a tuo piacimento.
+
 /etc/hosts
 Contiene le tuple nome-indirizz IP sulla quale il sistema fa affidaento diretto senza passare per la risoluzione dei nomi tramite DNS.
 Ad esempio se l'indirizzo del sito archlinux.org è 138.201.81.199 inserendo in questo file "archlinux.org 10.10.10.223" il nome host 
 archlinux.org sarà associato a quest'indirizzo e non a quello originale.
 
-/etc/apache2.conf
+/etc/apache2/apache2.conf
 È il file principale di configurazioni di apache. Solitamente non è necessario modificare manualmente questo file ma in ogni caso
 bisogna prestare molta attenzione in quanto un file delicato. Fare riferimento ai log di nomodo in caso qualcosa non vada come sperato.
 
@@ -70,7 +75,7 @@ i job vengono eseguiti.
 
 
 SYSTEMFILE
-Questa sezione consente la ricerca, modifica, copia e rimozione di file dal sistema. Per iniziare inserire il nome del file su cui si vuole opoerare
+Questa sezione consente la ricerca, modifica, copia e rimozione di file dal sistema. Per iniziare inserire il nome del file su cui si vuole operare
 all'interno della casella di ricerca. Si ricorda che le operazioni sensibili eseguite sui file lasciano un log per tenere traccia dell'operazione
 in caso qualcosa vada storto e si voglia revertire l'operazione.
 
