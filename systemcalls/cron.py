@@ -22,7 +22,6 @@ def listcrontabs():
     return command_success( data=cronlist )
 
 
-
 def getcronname(): return 'nomodo-' + datetime.datetime.now().strftime('%Y%m%d%H%M%S')
 
 

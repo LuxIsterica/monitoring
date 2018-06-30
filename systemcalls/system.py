@@ -33,7 +33,6 @@ def hostname(newhostname=""):
         return command_success( data=hostname )
 
 
-#TODO: Only works on single cpu systems
 #Information about cpu, memory and processes
 #Returns tuple
 def getsysteminfo( getall=True, getproc=False, getcpu=False, getmem=False ):

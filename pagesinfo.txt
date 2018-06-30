@@ -110,4 +110,10 @@ APPS
 __Prendere la descrizione da Lucia__
 
 casella ricerca
-Da questa casella si possono cercare applicazioni da installare. 
+Da questa casella è possibile ricercare le applicazioni rese disponibili dai repository installati nel sistema ed eventualmente installarle.
+Notare però che la lista restituita include sia applicazioni installate sia applicazioni non installate, per vederne quindi lo stato
+basta cliccare sul nome della stessa. Apparirà un "SI" vicino alla stringa "Installed" se l'applicativo è presente nel sistema,
+un "NO" altrimenti.
+
+tabella applicazioni installate
+La tabella contiene la lista delle applicazioni installate nel sistema. Cliccare sul nome di questa per avere più applicazioni sulla stessa.

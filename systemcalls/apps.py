@@ -82,8 +82,7 @@ def aptsearch( pkgname, namesonly=True ):
     return command_success( data=pkgs )
 
 
-#A Lucia: verrà richiamato dopo aver fatto un search sui pacchetti installati o disponibili
-#onclydependencies option is used from other functions in this same file
+#onlydependencies option is used from other functions in this same file
 #Shows package information
 #Returns: List
 def aptshow(pkgname, onlydependences=False):
