@@ -692,6 +692,27 @@ Restituisce il dizionario di successo col campo \texttt{logid} contenente l'obje
 del file originale e den nuovo file.Vedersi restituire questo dizionario vuole dire che l'operazione è andata a buon fine e che il file
 è stato copiato con successo.
 
+\subsubsection{readdir}\label{readdir}
+\begin{lstlisting}
+def readdir( dirpath ):
+    
+    if not os.path.isdir( dirpath ):
+        return command_error( returncode=11, stderr='Dir not found: "' + dirpath + '"' )
+    
+    dircontent = os.listdir( dirpath )
+
+    return command_success( data=dircontent )
+\end{lstlisting}
+Serve a listare il contenuto di una directory, quindi tutti i file e le cartelle contenute.
+\paragraph{Parametri}
+Accetta un unico parametro che deve contenere è il percorso assoluto della cartella di cui leggerne il contenuto.
+\paragraph{Funzionamento}
+Dopo aver effettuato un controllo per verificare se la cartella su cui lavorare esiste lancia la funzione \texttt{os.listdir()}
+per ottenere la lista di file nella cartella, e restituisce questa lista al chiamante.
+\paragraph{Return}
+Restituisce il dizionario di successo contenente al campo data una lista di stringhe dove ogni stringa è il nome di
+uno dei file presente nella cartella \texttt{dirpath}.
+
 \subsection{Utenti}\label{users}
 \subsubsection{getuser}\label{getuser}
 \begin{lstlisting}
@@ -3543,7 +3564,7 @@ Nella libreria viene usato il database mongo di nomodo le cui credenziali, indir
 from utilities import client, db
 \end{lstlisting}
 
-\subsubsection{}
+\subsubsection{getlog}\label{getlog}
 \begin{lstlisting}
 def getlog( objectid = None, funname = None, status = None, dategte = "1970-01-01", datelte = datetime.datetime.now().strftime("%Y-%m-%d") ):
 
