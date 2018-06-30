@@ -108,7 +108,7 @@ def aptshow(pkgname, onlydependences=False):
         #Check whether the package is installed or not
         isinstalled = None
         try:
-            command = ['dpkg', '-l', pkgname]
+            command = ['dpkg', '-s', pkgname]
             check_call(command)
         except CalledProcessError as e:
             isinstalled = False

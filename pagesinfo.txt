@@ -102,3 +102,12 @@ Da questa pagina è possibile gestire ogni aspetto degli utenti del sistema, qua
 
 NETWORK
 Da questa pagina è possibile gestire diversi aspetti di quella che è la rete del sistema, quali aggiunta interfacce, cambio IP ecc...
+
+
+
+
+APPS
+__Prendere la descrizione da Lucia__
+
+casella ricerca
+Da questa casella si possono cercare applicazioni da installare. 
