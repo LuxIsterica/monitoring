@@ -11,7 +11,7 @@ import os
 
 
 #Mongo Authenticationn
-uri = "mongodb://nomodo:seconda@localhost/admin?authMechanism=SCRAM-SHA-1"
+uri = "mongodb://root:test@localhost/admin?authMechanism=SCRAM-SHA-1"
 client = MongoClient(uri)
 db = client['nomodo']
 

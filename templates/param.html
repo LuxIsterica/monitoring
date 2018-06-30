@@ -11,11 +11,14 @@
 
 {% with messages = get_flashed_messages() %}
   {% if messages %}
-    <ul class=flashes>
-    {% for message in messages %}
-      <li>{{ message }}</li>
-    {% endfor %}
-    </ul>
+    <div class="alert alert-success">
+      <ul class=flashes>
+      {% for message in messages %}
+        <h2><li>{{ message }}</li></h2>
+      {% endfor %}
+      </ul>
+      <meta http-equiv="refresh" content="5;URL=http://localhost:5000/param">
+    </div>
   {% endif %}
 {% endwith %}
 

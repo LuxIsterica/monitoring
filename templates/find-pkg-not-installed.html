@@ -2,15 +2,6 @@
 {% block page_content %}
 <div class="container">
 
-	{% with messages = get_flashed_messages() %}
-	  {% if messages %}
-	    <ul class=flashes>
-	    {% for message in messages %}
-	      <li>{{ message }}</li>
-	    {% endfor %}
-	    </ul>
-	  {% endif %}
-	{% endwith %}
 <button id="myTopButton" title="Su"><i class="glyphicon glyphicon-arrow-up"></i></button>
 	<h2>Pacchetti trovati</h2>
 	<table id="generic-table" style="width: 80%;">

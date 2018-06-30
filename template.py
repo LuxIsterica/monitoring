@@ -53,15 +53,15 @@ def updateShell():
 		uname = request.form['unameUpdate'];
 		shell = request.form['newShell'];
 		if shell == '-- Seleziona nuova shell --':
-			flash('Invalid option')
+			error = 'Invalid option'
 		else:
 			log = updateusershell(uname, shell)
 			if(log['returncode'] != 0):
-				flash(log['stderr'])
+				error = log['stderr']
 			else:
-				flash('Shell changed correctly!')
-		
-		return redirect(url_for('listUserAndGroups'))
+				flash('Shell changed correctly!')	
+				return redirect(url_for('listUserAndGroups'))
+		return render_template('users.html',error=error)
 	except Exception:
 		return internal_server_error(500)
 
@@ -238,11 +238,9 @@ def findPkgNotInstalled():
 	else:
 		if request.form.get('filterName') is not None:
 			appFound = aptsearch(pkg)
-			flash('sono nell\' if')
 			return render_template('find-pkg-not-installed.html', appFound = appFound)
 		else:
 			appFound = aptsearch(pkg,namesonly=False)
-			flash('sono nell\' else')
 			return render_template('find-pkg-not-installed.html', appFound = appFound)
 	return redirect(url_for('listInstalled'))
 	
@@ -556,6 +554,8 @@ def dash():
 def param():
 	error = None
 	hname = hostname()
+	listFile = list()
+	listFile.append('/etc/hosts')
 	if(hname['returncode'] != 0):
 		flash(hname['stderr'])
 	else:
@@ -672,7 +672,7 @@ def upIface():
 @app.route('/downIface/<string:iface>', methods=['POST'])
 def downIface(iface):
 	error = None
-	if request.form['down'] == 'Down':
+	if request.form['down'] == 'Spegni':
 		log = ifacedown(iface)
 		if(log['returncode'] != 0):
 			error = log['stderr']
@@ -805,10 +805,11 @@ def modules():
 	error=None
 	mods=getmods()
 	if(mods['returncode'] != 0):
-		flash(mods['stderr'])
+		error = mods['stderr']
 		return redirect(url_for('sites'))
 	else:
 		return render_template('apache-modules.html', mods=mods)
+	return render_template('apache-modules.html', error=error)
 
 @app.route('/retrieveContentModule', methods=['POST'])
 def retrieveContentModule():
@@ -836,10 +837,12 @@ def configurations():
 	error=None
 	conf=getconf()
 	if(conf['returncode'] != 0):
-		flash(conf['stderr'])
+		error = conf['stderr']
 		return redirect(url_for('sites'))
 	else:
 		return render_template('apache-configurations.html', conf=conf)
+
+	return render_template('apache-configurations.html',error=error)
 
 @app.route('/retrieveContentConfiguration', methods=['POST'])
 def retrieveContentConfiguration():

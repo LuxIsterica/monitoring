@@ -6,18 +6,24 @@
 <div class="container">
 	<h2 class="marginTitle">Interfacce</h2>
 	    <div class="jumbotron">
-	{% if error %}
-		<p class=error><strong>Error:</strong> {{ error }} </p>
-	{% endif %}
-	{% with msg = get_flashed_messages() %}
-      {% if msg %}
-        <ul class=flashes>
-        {% for m in msg %}
-          <li>{{ m }}</li>
-        {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
+		{% with messages = get_flashed_messages() %}
+		  {% if messages %}
+			  <div class="alert alert-success">
+			    <ul class=flashes>
+			    {% for message in messages %}
+			      <h2><li>{{ message }}</li></h2>
+			    {% endfor %}
+			    </ul>
+			    <meta http-equiv="refresh" content="5;URL=http://localhost:5000/network">
+			  </div>
+		  {% endif %}
+		{% endwith %}
+
+		{% if error %}
+			<div class="alert alert-danger">
+				<h2><p class=error><strong>Error:</strong> {{ error }}</p></h2>
+			</div>
+		{% endif %}
 	    {% if facestat %}
 		  	<dl>
 			    {% for key, value in facestat.items() %}
@@ -26,10 +32,10 @@
 			      	<dd style="margin-left: 20px; font-size: 15px;">{{ v }}</dd>
 			      	{% if 'UP' in v %}
 			      	<form id="downIface" action="/downIface/{{ key }}" role="form" method="POST">
-			      		<input type = "submit" value = "Down" name = "down" style="margin-left: 40em;" class="btn btn-warning btn-md">
+			      		<input type = "submit" value = "Spegni" name = "down" style="margin-left: 40em;" class="btn btn-warning btn-md">
 			      	</form>
 			      	{% elif 'DOWN' in v %}
-			      		<button type="button" class="btn btn-success btn-md" data-toggle="modal" data-target="#upIface" style="margin-left: 40em;">Up</button>
+			      		<button type="button" class="btn btn-success btn-md" data-toggle="modal" data-target="#upIface" style="margin-left: 40em;">Accendi</button>
 			      	{% endif %}
 			      {% endfor %}
 			    {% endfor %}

@@ -4,22 +4,27 @@
 <h1 class="title">APACHE</h1>
 
 <div class="container">
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+	  <div class="alert alert-success">
+	    <ul class=flashes>
+	    {% for message in messages %}
+	      <h2><li>{{ message }}</li></h2>
+	    {% endfor %}
+	    </ul>
+	    <meta http-equiv="refresh" content="5;URL=http://localhost:5000/modules">
+	  </div>
+  {% endif %}
+{% endwith %}
+
+{% if error %}
+	<div class="alert alert-danger">
+		<h2><p class=error><strong>Error:</strong> {{ error }}</p></h2>
+	</div>
+{% endif %}
+
 	<div class="row marginRow">
-		{% with messages = get_flashed_messages() %}
-		  {% if messages %}
-		    <ul class=flashes>
-		    {% for message in messages %}
-		      <li>{{ message }}</li>
-		    {% endfor %}
-		    </ul>
-		    <meta http-equiv="refresh" content="3;URL=http://localhost:5000/modules">
-		  {% endif %}
-		{% endwith %}
-
-		{% if error %}
-			<p class=error><strong>Error:</strong> {{ error }} </p>
-		{% endif %}
-
 		<div class="page-header button-style">
 			<ul class="nav nav-pills" style="display: flex;justify-content: space-between;">
 			  <!-- queste sono tutte form, non devo scendere su una nuova pagina -->
