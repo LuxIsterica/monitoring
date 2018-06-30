@@ -228,20 +228,19 @@ def listInstalled():
 	listAppInst = listinstalled(True)
 	return render_template('applications.html', listAppInst = listAppInst)
 
-@app.route('/findPkgNotInstalled', methods=['POST'])
-def findPkgNotInstalled():
+@app.route('/findPkg', methods=['POST'])
+def findPkg():
 	error = None
 	pkg = request.form['pkgSearch']
 	if not pkg:
 		flash(u'Wrong operation, impossible to search empty string','warning')
-		return redirect(url_for('listInstalled'))
 	else:
 		if request.form.get('filterName') is not None:
 			appFound = aptsearch(pkg)
-			return render_template('find-pkg-not-installed.html', appFound = appFound)
+			return render_template('find-pkg.html', appFound = appFound)
 		else:
 			appFound = aptsearch(pkg,namesonly=False)
-			return render_template('find-pkg-not-installed.html', appFound = appFound)
+			return render_template('find-pkg.html', appFound = appFound)
 	return redirect(url_for('listInstalled'))
 	
 
@@ -255,21 +254,21 @@ def getInfoApp(name):
 def removePackage(name):
 	log = aptremove(name, False)
 	if log['returncode'] != 0:
-		flash(u'Error package deletion failed')
-		return redirect(url_for('listInstalled'))
+		error = 'Error package deletion failed'
 	else:
-		flash('Package deleted correctly!')
-		return redirect(url_for('getInfoApp',name=name))
+		flash('Package installed correctly!')
+		return redirect(url_for('listInstalled'))
+	return render_template('applications.html',error=error)
 
 @app.route('/installPackage/<string:name>', methods=['POST'])
 def installPackage(name):
 	log = aptinstall(name)
 	if log['returncode'] != 0:
-		flash(u'Package installation error','error')
-		return redirect(url_for('listInstalled'))
+		error = 'Error package installation failed'
 	else:
 		flash(u'Package installed correctly!','success')
 		return redirect(url_for('listInstalled'))
+	return render_template('applications.html',error=error)
 
 @app.route('/retrieveExternalRepo')
 def retrieveExternalRepo():
@@ -555,11 +554,13 @@ def param():
 	error = None
 	hname = hostname()
 	listFile = list()
-	listFile.append('/etc/hosts')
+	listDir = list()
+	listFile = ['/etc/hosts','/etc/apache2/apache2.conf','/etc/profile','/etc/motd','/etc/network/interfaces','/etc/crontab']
+	listDir = ['/etc/apache2/sites-available','/etc/apache2/mods-available','etc/apache2/conf-available','/etc/update.motd.d/','/etc/network/interfaces.d/','/var/spool/cron/crontabs']
 	if(hname['returncode'] != 0):
 		flash(hname['stderr'])
 	else:
-		return render_template('param.html', hname=hname)
+		return render_template('param.html', hname=hname, listFile=listFile, listDir=listDir)
 	return render_template('param.html')
 
 @app.route('/newHostname', methods=['POST'])

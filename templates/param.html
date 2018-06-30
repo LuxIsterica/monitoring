@@ -4,8 +4,35 @@
 <div class="container">
   <h1>Nome Host</h1>
   <div class="row">
-    <div class="col-sm-offset-1 col-sm-3"><h2 style="color: green;">{{ hname.data }}</h2></div>
-    <div class="col-sm-8" style="top: 8px;"><button type="button" class="btn-primary btn-lg" data-toggle="modal" data-target="#modalUpdateHostname">Modifica</button></div>
+    
+    <p>Questa pagina racchiude le funzioni per la visualizzazione e la modifica di tutti i parametri base del sistema. Da qui potrai quindi ad
+    esempio visualizzare e modifare l'hostname della macchina. Attento a quando esegui operazioni su questi dati in quanto operazioni sensibili
+    che possono alterare profondamente il comportamento del sistema e in alcuni casi infausti compromettere il corretto avvio dello stesso.
+    In ogni caso per ogni operazione di modifica verrà salvato un log contenente le operazioni effettuate e che può aiutarti a rimettere il sistema
+    in piedi in caso qualcosa vada storto. Puoi consultare questi log dalla pagina "log" di nomodo.</p>
+
+    <div class="col-sm-5 col-md-5 col-lg-5"><h2 style="color: green;">Nome macchina:&nbsp; {{ hname.data }}</h2></div>
+    <div class="col-sm-7 col-md-7 col-lg-7" style="top: 8px;"><button type="button" class="btn-primary btn-lg" data-toggle="modal" data-target="#modalUpdateHostname">Modifica</button></div>
+  </div>
+  <div class="row" style="margin-top: 60px;">
+    <div class="col-sm-6 col-md-6 col-lg-6">
+      <h3>Directory</h3>
+      {% for l in listDir %}
+        <button class="accordion">{{ l }}</button>
+        <div class="panel" style="display:none; width: 92%;">
+          <p>Lorem ipsum...</p>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="col-sm-6 col-md-6 col-lg-6">
+      <h3>File</h3>
+      {% for l in listFile %}
+        <button class="accordion">{{ l }}</button>
+        <div class="panel" style="display:none; width: 92%;">
+          <p>Lorem ipsum...</p>
+        </div>
+      {% endfor %}
+    </div>
   </div>
 </div>
 

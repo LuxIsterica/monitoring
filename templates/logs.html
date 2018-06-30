@@ -8,7 +8,12 @@
   <div class="jumbotron">
     <h1 class="title">Logs</h1>   
 
-
+    <p>Da questa pagina è possibile accedere a tutti i log che contengono le informazioni sulle operazioni sensibili, per tentare un ripristino in caso
+    di comportamento inaspettato da parte del sistema. Si ricorda quindi che per ogni operazione sensibile esguita sul sistema (ad esempio la modifica
+    di un file) vengono memorizzati nel database mongo dei mongolog, ossia stringhe che identificano le informazioni sull'operazione eseguita.
+    Ad esempio alla modifica e salvataggio di un file vengiono memorizzate nel mongolog le differenze tra il file originale e quello modificato.
+    Puoi utilizzare i filtri di ricerca per la ricerca selettiva tra i risultati.</p>
+    
         {% for x in logs.data %}
         <div style="margin-top: 3em;">
         	{% for k,v in x.items() %}

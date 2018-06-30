@@ -12,9 +12,7 @@
 		{% for af in appFound.data %}
 		<tr>
 			<td> 
-				<form id="installPackage" action="/installPackage/{{af.name}}" role="form" method="POST">
-			        <input type = "submit" value = "{{af.name}}" id="setLink" name="installPackage" class="btn btn-link"/>
-			    </form>
+				<a href="{{ url_for('getInfoApp',name = af.name) }}" class="btn btn-link"> {{ af.name }} </a>
 			</td>
 			<td> {{ af.desc }} </td>
 		</tr>

@@ -6,25 +6,29 @@
 
 <div class="container">
 	<div class="row marginRow">
+		<p>Apache è un web server in grado di gestire le richieste ai siti web che gestisce. È possibile trovare la cartella di configurazioni
+		di apache al percoso /etc/apache2/ ma è comunque consigliato utilizzare questa pagina per la modifica delle stesse.
+		In caso invece si voglia gestire manualmente le configurazioni è possibile farlo dalla pagina "Parameters" che mette
+		a disposizione un editor di testo per i file di apache.</p>
 
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-	  <div class="alert alert-success">
-	    <ul class=flashes>
-	    {% for message in messages %}
-	      <h2><li>{{ message }}</li></h2>
-	    {% endfor %}
-	    </ul>
-	    <meta http-equiv="refresh" content="5;URL=http://localhost:5000/sites">
-	  </div>
-  {% endif %}
-{% endwith %}
+		{% with messages = get_flashed_messages() %}
+		  {% if messages %}
+			  <div class="alert alert-success">
+			    <ul class=flashes>
+			    {% for message in messages %}
+			      <h2><li>{{ message }}</li></h2>
+			    {% endfor %}
+			    </ul>
+			    <meta http-equiv="refresh" content="5;URL=http://localhost:5000/sites">
+			  </div>
+		  {% endif %}
+		{% endwith %}
 
-{% if error %}
-	<div class="alert alert-danger">
-		<h2><p class=error><strong>Error:</strong> {{ error }}</p></h2>
-	</div>
-{% endif %}
+		{% if error %}
+			<div class="alert alert-danger">
+				<h2><p class=error><strong>Error:</strong> {{ error }}</p></h2>
+			</div>
+		{% endif %}
 
 		<div class="page-header button-style">
 			<ul class="nav nav-pills" style="display: flex;justify-content: space-between;">
