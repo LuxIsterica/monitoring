@@ -21,6 +21,7 @@ Altre funzioni utili importate sono:
 - flash che semplifica il logging all'interno dell'applicativo; l'oggetto request che rappresentano i dati dalla pagina Web di un client che vengono inviati al server;
 - l'oggetto redirect restituisce un oggetto response (un'applicazione WSGI) che, se chiamato, reindirizza il client nella posizione di destinazione; 
 - l'oggetto url_for che, abbinato ad un altro metodo, genera un URL per l'endpoint specificato. 
+Inoltre viene importato Bootstrap tramite flask-bootstrap, che permette di importate il framework anche da CDN.
 L'istanza dell'applicazione ha un metodo run che avvia il server Web:
 {if __name__ == '__main__':
 app.run(debug=True)}
@@ -33,23 +34,82 @@ se lo stato è 42, renderizza alla pagina mongo.html utilizzando la funzione ren
 Questo servizio viene richiamato nel modulo mongo.html. Il servizio è mappato come una richiesta di tipo POST, non accetta parametri in ingresso, però recupera il dato (scelto come hidden) in pagina attraverso l'oggetto form di request.
 Il servizio richiama il metodo backend mongostart() e, in caso di successo, riinvia l'utente alla pagina principale, altrimenti mostra un errore in pagina.
 Il meccanismo di logging all'utente è stati sviluppato utilizzando il message flashing.
-3.1.3 dash
+3.2.1 dash
 Il servizio richiama il metodo getsysteminfo(), che restituisce in output una tupla con le informazioni sulla cpu, sulla memoria e sui processi e li mostra nella pagina dash.html.
-3.1.4 network
+3.3.1 network
 Il servizio di network mostra in pagina le interfacce si sistema disponibili. L'elaborazione del servizio è più complessa perchè i dati ricevuti dal metodo ifacestat() sono stati divisi in base a diversi controlli:
 - se tra i valori dell'interfaccia analizzata nel ciclo è presente la parola loopback (cioè se è l'interfaccia che identifica la macchina locale) viene salvata in un nuovo dizionario e la chiave che rappresenta l'interfaccia viene eliminata dal dizionario iniziale.
 - se nella chiave  che identifica il nome dell'interfaccia, sono presenti i ':', allora si tratta di un alias e viene salvata in un nuovo dizionario e eliminata la chiave dal dizionario iniziale.
 Lo sviluppo è stato deciso in questo modo perchè in pagina venivano fatti dei controlli su bottoni diversi in base all'entità esaminata.
-3.1.5 createAlias
-Il servizio è mappato come una richiesta di tipo POST non accetta parametri in ingresso, però recupera i parametri dal modello network.html., utilizza la funzione getnewifacealiasname() per la generazione dell'nome dell'alias per poi chiamare la funzione createalias() che accetta in ingresso 4 parametri: nome dell'interfaccia generata, l'indirizzo, la netmask e l'indirizzo di broadcast.
+3.3.2 createAlias
+Il servizio è mappato come una richiesta di tipo POST non accetta parametri in ingresso, però recupera i parametri dal modello network.html. Una volta verificato che i parametri della request sono validi, utilizza la funzione getnewifacealiasname() per la generazione dell'nome dell'alias per poi chiamare la funzione createalias() che accetta in ingresso 4 parametri: nome dell'interfaccia generata, l'indirizzo, la netmask e l'indirizzo di broadcast.
 Questa funzione viene applicata per le interfacce che non rappresentano la macchina locale e non sono alias.
-3.1. param
+3.3.3 destroyAlias
+Il servizio è mappato come una richiesta di tipo POST e non accetta parametri in ingresso. I parametri vengono recuperati dal modello tramite la request e viene passata alla funzione backend destroyalias() che serve a cancellare l'alias.
+3.3.4 upIface
+Il servizio è mappato come una richiesta di tipo POST e non accetta parametri in ingresso. I parametri vengono recuperati dal modello tramite la request.
+Viene richiamato nuovamente getnewifacealiasname() per verificare che l'iface scelto esista tra gli iface e nel caso in cui lo fosse viene richiamata la funziona ifaceup() che porta su l'interfaccia.
+3.3.5 downIface
+Il servizio è mappato come una richiesta di tipo POST e accetta un solo parametro in ingresso che corrisponde al nome dell'iface. Il parametro viene poi passato alla funzione ifacedown() che porta giù l'interfaccia.
+3.4.1 param
 Il servizio param richiama il metodo hostname() che restituisce una stringa che rappresenta il nome host e lo rimanda alla pagina param.html. 
-3.1. newHostname
+3.4.2 newHostname
 Il servizio permette di effettuare una modifica sul hostname precedentemente recuperato. Il servizio è mappato come una richiesta di tipo POST, non accetta parametri in ingresso, però recupera il dato in pagina attraverso l'oggetto form di request.
 Se l'utente non inserisce alcun nuovo dato in input, stampa un errore, altrimenti restituisce un messaggio di modifica effettuata correttamente.
-3.1. listUserAndGroup
-Il servizio richiama i metodi getusers(), getgroups() e getshells() e li mostra nella pagina users.html
-3.1. getInfoUser
+3.5.1 listUserAndGroup
+Il servizio richiama i metodi getusers(), getgroups() e getshells() e mostra i dati restituiti nella pagina users.html
+3.5.2 getInfoUser
+Il servizio accetta in input una stringa dinamica, rappresentata dall'uname, che viene mappato anche nella mappatura del metodo. Il metodo richiama 4 funzioni backend: getuser() che restituisce le informazioni sull'utente, getshells() che restituisce le shell che ha l'utente, getusergroups() restituisce i gruppi cui fa parte l'utente e getusernotgroup() che restituisce i gruppi cui l'user non fa parte.
+I dati vengono poi passati alla pagine info-user.html.
+3.5.3 updateShell
+Il servizio è mappato come una richiesta di tipo POST e non accetta parametri in ingresso. I parametri vengono recuperati dal modello tramite la request. 
+Se dalla dropdown in pagina viene selezionata un opzione non valida, restituisce un messaggio d'errore, altrimenti chiama il metodo backend updateusershell().
+3.5.4 addUserGroup
+Il servizio è mappato come una richiesta di tipo POST e non accetta parametri in ingresso. I parametri vengono recuperati dal modello tramite la request.
+Visto che in pagina doveva essere possibile selezionare più gruppi, è stato implementato il metodo getlist() di request.form che recupera una lista di stringhe. 
+Una volta superate le dovute validazioni, viene richiamato il metodo addusertogroups().
+3.5.5 removeUserGroup
+Il servizio segue la stessa logica di addUserGroup, se non per il fatto che viene riciamato il metodo removeuserfromgroups().
+3.5.6 updateUserPwd
+Il servizio è mappato come una richiesta di tipo POST e non accetta parametri in ingresso. I parametri vengono recuperati dal modello tramite la request.
+Una volta superata la validazione per cui il campo password non può essere vuoto, viene richiamato il metodo updateuserpass().
+3.5.7 addUser
+Il servizio è mappato come una richiesta di tipo POST e non accetta parametri in ingresso. I parametri vengono recuperati dal modello tramite la request.
+Una volta superate le validazioni per cui user e password non possono essere vuoti, viene richiamato il metodo adduser().
+3.5.8 removeUser
+Il servizio segue la stessa logica di addUser, se non per il fatto che viene riciamato il metodo removeuser().
+3.6.1 listCron
+Il servizio richiama il metodo listcrontabs() e mostra i dati restituiti nella pagina jobs.html. I dati restituiti sono una lista di cron.
+3.6.2 getContentCrontab
+Il servizio accetta due parametri dinamici in ingresso. I parametri sono serviti nel servizio per costruire il path fisico utile per la funzione readfile() che doveva leggere il contenuto del cron.
+3.6.3 updateCrontab
+Il servizio è mappato come una richiesta di tipo POST e non accetta parametri in ingresso. I parametri vengono recuperati dal modello tramite la request.
+La funzione backend richiamata è writefile() che serve a modificare il contenuto del file passato in input.
+3.6.4 deleteCron
+Il servizio è mappato come una richiesta di tipo POST e non accetta parametri in ingresso. I parametri vengono recuperati dal modello tramite la request.
+I parametri sono serviti nel servizio per costruire il path fisico utile per la funzione delfile() che è servita appunto a cancellare il cron.
+3.7.1 listInstalled
+Il servizio richiama il metodo listcrontabs() e mostra i dati restituiti nella pagina jobs.html. I dati restituiti rappresentano i pacchetti installati 
+3.7.2 findPkgNotInstalled
+Il servizio è mappato come una richiesta di tipo POST e non accetta parametri in ingresso. I parametri vengono recuperati dal modello tramite la request.
+Superate la validazione per cui è impossibile cercare una stringa vuota, richiama il metodo aptsearch().
+E' possibile tramite una checkbox in pagina, effettuare la ricerca solo per nome o anche per descrizione. Ciò ci consente di smaltire i dati da ricercare.
+Il servizio richiama due volte aptsearch(), proprio in via della checkbox sopracitata.
+3.7.3 getInfoApp
+Il servizio accetta un parametro dinamico in ingresso e rappresenta il nome del pacchetto. Il servizio richiama il metodo aptshow() che restituisce in output le info del pacc installato sul nostro sistema.
+3.7.4 removePackage
+Il servizio accetta un parametro dinamico in ingresso e rappresenta il nome del pacchetto installato. Il servizio richiama il metodo aptremove() che cancella il pacchetto installato. In pagina verrà mostrato lo stato dell'operazione.
+3.7.5 installPackage
+Il servizio accetta un parametro dinamico in ingresso e rappresenta il nome del pacchetto non installato. Il servizio richiama il metodo aptinstall() che installa il pacchetto ricercato precedentemente nel servizio findPkgNotInstalled. 
+3.7.6 retrieveExternalRepo
+Il servizio recupera tutti i repository esterni. Esso richiama getexternalrepos() che appunto restituisce i repository esterni e getreponame() che è servita in un secondo momento in pagina per la creazione di un nuovo repository.
+3.7.7 addRepo
+Il servizio è mappato come una richiesta di tipo POST e non accetta parametri in ingresso. I parametri vengono recuperati dal modello tramite la request.
+Richiama il metodo addRepo() e in pagina verrà mostrato lo stato dell'operazione.
+3.7.8 getContentRepo
+Il servizio è mappato come una richiesta di tipo POST e non accetta parametri in ingresso. I parametri vengono recuperati dal modello tramite la request.
+Verificate le validazioni iniziali per cui il repository selezionato non è valido, viene richiamato il metodo readfile() che restituisce il contenuto del repository.
+3.7.9 updateRepoFile
+3.7.10 removeRepo
+3.7.11 aggiornaCachePacchetti
 
- 

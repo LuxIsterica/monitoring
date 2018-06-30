@@ -198,27 +198,27 @@ def updateCrontab():
 
 @app.route('/deleteCron', methods=['POST'])
 def deleteCron():
-	#try:
-	error = None
-	selectedCron = request.form['selectedCron']
-	basedir='/etc/'
-	pathCron=basedir+selectedCron
-	if not selectedCron:
-		error = "No cron selected"
-		return render_template("jobs.html",error=error)
-	else:
-		if selectedCron == '-- Seleziona cron --':
-			flash('Invalid option')
+	try:
+		error = None
+		selectedCron = request.form['selectedCron']
+		basedir='/etc/'
+		pathCron=basedir+selectedCron
+		if not selectedCron:
+			error = "No cron selected"
+			return render_template("jobs.html",error=error)
 		else:
-			log = filedel(pathCron)
-			if(log['returncode'] != 0):
-				flash(log['stderr'])
+			if selectedCron == '-- Seleziona cron --':
+				flash('Invalid option')
 			else:
-				flash('Cron deleted correctly!')
+				log = filedel(pathCron)
+				if(log['returncode'] != 0):
+					flash(log['stderr'])
+				else:
+					flash('Cron deleted correctly!')
 
-		return redirect(url_for('listCron'))
-	#except Exception:
-	#	return internal_server_error(500)
+			return redirect(url_for('listCron'))
+	except Exception:
+		return internal_server_error(500)
 
 ########## FUNZIONALITÀ apps.py ##########
 
@@ -228,8 +228,8 @@ def listInstalled():
 	listAppInst = listinstalled(True)
 	return render_template('applications.html', listAppInst = listAppInst)
 
-@app.route('/findPkgInstalled', methods=['POST'])
-def findPkgInstalled():
+@app.route('/findPkgNotInstalled', methods=['POST'])
+def findPkgNotInstalled():
 	error = None
 	pkg = request.form['pkgSearch']
 	if not pkg:
