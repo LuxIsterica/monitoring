@@ -55,7 +55,7 @@ def adddefaultcron(command, cronspath, name):
     return command_success( data=cronspath+name, logid=logid )
 
 
-def addhourlycron(command, name=""): return addefaultcron( name=name, command=command, cronspath='/etc/cron.hourly/' )
-def adddailycron(command, name=""): return addefaultcron( command=command, cronspath='/etc/cron.daily/' )
-def addweeklycron(command, name=""): return addefaultcron( command=command, cronspath='/etc/cron.weekly/' )
-def addmonthlyycron(command, name=""): return addefaultcron( command=command, cronspath='/etc/cron.monthly/' )
+def addhourlycron(command, name=""): return adddefaultcron( name=name, command=command, cronspath='/etc/cron.hourly/' )
+def adddailycron(command, name=""): return adddefaultcron( command=command, cronspath='/etc/cron.daily/' )
+def addweeklycron(command, name=""): return adddefaultcron( command=command, cronspath='/etc/cron.weekly/' )
+def addmonthlyycron(command, name=""): return adddefaultcron( command=command, cronspath='/etc/cron.monthly/' )
