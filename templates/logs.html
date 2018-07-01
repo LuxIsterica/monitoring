@@ -13,9 +13,45 @@
     di un file) vengono memorizzati nel database mongo dei mongolog, ossia stringhe che identificano le informazioni sull'operazione eseguita.
     Ad esempio alla modifica e salvataggio di un file vengiono memorizzate nel mongolog le differenze tra il file originale e quello modificato.
     Puoi utilizzare i filtri di ricerca per la ricerca selettiva tra i risultati.</p>
-    
+   <form class="form-inline" action="/filtraLog" role="form" method = "POST">
+      <div class="form-group">
+        <label for="idLog">ID:</label>
+        <input type="text" class="form-control" name="idLog">
+      </div>
+      <div class="form-group">
+        <label for="nomeFunzione">Nome funzione:</label>
+        <input type="text" class="form-control" name="nomeFunzione">
+      </div>
+      <div class="form-group">
+        <label for="sel1">Stato dell'operazione:</label>
+          <select id="sel1" class="form-control" name="statoOperazione">
+            <option>success</option>
+            <option>error</option>
+          </select>
+      </div>
+      <div class="form-group">
+        <label for="dataDa">Da:</label>
+          <div class='input-group date' id='dataDa'>
+              <input type='text' class="form-control" name="dataDa" value="1970-01-01"/>
+              <span class="input-group-addon">
+                  <span class="glyphicon glyphicon-calendar"></span>
+              </span>
+          </div>
+      </div>
+      <div class="form-group">
+        <label for="dataA">A:</label>
+          <div class='input-group date' id='dataA'>
+              <input type='text' class="form-control" name="dataA" />
+              <span class="input-group-addon">
+                  <span class="glyphicon glyphicon-calendar"></span>
+              </span>
+          </div>
+      </div>
+      <button type="submit" class="btn btn-default">Filtra</button>
+    </form>
+
         {% for x in logs.data %}
-        <div style="margin-top: 3em;">
+        <div style="margin-top: 3em; border-bottom: 2px solid #0c9006;">
         	{% for k,v in x.items() %}
         	<p style="text-align: center;"><h4>{{k}}:{{v}}</h4></p>
         	{% endfor %}

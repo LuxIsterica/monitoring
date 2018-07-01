@@ -4,9 +4,10 @@
 {% block head %}
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta http-equiv="Pragma" content="no-cache">
-	<meta http-equiv="Expires" content="-1">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="-1">
 	{{ super() }}
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/eonasdan-bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js" />
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='custom.css') }}">
 	<link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='nomodo.ico') }}"/>
 
@@ -93,7 +94,12 @@
 
 {% block scripts %}
 	{{ super() }}
+	<!--<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>-->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/eonasdan-bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
 	<script type="text/javascript" src="{{ url_for('static', filename='script.js') }}"></script> 
+
 {% endblock %}
 
 {% endblock %}

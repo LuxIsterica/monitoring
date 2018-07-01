@@ -415,6 +415,16 @@ button.b-round-r {
     text-decoration: underline !important;
 }
 
+#pText {
+    /*display: block;*/
+    color: red;
+    font-size: 20px;
+    /* font-weight: bold; */
+    align-content: center;
+    text-align: center;
+    line-height: 74px;
+}
+
 /* ---------------------------------------
                 MEDIAQUERIES
 ------------------------------------------ */
