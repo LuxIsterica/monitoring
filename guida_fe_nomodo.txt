@@ -31,11 +31,14 @@ Prima di assistere ad una qualsiasi richiesta, per preparare l'app affinchè fun
 La funzione è senza argomenti e registra una funzione da eseguire prima di ogni richiesta. In questro caso richiamiamo la funzione mongocheck() affinchè verifichi lo stato del servizio mongo:
 se lo stato è 42, renderizza alla pagina mongo.html utilizzando la funzione render_template() dove, il primo parametro è il modello di riferimento mentre error è la variabile passata per mostrare il messaggio ritornato da mongocheck().
 3.1.2 startMongo
+immagine mongo.html
 Questo servizio viene richiamato nel modulo mongo.html. Il servizio è mappato come una richiesta di tipo POST, non accetta parametri in ingresso, però recupera il dato (scelto come hidden) in pagina attraverso l'oggetto form di request.
 Il servizio richiama il metodo backend mongostart() e, in caso di successo, riinvia l'utente alla pagina principale, altrimenti mostra un errore in pagina.
 Il meccanismo di logging all'utente è stati sviluppato utilizzando il message flashing.
+3.2 immagine dash.html
 3.2.1 dash
 Il servizio richiama il metodo getsysteminfo(), che restituisce in output una tupla con le informazioni sulla cpu, sulla memoria e sui processi e li mostra nella pagina dash.html.
+3.3 immagine network
 3.3.1 network
 Il servizio di network mostra in pagina le interfacce si sistema disponibili. L'elaborazione del servizio è più complessa perchè i dati ricevuti dal metodo ifacestat() sono stati divisi in base a diversi controlli:
 - se tra i valori dell'interfaccia analizzata nel ciclo è presente la parola loopback (cioè se è l'interfaccia che identifica la macchina locale) viene salvata in un nuovo dizionario e la chiave che rappresenta l'interfaccia viene eliminata dal dizionario iniziale.
@@ -51,11 +54,13 @@ Il servizio è mappato come una richiesta di tipo POST e non accetta parametri i
 Viene richiamato nuovamente getnewifacealiasname() per verificare che l'iface scelto esista tra gli iface e nel caso in cui lo fosse viene richiamata la funziona ifaceup() che porta su l'interfaccia.
 3.3.5 downIface
 Il servizio è mappato come una richiesta di tipo POST e accetta un solo parametro in ingresso che corrisponde al nome dell'iface. Il parametro viene poi passato alla funzione ifacedown() che porta giù l'interfaccia.
+3.4 immagine param.html
 3.4.1 param
 Il servizio param richiama il metodo hostname() che restituisce una stringa che rappresenta il nome host e lo rimanda alla pagina param.html. 
 3.4.2 newHostname
 Il servizio permette di effettuare una modifica sul hostname precedentemente recuperato. Il servizio è mappato come una richiesta di tipo POST, non accetta parametri in ingresso, però recupera il dato in pagina attraverso l'oggetto form di request.
 Se l'utente non inserisce alcun nuovo dato in input, stampa un errore, altrimenti restituisce un messaggio di modifica effettuata correttamente.
+3.5 immagine users.html
 3.5.1 listUserAndGroup
 Il servizio richiama i metodi getusers(), getgroups() e getshells() e mostra i dati restituiti nella pagina users.html
 3.5.2 getInfoUser
@@ -78,6 +83,7 @@ Il servizio è mappato come una richiesta di tipo POST e non accetta parametri i
 Una volta superate le validazioni per cui user e password non possono essere vuoti, viene richiamato il metodo adduser().
 3.5.8 removeUser
 Il servizio segue la stessa logica di addUser, se non per il fatto che viene riciamato il metodo removeuser().
+3.6 immagine jobs.html
 3.6.1 listCron
 Il servizio richiama il metodo listcrontabs() e mostra i dati restituiti nella pagina jobs.html. I dati restituiti sono una lista di cron.
 3.6.2 getContentCrontab
@@ -85,7 +91,13 @@ Il servizio accetta due parametri dinamici in ingresso. I parametri sono serviti
 3.6.3 updateCrontab
 Il servizio è mappato come una richiesta di tipo POST e non accetta parametri in ingresso. I parametri vengono recuperati dal modello tramite la request.
 La funzione backend richiamata è writefile() che serve a modificare il contenuto del file passato in input.
-3.6.4 deleteCron
+3.6.4 addCron
+Il servizio è mappato come una richiesta di tipo POST e non accetta parametri in ingresso. I parametri vengono recuperati dal modello tramite la request.
+Command non può essere vuoto e richiama il metodo backend addcron() che accetta in ingresso command, name, user, minute, hour, day of mounth, mounth e day of week.
+3.6.5 addCustomCron
+Il servizio è mappato come una richiesta di tipo POST e non accetta parametri in ingresso. I parametri vengono recuperati dal modello tramite la request.
+Command non può essere vuoto e richiama il metodo backend in base alla scelta dell'utente tramite la dropdow. I metodi accettano in ingresso command, name.
+3.6.9 deleteCron
 Il servizio è mappato come una richiesta di tipo POST e non accetta parametri in ingresso. I parametri vengono recuperati dal modello tramite la request.
 I parametri sono serviti nel servizio per costruire il path fisico utile per la funzione delfile() che è servita appunto a cancellare il cron.
 3.7.1 listInstalled
