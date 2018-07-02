@@ -3617,6 +3617,35 @@ identificato dall'objectid stesso.
 
 
 \section{Frontend}\label{frontend}
-Frontend
+Le funzionalità per l'implementazione del frontend sono state sviluppate utilizzando python e flask, un framework di python per l'implementazione di applicazioni web.
+L'istanza dell'applicativo, come tutti i servizi che si occupano di gestire le richieste client, utilizzando il protocollo WSGI e l'istanza che si occupa dell'avvio del server si trovano nel file al path nomodo/template.py.
+
+\subsubsection{template.py}\label{template.py}
+L'istanza dell'app è un'oggetto Flask che fungerà da registro centrale per le funzioni di visualizzazione, le regole URL e viene generato in questo modo:
+\begin{lstlisting}
+from flask import Flask
+app = Flask(__name__)
+\end{lstlisting}
+e dove app è l'inizializzazione del nome dell' applicativo e il primo parametro passato all'oggetto Flask viene utilizzato per trovare risorse sul filesystem, può essere utilizzato dalle estensioni per migliorare le informazioni di debug e molto altro. 
+Di solito è __name__ quando l'applicativo ha un solo modulo, altrimenti avrebbe il nome del package cui si trova.
+Gli altri parametri come template_folder e static_folder rappresentano rispettivamente:
+\begin{itemize}
+	\item{il path della cartella che contiene i modelli che dovrebbero essere utilizzati dall'applicazione. Predefinito alla cartella 'templates' nel percorso principale dell'applicazione.}
+	\item{il path dela cartella con file statici che devono essere pubblicati in static_url_path. Il valore predefinito è la cartella 'static' nel percorso principale dell'applicazione.}
+\end{itemize}
+Le richieste lato client vengono raccolte in una serie di pagine html, che contengono dei form dove l'utente può inserire dei dati e richiedere al server web che li gestisca e invii una risposta.
+Ogni volta che viene effettuata una richista, l'URL di questa deve essere mappata nell'applicativo al fine di sapere quale funzione dovrà essere richiamata.
+Questo meccanismo della mappatura dell'URL e la funzione è detto route.
+Gli URL che contengono stringhe dinamiche, vengono configurati con una mappatura particolare, ad esempio '/url/<tipo:variabile>' dove <tipo:variabile> è il segmento dinamico.
+Il file contine una serie di import alle funzioni backend che sono servite a implementare i servizi all'interno del file e affinchè potessimo gestire la response in python dei dati restituiti, prima di mostrarli in pagina.
+Altre funzioni utili importate sono:
+\begin{itemize}
+	\item{render_template che è un metodo che attiva il motore di template e renderizza ai modelli specificati nel primo parametro mentre gli altri parametri sono coppie chiave/valore che rappresentano valori effettivi per le variabili a cui si fa riferimento nel modello;}
+	\item{flash che semplifica il logging all'interno dell'applicativo; l'oggetto request che rappresentano i dati dalla pagina Web di un client che vengono inviati al server;}
+	\item{l'oggetto redirect restituisce un oggetto response (un'applicazione WSGI) che, se chiamato, reindirizza il client nella posizione di destinazione;}
+	\item{l'oggetto url_for che, abbinato ad un altro metodo, genera un URL per l'endpoint specificato. 
+	Inoltre viene importato Bootstrap tramite flask-bootstrap, che permette di importate il framework anche da CDN.}
+\end{itemize}
+
 
 \end{document}
