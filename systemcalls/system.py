@@ -41,7 +41,6 @@ def getsysteminfo( getall=True, getproc=False, getcpu=False, getmem=False ):
     toreturn = ()
 
 
-    #TODO
     ##### KERNEL E ARCH #####
     #uname -a
     #/etc/os-release

@@ -6,8 +6,6 @@ import datetime
 import dateutil.parser
 
 
-#TODO: A Lucia: bisogna attivare la paginazione sui risultati
-#TODO: A Lucia: sarebbe buono scegliere una data da un calendario
 def getlog( objectid = None, funname = None, status = None, dategte = "1970-01-01", datelte = datetime.datetime.now().strftime("%Y-%m-%d") ):
 
     query = dict()

@@ -145,7 +145,6 @@ def aptshow(pkgname, onlydependences=False):
 
 
 
-#A Lucia: Stampare messaggio che i pacchetti vengono installati non interattivamente
 def aptinstall(pkgname):
     
     logid = mongolog( locals(), {'dependencies' : aptshow(pkgname,onlydependences=True)} )
@@ -164,7 +163,6 @@ def aptinstall(pkgname):
 
 #Allows user to remove system packages using apt-get remove.
 #If purge == True then launch "apt-get remove --purge" instead
-#A Lucia: checkbox "cancella tutto (purge)"
 def aptremove(pkgname, purge=False):
 
     logid = mongolog( locals(), {'dependencies' : aptshow(pkgname,onlydependences=True)} )

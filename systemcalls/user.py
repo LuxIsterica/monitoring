@@ -235,7 +235,6 @@ def updateusershell(user, shell):
 
 
 
-#A Lucia: Inserire la shell di default nel form (a Lucia)
 def adduser(user, password, shell="/bin/bash"):
 	
     logid = mongolog( locals() )

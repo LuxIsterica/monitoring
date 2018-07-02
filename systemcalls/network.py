@@ -157,7 +157,6 @@ def editiface( iface, address="", netmask="", broadcast="" ):
     return ifaceup( iface=iface, address=address, netmask=netmask, broadcast=broadcast ) 
 
 
-#discutere con Lucia della formattazione che deve essere simile a quella del comando
 def getroutes():
     
     command = ['route', '-n']
