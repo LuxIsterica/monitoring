@@ -256,11 +256,11 @@ def removePackage(name):
 	if log['returncode'] != 0:
 		error = 'Error package deletion failed'
 	else:
-		flash('Package installed correctly!')
+		flash(u'Package removed correctly!','success')
 		return redirect(url_for('listInstalled'))
 	return render_template('applications.html',error=error)
 
-@app.route('/installPackage/<string:name>', methods=['POST'])
+@app.route('/installPackage/<string:name>')
 def installPackage(name):
 	log = aptinstall(name)
 	if log['returncode'] != 0:
@@ -944,6 +944,16 @@ def deactivateConf():
 @app.route('/logs')
 def logs():
 	logs = getlog()
+	return render_template('logs.html',logs=logs)
+
+@app.route('/filtraLog', methods=['POST'])
+def filtraLog():
+	idLog = request.form['idLog']
+	nomeFunzione = request.form['nomeFunzione']
+	statoOperazione = request.form['statoOperazione']
+	dataDa = request.form['dataDa']
+	dataA = request.form['dataA']
+	logs = getlog(idLog,nomeFunzione,statoOperazione,dataDa,dataA)
 	return render_template('logs.html',logs=logs)
 
 ########### CHECK MONGODB ###########

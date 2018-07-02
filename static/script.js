@@ -87,4 +87,19 @@ $(document).ready(function () {
 		return (x.type === 'password' ? x.type = 'text' : x.type = 'password'); 
 	});
 
+	$('#dataDa').datetimepicker({
+		format: 'YYYY-MM-DD'
+	});
+
+	$('#dataA').datetimepicker({
+		format: 'YYYY-MM-DD',
+		defaultDate : formatDate(new Date())
+	});
+
+	function formatDate(date){
+		var day = date.getDate();
+		var month = date.getMonth()+1;
+		var year = date.getFullYear()
+		return year+'-'+month+'-'+day;
+	}
 });

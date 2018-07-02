@@ -7,7 +7,7 @@
 			<ul class="list-unstyled marginList">
 				{% for key, value in infoApp.items() %}
 					{% if key == 'Installed' and infoApp['Installed'] == 1 %}
-					<li><strong> {{key}} </strong>: SI clicca<a href="{{url_for('removePackage',name=name)}}" style="color: red;"><u><em> qui </em></u></a>per rimuovere</li>
+					<li><strong> {{key}} </strong>: SI clicca<a href="{{url_for('removePackage',name=name)}}" style="color: red;"><u><em> qui </em></u></a>per disinstallare</li>
 					{% elif key == 'Installed' and infoApp['Installed'] == 0 %}
 					<li><strong> {{key}} </strong>: NO clicca<a href="{{url_for('installPackage',name=name)}}" style="color: red;"><u><em> qui </em></u></a>per installare</li>
 					{% else %}
