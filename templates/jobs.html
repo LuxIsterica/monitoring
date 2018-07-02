@@ -3,41 +3,26 @@
 
 <h2>Lista Job schedulati</h2>
 
-	{% with messages = get_flashed_messages() %}
-	  {% if messages %}
-	    <ul class=flashes>
-	    {% for message in messages %}
-	      <li>{{ message }}</li>
-	    {% endfor %}
-	    </ul>
-	  {% endif %}
-	{% endwith %}
-
-  	{% if error %}
-    	<p class=error><strong>Error:</strong> {{ error }} </p>
-  	{% endif %}
-
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-	  <div class="alert alert-success">
-	    <ul class=flashes>
-	    {% for message in messages %}
-	      <h2><li>{{ message }}</li></h2>
-	    {% endfor %}
-	    </ul>
-	    <meta http-equiv="refresh" content="5;URL=http://localhost:5000/listCron">
-	  </div>
-  {% endif %}
-{% endwith %}
-
-{% if error %}
-	<div class="alert alert-danger">
-		<h2><p class=error><strong>Error:</strong> {{ error }}</p></h2>
-	</div>
-{% endif %}
-
 	{% if listCrontabs|length>0 %}
 		<div class="container">
+			{% with messages = get_flashed_messages() %}
+			  {% if messages %}
+				  <div class="alert alert-success">
+				    <ul class=flashes>
+				    {% for message in messages %}
+				      <h2><li>{{ message }}</li></h2>
+				    {% endfor %}
+				    </ul>
+				    <meta http-equiv="refresh" content="5;URL=http://localhost:5000/listCron">
+				  </div>
+			  {% endif %}
+			{% endwith %}
+
+			{% if error %}
+				<div class="alert alert-danger">
+					<h2><p class=error><strong>Error:</strong> {{ error }}</p></h2>
+				</div>
+			{% endif %}
 		  <div class="jumbotron marginJumb">
 		  	<dl>
 			    {% for key, value in listCrontabs.data.items() %}
@@ -51,7 +36,7 @@
 		  </div>  
 
     <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalAddCron">Aggiungi cron</button>
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalAddDefaultCron">Aggiungi default cron</button>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalAddCustomCron">Aggiungi default cron</button>
 	<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modalDeleteCron">Rimuovi cron</button>
 
 	<div class="modal fade" id="modalAddCron" role="dialog">
@@ -69,7 +54,11 @@
 			        </div>
 			      	<div class="form-group">
 			      		<label for="nameCron">Nome:</label>
-			      		<input type="text" id="nameCron" name="nameCron">
+			      		<input type="text" value="{{generatedCronName}}" id="nameCron" name="nameCron">
+			      	</div>
+			      	<div class="form-group">
+			      		<label for="nameCron">User:</label>
+			      		<input type="text" value="root" id="user" name="user">
 			      	</div>
 			      	<div class="form-group">
 			      		<label for="minute">Minuto:</label>
@@ -101,25 +90,34 @@
 		</div>
 	</div>
 
-	<div class="modal fade" id="modalAddDefaultCron" role="dialog">
+	<div class="modal fade" id="modalAddCustomCron" role="dialog">
 		<div class="modal-dialog">
 		  <div class="modal-content">
 		    <div class="modal-header">
 		      <button type="button" class="close" data-dismiss="modal">&times;</button>
-		      <h4 class="modal-title">Aggiungi cron di default</h4>
+		      <h4 class="modal-title">Aggiungi nuovo cron</h4>
 		    </div>
-		    <form id="form" action="/addDefaultCron" role="form" method = "POST">
+		    <form id="form" action="/addCustomCron" role="form" method = "POST">
 			    <div class="modal-body">
-			      Seleziona cron: 
-		          	<!--<label for="selectFilename">-- Seleziona il filename --</label>-->
-				      <select class="form-control" id="selectedCron" name="selectedCron">
-				        <option selected="selected">-- Seleziona cron --</option>
-				        {% for key, value in listCrontabs.data.items() %}
-				        	{% for v in value %}
-				    		<option> {{key}}/{{ v }} </option>
-				    		{% endfor %}
-		    	  		{% endfor %}	
-				      </select>	
+					<div class="form-group">
+				    	Tipo cron: 
+			          	<!--<label for="selectFilename">-- Seleziona il filename --</label>-->
+					      <select class="form-control" id="typeOption" name="typeOption">
+					        <option selected="selected">-- Seleziona tipo --</option>
+					    	<option> ogni ora </option>
+					    	<option> ogni giorno </option>
+					    	<option> ogni settimana </option>
+					    	<option> ogni mese </option>
+					      </select>	
+				    </div>
+			      	<div class="form-group">
+			    		<label for="command">Comando:</label>
+			      		<input type="text" id="command" name="command">
+			        </div>
+			      	<div class="form-group">
+			      		<label for="nameCron">Nome:</label>
+			      		<input type="text" value={{generatedCronName}} id="nameCron" name="nameCron">
+			      	</div>
 			    </div>
 			    <div class="modal-footer">
 			      	<input type = "submit" value = "Invio" class="btn btn-info btn-default">
@@ -139,7 +137,7 @@
 		    </div>
 		    <form id="form" action="/deleteCron" role="form" method = "POST">
 			    <div class="modal-body">
-			      Seleziona cron: 
+					Seleziona cron: 
 		          	<!--<label for="selectFilename">-- Seleziona il filename --</label>-->
 				      <select class="form-control" id="selectedCron" name="selectedCron">
 				        <option selected="selected">-- Seleziona cron --</option>

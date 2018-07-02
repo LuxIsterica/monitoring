@@ -6,9 +6,15 @@
 \usepackage[margin=0.9in]{geometry}
 \usepackage{color, colortbl}
 
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+\usepackage{wrapfig}
+
 \definecolor{hgray}{gray}{0.9}
  
 \pagestyle{fancy}
+
+
 \def\sectionautorefname{Section}
 
 
@@ -3620,18 +3626,18 @@ identificato dall'objectid stesso.
 Le funzionalità per l'implementazione del frontend sono state sviluppate utilizzando python e flask, un framework di python per l'implementazione di applicazioni web.
 L'istanza dell'applicativo, come tutti i servizi che si occupano di gestire le richieste client, utilizzando il protocollo WSGI e l'istanza che si occupa dell'avvio del server si trovano nel file al path nomodo/template.py.
 
-\subsubsection{template.py}\label{template.py}
+\subsection{template.py}\label{template.py}
 L'istanza dell'app è un'oggetto Flask che fungerà da registro centrale per le funzioni di visualizzazione, le regole URL e viene generato in questo modo:
 \begin{lstlisting}
 from flask import Flask
 app = Flask(__name__)
 \end{lstlisting}
-e dove app è l'inizializzazione del nome dell' applicativo e il primo parametro passato all'oggetto Flask viene utilizzato per trovare risorse sul filesystem, può essere utilizzato dalle estensioni per migliorare le informazioni di debug e molto altro. 
-Di solito è __name__ quando l'applicativo ha un solo modulo, altrimenti avrebbe il nome del package cui si trova.
-Gli altri parametri come template_folder e static_folder rappresentano rispettivamente:
+e dove app è l'inizializzazione del nome dell' applicativo e il primo parametro passato all'oggetto Flask viene utilizzato per trovare risorse sul filesystem, può essere utilizzato dalle estensioni per migliorare le informazioni di debug e molto altro.
+Di solito è \texttt{\_\_name\_\_} quando l'applicativo ha un solo modulo, altrimenti avrebbe il nome del package cui si trova.
+Gli altri parametri come template\_folder e static\_folder rappresentano rispettivamente:
 \begin{itemize}
 	\item{il path della cartella che contiene i modelli che dovrebbero essere utilizzati dall'applicazione. Predefinito alla cartella 'templates' nel percorso principale dell'applicazione.}
-	\item{il path dela cartella con file statici che devono essere pubblicati in static_url_path. Il valore predefinito è la cartella 'static' nel percorso principale dell'applicazione.}
+	\item{il path dela cartella con file statici che devono essere pubblicati in static\_url\_path. Il valore predefinito è la cartella 'static' nel percorso principale dell'applicazione.}
 \end{itemize}
 Le richieste lato client vengono raccolte in una serie di pagine html, che contengono dei form dove l'utente può inserire dei dati e richiedere al server web che li gestisca e invii una risposta.
 Ogni volta che viene effettuata una richista, l'URL di questa deve essere mappata nell'applicativo al fine di sapere quale funzione dovrà essere richiamata.
@@ -3640,12 +3646,112 @@ Gli URL che contengono stringhe dinamiche, vengono configurati con una mappatura
 Il file contine una serie di import alle funzioni backend che sono servite a implementare i servizi all'interno del file e affinchè potessimo gestire la response in python dei dati restituiti, prima di mostrarli in pagina.
 Altre funzioni utili importate sono:
 \begin{itemize}
-	\item{render_template che è un metodo che attiva il motore di template e renderizza ai modelli specificati nel primo parametro mentre gli altri parametri sono coppie chiave/valore che rappresentano valori effettivi per le variabili a cui si fa riferimento nel modello;}
+	\item{render\_template che è un metodo che attiva il motore di template e renderizza ai modelli specificati nel primo parametro mentre gli altri parametri sono coppie chiave/valore che rappresentano valori effettivi per le variabili a cui si fa riferimento nel modello;}
 	\item{flash che semplifica il logging all'interno dell'applicativo; l'oggetto request che rappresentano i dati dalla pagina Web di un client che vengono inviati al server;}
 	\item{l'oggetto redirect restituisce un oggetto response (un'applicazione WSGI) che, se chiamato, reindirizza il client nella posizione di destinazione;}
-	\item{l'oggetto url_for che, abbinato ad un altro metodo, genera un URL per l'endpoint specificato. 
-	Inoltre viene importato Bootstrap tramite flask-bootstrap, che permette di importate il framework anche da CDN.}
+	\item{l'oggetto url\_for che, abbinato ad un altro metodo, genera un URL per l'endpoint specificato. }
 \end{itemize}
+Inoltre viene importato Bootstrap tramite flask-bootstrap, che permette di importate il framework anche da CDN.
+L'istanza dell'applicazione ha un metodo run che avvia il server Web:
+\begin{lstlisting}
+if __name__ == '__main__':
+app.run(debug=True)
+\end{lstlisting}
+Una volta avviato, il server entra in un ciclo che attende le request e le assiste e durante lo sviluppo è conventiente abilitare la modalità debug.
+Prima di assistere ad una qualsiasi richiesta, per preparare l'app affinchè funzioni correttamente usiamo \texttt{before\_request}, mappato come \texttt{@app.before\_request}.
+
+\subsubsection{before\_request}\label{before_request}
+\begin{lstlisting}
+@app.before_request
+def before_request():
+	if request.endpoint != 'startMongo':
+		log = mongocheck()
+		if(log['returncode'] == 42):
+			error = log['stderr']
+			return render_template('mongo.html',error=error)
+\end{lstlisting}
+La funzione è senza argomenti e registra una funzione da eseguire prima di ogni richiesta. In questro caso richiamiamo la funzione mongocheck() affinchè verifichi lo stato del servizio mongo:
+se lo stato è 42, renderizza alla pagina mongo.html utilizzando la funzione render\_template() dove, il primo parametro è il modello di riferimento mentre error è la variabile passata per mostrare il messaggio ritornato da mongocheck().
+
+\subsection{mongo.html}\label{mongo.html}
+
+\subsubsection{startMongo}\label{startMongo}
+\begin{lstlisting}
+@app.route('/startMongo', methods=['POST'])
+def startMongo():
+	try:
+		error = None
+		if request.form['startMongo'] == 'Start Mongo':
+			log = mongostart()
+			if(log['returncode'] != 0):
+				error = log['stderr']
+				return render_template('mongo.html',error=error)
+			else:
+				return redirect(url_for('dash'))
+		else:
+			error = 'Non funzica' 
+			return render_template('mongo.html', error=error)
+	except Exception:
+		return internal_server_error(500)
+\end{lstlisting}
+Questo servizio viene richiamato nel modulo mongo.html. Il servizio è mappato come una richiesta di tipo POST, non accetta parametri in ingresso, però recupera il dato (scelto come hidden) in pagina attraverso l'oggetto form di request.
+Il servizio richiama il metodo backend mongostart() e, in caso di successo, riinvia l'utente alla pagina principale, altrimenti mostra un errore in pagina.
+Il meccanismo di logging all'utente è stati sviluppato utilizzando il message flashing.
+
+\subsection{dash.html}\label{dash.html}
+
+\includegraphics[width=6cm, height=4cm]{dash1.png}
+\includegraphics[width=6cm, height=4cm]{dash2.png}
+\includegraphics[width=6cm, height=4cm]{dash3.png}
+
+\subsubsection{dash}\label{dash}
+\begin{lstlisting}
+@app.route('/dash')
+def dash():
+	tpl = getsysteminfo()
+	(cpu,mem,proc) = tpl['data']
+	return render_template('dash.html', cpu = cpu, mem = mem, proc = proc)
+\end{lstlisting}
+Il servizio richiama il metodo getsysteminfo(), che restituisce in output una tupla con le informazioni sulla cpu, sulla memoria e sui processi e li mostra nella pagina dash.html.
+
+\subsection{network.html}\label{network.html}
+
+
+
+\subsubsection{network}\label{network}
+\begin{lstlisting}
+@app.route('/network')
+def network():
+	key_remove = list()
+	lo = dict()
+	als = dict()
+	faceUp = dict()
+	faceDown = dict()
+	facestat = ifacestat()['data']
+	for key,value in facestat.items():
+		if 'LOOPBACK' in value[-1]:
+			lo.update({key:facestat[key]})
+			key_remove.append(key)
+		elif ':' in key:
+			als.update({key:facestat[key]})
+			key_remove.append(key)
+
+	for key in key_remove:
+		del facestat[key]
+	
+	for key, value in facestat.items():
+		if not 'UP' in value[-1]:
+			facestat[key].append('DOWN')
+	return render_template('network.html', facestat=facestat, lo=lo, als=als)
+\end{lstlisting}
+Il servizio di network mostra in pagina le interfacce si sistema disponibili. L'elaborazione del servizio è più complessa perchè i dati ricevuti dal metodo ifacestat() sono stati divisi in base a diversi controlli:
+\begin{itemize}
+\item{se tra i valori dell'interfaccia analizzata nel ciclo è presente la parola loopback (cioè se è l'interfaccia che identifica la macchina locale) viene salvata in un nuovo dizionario e la chiave che rappresenta l'interfaccia viene eliminata dal dizionario iniziale.}
+\item{se nella chiave  che identifica il nome dell'interfaccia, sono presenti i ':', allora si tratta di un alias e viene salvata in un nuovo dizionario e eliminata la chiave dal dizionario iniziale.}
+\end{itemize}
+Lo sviluppo è stato deciso in questo modo perchè in pagina venivano fatti dei controlli su bottoni diversi in base all'entità esaminata.
+
+
 
 
 \end{document}

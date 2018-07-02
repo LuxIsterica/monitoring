@@ -1,12 +1,13 @@
-from user import getusers, getuser, getgroups, getusergroups, getusernotgroups, addusertogroups, removeuserfromgroups, adduser, removeuser, updateuserpass, getshells, updateusershell
-from apps import listinstalled, aptsearch, aptshow, aptinstall, aptremove, aptupdate, addrepo,  getexternalrepos, removerepofile
-from system import hostname, getsysteminfo
-from systemfile import updatedb, locate
-from apache import getvhosts, getmods, getconf, activatevhost, deactivatevhost, apachestatus, apachereload, apacheconfdir
-from pprint import pprint
-from utilities import filediff, writefile, readfile, filedel, mongocheck
-from network import ifacestat, getnewifacealiasname, ifacedown, ifaceup, editiface, createalias, destroyalias, getroutes, addroute, defaultroute, delroute
-from cron import listcrontabs, addcron, addhourlycron
+from user import getusers, getuser, getgroups, getshells, updateusershell, getusernotgroups, getusergroups, addusertogroups, removeuserfromgroups, updateuserpass, adduser, removeuser
+from apps import listinstalled, aptsearch, aptshow, getreponame, addrepo, removerepofile, getexternalrepos, aptupdate, aptremove, aptinstall
+from apps import externalreposdir
+from systemfile import locate,updatedb
+from system import getsysteminfo, hostname
+from network import ifacestat, getnewifacealiasname, createalias, destroyalias, ifaceup,ifacedown
+from apache import apachestart, apachestop, apacherestart, apachereload, apachestatus, getvhosts, getmods, getconf, activatevhost, deactivatevhost, activatemod, deactivatemod, activateconf, deactivateconf
+from apache import apacheconfdir
+from cron import listcrontabs, addcron, addhourlycron, adddailycron, addweeklycron, addmonthlyycron, getcronname
+from utilities import readfile, writefile, filedel, filecopy, filerename, mongocheck, mongostart
 from logs import getlog
 import os
 import sys
@@ -17,7 +18,7 @@ for key, value in face.items():
 	als.append(getnewifacealiasname(key))
 print(lista)'''
 #print(destroyalias('enp0s3:0')['data'])
-print(aptremove('sublime-text'))
+print(addcron("we", "oi", "1", "1", "1", "1", "1"))
 
 #TODO: non cancellare le righe successive, discutere con Lucia dei Keyword Arguments
 exit()

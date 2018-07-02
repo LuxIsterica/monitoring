@@ -71,5 +71,13 @@
 \BOOKMARK [3][-]{subsubsection.3.8.2}{locate}{subsection.3.8}% 71
 \BOOKMARK [3][-]{subsubsection.3.8.3}{Altre funzioni della libreria systemfile}{subsection.3.8}% 72
 \BOOKMARK [2][-]{subsection.3.9}{Logs}{section.3}% 73
-\BOOKMARK [3][-]{subsubsection.3.9.1}{}{subsection.3.9}% 74
+\BOOKMARK [3][-]{subsubsection.3.9.1}{getlog}{subsection.3.9}% 74
 \BOOKMARK [1][-]{section.4}{Frontend}{}% 75
+\BOOKMARK [2][-]{subsection.4.1}{template.py}{section.4}% 76
+\BOOKMARK [3][-]{subsubsection.4.1.1}{before\137request}{subsection.4.1}% 77
+\BOOKMARK [2][-]{subsection.4.2}{mongo.html}{section.4}% 78
+\BOOKMARK [3][-]{subsubsection.4.2.1}{startMongo}{subsection.4.2}% 79
+\BOOKMARK [2][-]{subsection.4.3}{dash.html}{section.4}% 80
+\BOOKMARK [3][-]{subsubsection.4.3.1}{dash}{subsection.4.3}% 81
+\BOOKMARK [2][-]{subsection.4.4}{network.html}{section.4}% 82
+\BOOKMARK [3][-]{subsubsection.4.4.1}{network}{subsection.4.4}% 83
