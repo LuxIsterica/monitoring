@@ -43,6 +43,7 @@ Il meccanismo di logging all'utente è stati sviluppato utilizzando il message f
 
 3.2.1 dash
 Il servizio richiama il metodo getsysteminfo(), che restituisce in output una tupla con le informazioni sulla cpu, sulla memoria e sui processi e li mostra nella pagina dash.html.
+
 3.3 immagine network
 
 3.3.1 network
