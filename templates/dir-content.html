@@ -1,0 +1,12 @@
+{% extends "index.html" %}
+{% block page_content %}
+
+<h2>Directory Content: {{pathDir}}</h2>
+
+<ul>
+	{% for l in listFile.data %}
+	<li>{{l}}</li>
+	{% endfor %}
+</ul>
+
+{% endblock %}

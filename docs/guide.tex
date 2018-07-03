@@ -3641,8 +3641,8 @@ Gli altri parametri come template\_folder e static\_folder rappresentano rispett
 \end{itemize}
 Le richieste lato client vengono raccolte in una serie di pagine html, che contengono dei form dove l'utente può inserire dei dati e richiedere al server web che li gestisca e invii una risposta.
 Ogni volta che viene effettuata una richista, l'URL di questa deve essere mappata nell'applicativo al fine di sapere quale funzione dovrà essere richiamata.
-Questo meccanismo della mappatura dell'URL e la funzione è detto route.
-Gli URL che contengono stringhe dinamiche, vengono configurati con una mappatura particolare, ad esempio '/url/<tipo:variabile>' dove <tipo:variabile> è il segmento dinamico.
+Questo meccanismo della mappatura dell'URL e la funzione è detto route.                              
+Gli URL che contengono stringhe dinamiche, vengono configurati con una mappatura particolare, ad esempio \texttt{/url/<tipo:variabile>} dove \texttt{<tipo:variabile>} è il segmento dinamico.
 Il file contine una serie di import alle funzioni backend che sono servite a implementare i servizi all'interno del file e affinchè potessimo gestire la response in python dei dati restituiti, prima di mostrarli in pagina.
 Altre funzioni utili importate sono:
 \begin{itemize}
@@ -3675,6 +3675,8 @@ se lo stato è 42, renderizza alla pagina mongo.html utilizzando la funzione ren
 
 \subsection{mongo.html}\label{mongo.html}
 
+\includegraphics[width=\textwidth]{mongo.png}\\
+
 \subsubsection{startMongo}\label{startMongo}
 \begin{lstlisting}
 @app.route('/startMongo', methods=['POST'])
@@ -3700,9 +3702,9 @@ Il meccanismo di logging all'utente è stati sviluppato utilizzando il message f
 
 \subsection{dash.html}\label{dash.html}
 
-\includegraphics[width=6cm, height=4cm]{dash1.png}
-\includegraphics[width=6cm, height=4cm]{dash2.png}
-\includegraphics[width=6cm, height=4cm]{dash3.png}
+\includegraphics[width=\textwidth]{dash1.png}\\
+\includegraphics[width=\textwidth]{dash2.png}\\
+\includegraphics[width=\textwidth]{dash3.png}\\
 
 \subsubsection{dash}\label{dash}
 \begin{lstlisting}
@@ -3716,7 +3718,8 @@ Il servizio richiama il metodo getsysteminfo(), che restituisce in output una tu
 
 \subsection{network.html}\label{network.html}
 
-
+\includegraphics[width=\textwidth]{network1.png}\\
+\includegraphics[width=\textwidth]{network2.png}\\
 
 \subsubsection{network}\label{network}
 \begin{lstlisting}
@@ -3751,7 +3754,104 @@ Il servizio di network mostra in pagina le interfacce si sistema disponibili. L'
 \end{itemize}
 Lo sviluppo è stato deciso in questo modo perchè in pagina venivano fatti dei controlli su bottoni diversi in base all'entità esaminata.
 
+\subsubsection{createAlias}\label{createAlias}
+\begin{lstlisting}
+@app.route('/createAlias', methods=['POST'])
+def createAlias():
+	try:
+		error = None
+		iface = request.form['iface']
+		address = request.form['address']
+		netmask = request.form['netmask']
+		broadcast = request.form['broadcast']
+		if not iface or iface == '-- Seleziona interfaccia --':
+			error = 'Invalid option'
+		else:
+			generatedAliasName = getnewifacealiasname(iface)
+			if not address:
+				error = 'Address empty'
+			else:
+				log = createalias(generatedAliasName['data'],address,netmask,broadcast)
+				if(log['returncode'] != 0):
+					error = log['stderr']
+				else:
+					flash("Alias created correctly")
+					return redirect(url_for('network'))
+		return render_template('network.html', error=error)
+	except Exception:
+		return internal_server_error(500)
+\end{lstlisting}
+Il servizio è mappato come una richiesta di tipo POST non accetta parametri in ingresso, però recupera i parametri dal modello network.html. Una volta verificato che i parametri della request sono validi, utilizza la funzione getnewifacealiasname() per la generazione dell'nome dell'alias per poi chiamare la funzione createalias() che accetta in ingresso 4 parametri: nome dell'interfaccia generata, l'indirizzo, la netmask e l'indirizzo di broadcast.
+Questa funzione viene applicata per le interfacce che non rappresentano la macchina locale e non sono alias.
 
+\subsubsection{destroyAlias}\label{destroyAlias}
+\begin{lstlisting}
+@app.route('/destroyAlias', methods=['POST'])
+def destroyAlias():
+	try:
+		error = None
+		alias = request.form['alias']
+		if not alias or alias == '-- Seleziona alias --':
+			error = 'Invalid option'
+		else:
+			log = destroyalias(alias)
+			if(log['returncode'] != 0):
+				error = log['stderr']
+			else:
+				flash("Alias deleted correctly")
+				return redirect(url_for('network'))
+		return render_template('network.html', error=error)
+	except Exception:
+		return internal_server_error(500)
+\end{lstlisting}
+Il servizio è mappato come una richiesta di tipo POST e non accetta parametri in ingresso. I parametri vengono recuperati dal modello tramite la request e viene passata alla funzione backend destroyalias() che serve a cancellare l'alias.
+
+\subsubsection{upIface}\label{upIface}
+\begin{lstlisting}
+@app.route('/upIface', methods=['POST'])
+def upIface():
+	iface = request.form['iface']
+	address = request.form['address']
+	netmask = request.form['netmask']
+	broadcast = request.form['broadcast']
+	facestat = ifacestat()['data']
+	if '-- Seleziona interfaccia --' in iface:
+		flash('Invalid option')
+	else:
+		if iface in facestat:
+			log = ifaceup(iface)
+			if(log['returncode'] != 0):
+				error = log['stderr']
+			else:
+				flash("Interface up!")
+				return redirect(url_for('network'))			
+	return render_template('network.html', error=error)
+\end{lstlisting}
+Il servizio è mappato come una richiesta di tipo POST e non accetta parametri in ingresso. I parametri vengono recuperati dal modello tramite la request.
+Viene richiamato nuovamente getnewifacealiasname() per verificare che l'iface scelto esista tra gli iface e nel caso in cui lo fosse viene richiamata la funziona ifaceup() che porta su l'interfaccia.
+
+\subsubsection{downIface}\label{downIface}
+\begin{lstlisting}
+@app.route('/downIface/<string:iface>', methods=['POST'])
+def downIface(iface):
+	error = None
+	if request.form['down'] == 'Spegni':
+		log = ifacedown(iface)
+		if(log['returncode'] != 0):
+			error = log['stderr']
+		else:
+			flash('Interface down!')
+			return redirect(url_for('network'))
+	else:
+		error = 'Non funzica' 
+	return render_template('network.html', error=error)
+\end{lstlisting}
+Il servizio è mappato come una richiesta di tipo POST e accetta un solo parametro in ingresso che corrisponde al nome dell'iface. Il parametro viene poi passato alla funzione ifacedown() che porta giù l'interfaccia.
+
+\subsection{param.html}\label{param.html}
+
+\includegraphics[width=\textwidth]{network1.png}\\
+\includegraphics[width=\textwidth]{network2.png}\\
 
 
 \end{document}

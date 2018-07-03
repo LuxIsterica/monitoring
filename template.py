@@ -9,7 +9,7 @@ from network import ifacestat, getnewifacealiasname, createalias, destroyalias, 
 from apache import apachestart, apachestop, apacherestart, apachereload, apachestatus, getvhosts, getmods, getconf, activatevhost, deactivatevhost, activatemod, deactivatemod, activateconf, deactivateconf
 from apache import apacheconfdir
 from cron import listcrontabs, addcron, addhourlycron, adddailycron, addweeklycron, addmonthlyycron, getcronname
-from utilities import readfile, writefile, filedel, filecopy, filerename, mongocheck, mongostart
+from utilities import readfile, writefile, filedel, filecopy, filerename, readdir, mongocheck, mongostart
 from logs import getlog
 
 from flask import Flask, render_template, flash, request, redirect, url_for, jsonify
@@ -621,7 +621,7 @@ def param():
 def newHostname():
 	try:
 		error = None
-		hname = request.form['newHname'];
+		hname = request.form['newHname']
 		if not hname:
 			flash('Hostname cannot be empty!')
 		else:
@@ -630,10 +630,22 @@ def newHostname():
 				flash(log['stderr'])
 			else:
 				flash('Hostname changed correctly!')
-		
 		return redirect(url_for('param'))
 	except Exception:
 		return internal_server_error(500)
+
+@app.route('/retriveFileDir', methods=['POST'])
+def retriveFileDir():
+	pathDir = request.form['pathDir']
+	if not pathDir:
+		flash('Path directory is empty')
+	else:
+		listFile = readdir(pathDir)
+		if listFile['returncode'] != 0:
+			flash(log['stderr'])
+		else:
+			return render_template("dir-content.html", listFile=listFile, pathDir=pathDir)
+	return redirect(url_for('param'))
 
 ########## FUNZIONALITÀ network.py ##########
 @app.route('/network')
@@ -719,8 +731,7 @@ def upIface():
 				error = log['stderr']
 			else:
 				flash("Interface up!")
-				return redirect(url_for('network'))
-				
+				return redirect(url_for('network'))			
 	return render_template('network.html', error=error)
 
 

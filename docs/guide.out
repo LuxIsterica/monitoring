@@ -81,3 +81,7 @@
 \BOOKMARK [3][-]{subsubsection.4.3.1}{dash}{subsection.4.3}% 81
 \BOOKMARK [2][-]{subsection.4.4}{network.html}{section.4}% 82
 \BOOKMARK [3][-]{subsubsection.4.4.1}{network}{subsection.4.4}% 83
+\BOOKMARK [3][-]{subsubsection.4.4.2}{createAlias}{subsection.4.4}% 84
+\BOOKMARK [3][-]{subsubsection.4.4.3}{destroyAlias}{subsection.4.4}% 85
+\BOOKMARK [3][-]{subsubsection.4.4.4}{upIface}{subsection.4.4}% 86
+\BOOKMARK [3][-]{subsubsection.4.4.5}{downIface}{subsection.4.4}% 87

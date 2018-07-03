@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.6.30)  2 JUL 2018 22:46
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.6.30)  3 JUL 2018 22:48
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -915,64 +915,102 @@ aramtri; tutte le con-fig-u-razioni vanno in-serite nel file \OT1/cmtt/m/n/10.9
 5 /etc/updatedb.conf\OT1/cmr/m/n/10.95 ,
  []
 
-[77] [78] [79] [80] [81]
-<./images/dash1.png, id=2857, 1732.4725pt x 912.40875pt>
+[77] [78] [79] [80] <./images/mongo.png, id=2824, 1380.15625pt x 330.23375pt>
+File: ./images/mongo.png Graphic file (type png)
+
+<use ./images/mongo.png>
+Package pdftex.def Info: ./images/mongo.png used on input line 3678.
+(pdftex.def)             Requested size: 484.20988pt x 115.85564pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 3678--3679
+
+ []
+
+[81 <./images/mongo.png>]
+<./images/dash1.png, id=2851, 1732.4725pt x 912.40875pt>
 File: ./images/dash1.png Graphic file (type png)
 
 <use ./images/dash1.png>
-Package pdftex.def Info: ./images/dash1.png used on input line 3703.
-(pdftex.def)             Requested size: 170.69316pt x 113.8002pt.
+Package pdftex.def Info: ./images/dash1.png used on input line 3705.
+(pdftex.def)             Requested size: 484.20988pt x 255.01328pt.
 
-<./images/dash2.png, id=2858, 1815.78375pt x 908.39375pt>
+<./images/dash2.png, id=2852, 1815.78375pt x 908.39375pt>
 File: ./images/dash2.png Graphic file (type png)
 
 <use ./images/dash2.png>
-Package pdftex.def Info: ./images/dash2.png used on input line 3704.
-(pdftex.def)             Requested size: 170.70032pt x 113.79843pt.
+Package pdftex.def Info: ./images/dash2.png used on input line 3706.
+(pdftex.def)             Requested size: 484.20988pt x 242.23404pt.
 
-<./images/dash3.png, id=2859, 1807.75375pt x 920.43875pt>
+<./images/dash3.png, id=2853, 1807.75375pt x 920.43875pt>
 File: ./images/dash3.png Graphic file (type png)
 
 <use ./images/dash3.png>
-Package pdftex.def Info: ./images/dash3.png used on input line 3705.
-(pdftex.def)             Requested size: 170.71777pt x 113.80458pt.
+Package pdftex.def Info: ./images/dash3.png used on input line 3707.
+(pdftex.def)             Requested size: 484.20988pt x 246.54147pt.
 
-Overfull \hbox (32.76804pt too wide) in paragraph at lines 3703--3706
-[] [] [] 
+Underfull \hbox (badness 10000) in paragraph at lines 3705--3708
+
  []
 
-[82 <./images/dash1.png> <./images/dash2.png> <./images/dash3.png>]
-Overfull \hbox (4.34319pt too wide) in paragraph at lines 3749--3750
+[82 <./images/dash1.png>]
+<./images/network1.png, id=2865, 1861.95625pt x 929.4725pt>
+File: ./images/network1.png Graphic file (type png)
+
+<use ./images/network1.png>
+Package pdftex.def Info: ./images/network1.png used on input line 3721.
+(pdftex.def)             Requested size: 484.20988pt x 241.71388pt.
+
+<./images/network2.png, id=2866, 1861.95625pt x 929.4725pt>
+File: ./images/network2.png Graphic file (type png)
+
+<use ./images/network2.png>
+Package pdftex.def Info: ./images/network2.png used on input line 3722.
+(pdftex.def)             Requested size: 484.20988pt x 241.71388pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 3721--3723
+
+ []
+
+[83 <./images/dash2.png> <./images/dash3.png>] [84 <./images/network1.png> <./i
+mages/network2.png>]
+Overfull \hbox (4.34319pt too wide) in paragraph at lines 3752--3753
 []\OT1/cmr/m/n/10.95 se tra i val-ori dell'interfaccia anal-iz-zata nel ci-clo 
 ^^Re pre-sente la parola loop-back (cio^^Re se ^^Re l'interfaccia
  []
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 3757.
-[83]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 3757.
+[85] [86]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 3852.
+ [87]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 3852.
  (./guide.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 3757.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 3757.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 3852.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 3852.
 
-Package rerunfilecheck Info: File `guide.out' has not changed.
-(rerunfilecheck)             Checksum: 5428522E50CEE7544BF752CA143F2342;5684.
 
+
+Package rerunfilecheck Warning: File `guide.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `guide.out':
+(rerunfilecheck)             Before: 5428522E50CEE7544BF752CA143F2342;5684
+(rerunfilecheck)             After:  2177575A01F8DF7C6B53822C215937CF;5963.
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 
 LaTeX Warning: There were multiply-defined labels.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 3757.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 3852.
  ) 
 Here is how much of TeX's memory you used:
- 10597 strings out of 494953
- 150544 string characters out of 6180977
+ 10707 strings out of 494953
+ 152375 string characters out of 6180977
  388279 words of memory out of 5000000
- 11641 multiletter control sequences out of 15000+600000
+ 11664 multiletter control sequences out of 15000+600000
  10757 words of font info for 38 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 34i,12n,43p,303b,1926s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 34i,12n,43p,475b,1926s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/shar
 e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texl
@@ -986,10 +1024,10 @@ fonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm
 0.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb>
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/
 share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.pfb>
-Output written on guide.pdf (85 pages, 854128 bytes).
+Output written on guide.pdf (89 pages, 1052909 bytes).
 PDF statistics:
- 3388 PDF objects out of 3580 (max. 8388607)
- 3251 compressed objects within 33 object streams
- 2160 named destinations out of 2487 (max. 500000)
- 680 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 3506 PDF objects out of 3580 (max. 8388607)
+ 3361 compressed objects within 34 object streams
+ 2244 named destinations out of 2487 (max. 500000)
+ 695 words of extra memory for PDF output out of 10000 (max. 10000000)
 
