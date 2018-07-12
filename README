@@ -1,3 +1,7 @@
 L'accesso diretto a mongo tramite la shell può essere effettuato lanciando il seguente comando:
 
 	mongo -u root -p test --authenticationDatabase admin
+
+Per startare l'applicativo, raggiungere la root del progetto e lanciare il seguente comando:
+
+	sudo python3 template.py

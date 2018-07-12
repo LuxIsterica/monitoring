@@ -114,3 +114,17 @@
 \BOOKMARK [3][-]{subsubsection.4.8.6}{deleteFile}{subsection.4.8}% 114
 \BOOKMARK [3][-]{subsubsection.4.8.7}{copyFile}{subsection.4.8}% 115
 \BOOKMARK [3][-]{subsubsection.4.8.8}{renameFile}{subsection.4.8}% 116
+\BOOKMARK [2][-]{subsection.4.9}{applications.html}{section.4}% 117
+\BOOKMARK [3][-]{subsubsection.4.9.1}{listInstalled}{subsection.4.9}% 118
+\BOOKMARK [3][-]{subsubsection.4.9.2}{findPkg}{subsection.4.9}% 119
+\BOOKMARK [3][-]{subsubsection.4.9.3}{getInfoApp}{subsection.4.9}% 120
+\BOOKMARK [3][-]{subsubsection.4.9.4}{removePackage}{subsection.4.9}% 121
+\BOOKMARK [3][-]{subsubsection.4.9.5}{installPackage}{subsection.4.9}% 122
+\BOOKMARK [3][-]{subsubsection.4.9.6}{retrieveExternalRepo}{subsection.4.9}% 123
+\BOOKMARK [3][-]{subsubsection.4.9.7}{addRepo}{subsection.4.9}% 124
+\BOOKMARK [3][-]{subsubsection.4.9.8}{getContentRepo}{subsection.4.9}% 125
+\BOOKMARK [3][-]{subsubsection.4.9.9}{updateRepoFile}{subsection.4.9}% 126
+\BOOKMARK [3][-]{subsubsection.4.9.10}{removeRepo}{subsection.4.9}% 127
+\BOOKMARK [3][-]{subsubsection.4.9.11}{aggiornaCachePacchetti}{subsection.4.9}% 128
+\BOOKMARK [2][-]{subsection.4.10}{apache-sites.html-apache-modules.html-apache-configurations.html}{section.4}% 129
+\BOOKMARK [3][-]{subsubsection.4.10.1}{manageApache}{subsection.4.10}% 130

@@ -4276,7 +4276,7 @@ def updateDbFile():
 	except Exception:
 		return internal_server_error(500)
 \end{lstlisting}
-Il servizio richiama updatedb(). In pagina viene passato un valore hidden che permette di identifica il servizio.
+Il servizio richiama updatedb(). In pagina viene passato un valore hidden che permette di identificare il bottone che lancia il servizio.
 
 \subsubsection{retriveContentFile}\label{retriveContentFile}
 \begin{lstlisting}
@@ -4301,6 +4301,7 @@ def retriveContentFile():
 	except Exception:
 		return internal_server_error(500)
 \end{lstlisting}
+Il servizio richiama readfile() per recuperare il contenuto di un file. Viene richiamato più volte all'interno all'interno dell'applicativo.
 
 \subsubsection{updateFile}\label{updateFile}
 \begin{lstlisting}
@@ -4312,7 +4313,7 @@ def updateFile():
 		updatedContentFile = request.form['contentTextarea']
 		newContent = writefile(pathFile,updatedContentFile)
 		if(newContent['returncode'] != 0):
-			error = "Error during modification"
+			error = "Error during update"
 			return render_template("file.html",error=error)
 		else:
 			flash(u'Change successful!!','info')
@@ -4320,6 +4321,7 @@ def updateFile():
 	except Exception:
 		return internal_server_error(500)
 \end{lstlisting}
+Il servizio serve a rendere effettive le modifiche fatte al contenuto di un file. Richiama il metodo writefile().
 
 \subsubsection{deleteFile}\label{deleteFile}
 \begin{lstlisting}
@@ -4351,6 +4353,7 @@ def deleteFile():
 	except Exception:
 		return internal_server_error(500)
 \end{lstlisting}
+IL servizio serve ad eliminare un file. Recupera il path del file e lo passa alla funzione filedel(). Per vedere le modifiche dall'applicativo, senza obbligare l'utente a rieseguire l'update del db dei file, la funzionalità di viene richiamata nuovamente all'interno del servizio.
 
 \subsubsection{copyFile}\label{copyFile}
 \begin{lstlisting}
@@ -4382,6 +4385,7 @@ def copyFile():
 	else:
 		error = 'Non funzica'	
 \end{lstlisting}
+Il servizio viene richiamato per effettuare la copia di un file, richiamando la funzione filecopy(). Da una form, è possibile selezionare il path di destinazione, dove si vuole salvare la copia desiderata.Come per l'eliminazione dei file, per vedere le modifiche dall'applicativo, senza obbligare l'utente a rieseguire l'update del db dei file, la funzionalità di viene richiamata nuovamente all'interno del servizio.
 
 \subsubsection{renameFile}\label{renameFile}
 \begin{lstlisting}
@@ -4414,8 +4418,306 @@ def renameFile():
 		error = 'Non funzica'
 		return render_template("file.html",error=error)
 \end{lstlisting}
+Il servizio viene richiamato per rinominare un file, richiamando la funzione filerename(). Da una form, è possibile selezionare il nome nuovo del nostro file.Come per l'eliminazione e la copia dei file, per vedere le modifiche dall'applicativo, senza obbligare l'utente a rieseguire l'update del db dei file, la funzionalità di viene richiamata nuovamente all'interno del servizio.
 
+\subsection{applications.html}\label{applications.html}
 
+\includegraphics[width=\textwidth]{apps.png}\\
 
+\subsubsection{listInstalled}\label{listInstalled}
+\begin{lstlisting}
+@app.route('/listInstalled')
+def listInstalled():
+	listAppInst = listinstalled(True)
+	return render_template('applications.html', listAppInst = listAppInst)
+\end{lstlisting}
+Restituisce la lista della app installate.
+
+\subsubsection{findPkg}\label{findPkg}
+\begin{lstlisting}
+@app.route('/findPkg', methods=['POST'])
+def findPkg():
+	error = None
+	pkg = request.form['pkgSearch']
+	if not pkg:
+		flash(u'Wrong operation, impossible to search empty string','warning')
+	else:
+		if request.form.get('filterName') is not None:
+			appFound = aptsearch(pkg)
+			return render_template('find-pkg.html', appFound = appFound)
+		else:
+			appFound = aptsearch(pkg,namesonly=False)
+			return render_template('find-pkg.html', appFound = appFound)
+	return redirect(url_for('listInstalled'))
+\end{lstlisting}
+Avvia la ricerca dei paccheti installati e non installati e ne restiuisce la lista.
+La ricerca viene filtrata in base ad una checkbox che setta namesonly a true (ricerca solo per nome) se ceccata.
+
+\subsubsection{getInfoApp}\label{getInfoApp}
+\begin{lstlisting}
+@app.route('/getInfoApp/<string:name>')
+def getInfoApp(name):
+	infoApp = aptshow(name)['data']
+	#infoApp = infoApp.replace('\n', '<br>')
+	return render_template('info-app.html', infoApp = infoApp, name = name)
+\end{lstlisting}
+Restituisce le info del pacchetto installato. Accetta in input il pacchetto selezionato dall'utente presente nella lista in pagina. REstituisce una lista di stringhe, quindi è stata usata la replac per sostituire gli accapo con quelli leggibili da html.
+
+\subsubsection{removePackage}\label{removePackage}
+\begin{lstlisting}
+@app.route('/removePackage/<string:name>')
+def removePackage(name):
+	log = aptremove(name, False)
+	if log['returncode'] != 0:
+		error = 'Error package deletion failed'
+	else:
+		flash(u'Package removed correctly!','success')
+		return redirect(url_for('listInstalled'))
+	return render_template('applications.html',error=error)
+\end{lstlisting}
+FUnzione utilizzata per la rimozione dei pacchetit installati.
+
+\subsubsection{installPackage}\label{installPackage}
+\begin{lstlisting}
+@app.route('/installPackage/<string:name>')
+def installPackage(name):
+	log = aptinstall(name)
+	if log['returncode'] != 0:
+		error = 'Error package installation failed'
+	else:
+		flash(u'Package installed correctly!','success')
+		return redirect(url_for('listInstalled'))
+	return render_template('applications.html',error=error)
+\end{lstlisting}
+FUnzione utilizzata per l'installazione dei pacchetti non presenti.
+
+\subsubsection{retrieveExternalRepo}\label{retrieveExternalRepo}
+\begin{lstlisting}
+@app.route('/retrieveExternalRepo')
+def retrieveExternalRepo():
+	listOtherRepo = getexternalrepos()['data']
+	generatedRepoName = getreponame()
+	return render_template("other-repo.html", listOtherRepo=listOtherRepo, generatedRepoName=generatedRepoName)
+\end{lstlisting}
+Resituisce i repository esterni. Inoltre viene richiamata getreponame() per generare un nome dinamico per le dropdown presenti nelle form in pagina.
+
+\subsubsection{addRepo}\label{addRepo}
+\begin{lstlisting}
+@app.route('/addRepo', methods=['POST'])
+def addRepo():
+	try:
+		error = None
+		contentRepo = request.form['contentTextarea']
+		repoName = request.form['nameRepo']
+		log = addrepo(contentRepo,repoName)
+		if log['returncode'] != 0:
+			error = 'Repository added failed'
+			return render_template('applications.html',error=error)
+		else:
+			flash(u'Repository added correctly!','success')
+			return redirect(url_for('retrieveExternalRepo'))
+	except Exception:
+		return internal_server_error(500)
+\end{lstlisting}
+Funzione per l'aggiunta di una nuova repo. Da una form, si popolano i dati come utente desidera. Il nome è autogenerato o modificabile dall'utente.
+
+\subsubsection{getContentRepo}\label{getContentRepo}
+\begin{lstlisting}
+@app.route('/getContentRepo', methods=['POST'])
+def getContentRepo():
+	error = None
+	filenameSelected = request.form['filenameSelected']
+	if not filenameSelected:
+		error = "No file selected"
+		return render_template("other-repo.html",error=error)
+	else:
+		if filenameSelected == '-- Seleziona il filename --':
+			flash('Invalid option')
+		else:
+			pathRepo = externalreposdir + filenameSelected
+			content = readfile(pathRepo)
+			if(content['returncode'] != 0):
+				flash(log['stderr'])
+			else:
+				return render_template('other-repo-content.html',pathRepo=pathRepo,content=content)
+	return redirect(url_for('retrieveExternalRepo'))
+\end{lstlisting}
+Funzione che restituisce il contenuto di una repo, a meno di scelta invalidante.
+
+\subsubsection{updateRepoFile}\label{updateRepoFile}
+\begin{lstlisting}
+@app.route('/updateRepoFile', methods=['POST'])
+def updateRepoFile():
+	#try:
+		error = None
+		updatedRepo = request.form['contentTextarea']
+		path = request.form['pathRepo']
+		if not updatedRepo and not path:
+			error = "Parameters empty"
+			return render_template("other-repo.html", error=error)
+		else:
+			newPath = writefile(path, updatedRepo)
+			if(newPath['returncode'] != 0):
+				error = "Updated repository failed"
+				return render_template("other-repo.html", error=error)
+			else:
+				flash("Change successful!")
+				return redirect(url_for('retrieveExternalRepo'))
+	#except Exception:
+	#	return internal_server_error(500)
+\end{lstlisting}
+Funzione di update di un file repo, abilitata dopo che l'utente modifica il contenuto del repo presedentemente mostrato.
+
+\subsubsection{removeRepo}\label{removeRepo}
+\begin{lstlisting}
+@app.route('/removeRepo', methods=['POST'])
+def removeRepo():
+	#try:
+	error = None
+	filenameSelected = request.form['filenameSelected']
+	if not filenameSelected:
+		error = "No file selected"
+		return render_template("other-repo.html",error=error)
+	else:
+		if '.list' in filenameSelected:
+			newFilenameSelected = filenameSelected.replace('.list','')
+		if '.list.save' in filenameSelected:
+			newFilenameSelected = filenameSelected.replace('.list.save','')
+		else:
+			newFilenameSelected = filenameSelected
+
+		if newFilenameSelected == '-- Seleziona il filename --':
+			flash('Invalid option')
+		else:
+			log = removerepofile(newFilenameSelected)
+			if(log['returncode'] != 0):
+				flash(log['stderr'])
+			else:
+				flash('Repository deleted correctly!')
+		flash(newFilenameSelected)
+		return redirect(url_for('retrieveExternalRepo'))
+	#except Exception:
+	#	return internal_server_error(500)
+\end{lstlisting}
+Funzione di rimozione repo. Se il nome file contiene .list o .list.save, vengono "eliminati", affinchè la funzione removerepofile funzioni correttamente. 
+
+\subsubsection{aggiornaCachePacchetti}\label{aggiornaCachePacchetti}
+\begin{lstlisting}
+@app.route('/aggiornaCachePacchetti', methods=['POST'])
+def aggiornaCachePacchetti():
+	try:
+		error = None
+		if request.form['aggiornaCachePacchetti'] == 'Aggiorna cache pacchetti':
+			log = aptupdate()
+			if(log['returncode'] != 0):
+				flash(log['stderr'])
+				return redirect(url_for('retrieveExternalRepo'))
+			else:
+				flash('Cache packages updated!')
+				return redirect(url_for('retrieveExternalRepo'))
+		else:
+			error = 'Non funzica' 
+		return render_template('other-repo.html', error=error)
+	except Exception:
+		return internal_server_error(500)
+\end{lstlisting}
+FUnzione per l'aggiornamento dalla cache dei pacchetti. In pagina, è solo un bottone e nella funzione viene richiamata aptupdate(). 
+
+\subsection{apache-sites.html-apache-modules.html-apache-configurations.html}\label{apache-sites.html-apache-modules.html-apache-configurations.html}
+
+\includegraphics[width=\textwidth]{apache-sites.png}\\
+
+\includegraphics[width=\textwidth]{apache-modules.png}\\
+
+\includegraphics[width=\textwidth]{apache-configurations.png}\\
+
+\subsubsection{manageApache}\label{manageApache}
+\begin{lstlisting}
+@app.route('/startApache', methods=['POST'])
+def startApache():
+	try:
+		error = None
+		if request.form['b-start-a'] == 'Start':
+			log = apachestart()
+			if(log['returncode'] != 0):
+				error = log['stderr']
+			else:
+				flash("Apache started correctly")
+				return redirect(url_for('sites'))
+		else:
+			error = 'Non funzica' 
+		return render_template('apache-sites.html', error=error)
+	except Exception:
+		return internal_server_error(500)
+
+@app.route('/stopApache', methods=['POST'])
+def stopApache():
+	try:
+		error = None
+		if request.form['b-stop-a'] == 'Stop':
+			log = apachestop()
+			if(log['returncode'] != 0):
+				error = log['stderr']
+			else:
+				flash("Apache stopped correctly")
+				return redirect(url_for('sites'))
+		else:
+			error = 'Non funzica' 
+		return render_template('apache-sites.html', error=error)
+	except Exception:
+		return internal_server_error(500)
+
+@app.route('/restartApache', methods=['POST'])
+def restartApache():
+	try:
+		error = None
+		if request.form['b-restart-a'] == 'Restart':
+			log = apacherestart()
+			if(log['returncode'] != 0):
+				error = log['stderr']
+			else:
+				flash("Apache restarted correctly")
+				return redirect(url_for('sites'))
+		else:
+			error = 'Non funzica' 
+		return render_template('apache-sites.html', error=error)
+	except Exception:
+		return internal_server_error(500)
+
+@app.route('/reloadApache', methods=['POST'])
+def reloadApache():
+	try:
+		error = None
+		if request.form['b-reload-a'] == 'Reload':
+			log = apachereload()
+			if(log['returncode'] != 0):
+				error = log['stderr']
+			else:
+				flash("Apache reloaded correctly")
+				return redirect(url_for('sites'))
+		else:
+			error = 'Non funzica' 
+		return render_template('apache-sites.html', error=error)
+	except Exception:
+		return internal_server_error(500)
+
+@app.route('/statusApache', methods=['POST'])
+def statusApache():
+	try:
+		error = None
+		if request.form['b-status-a'] == 'Status':
+			logStatus = apachestatus()
+			if(logStatus['returncode'] != 0):
+				error = logStatus['stderr']
+			else:
+				return render_template('apache-sites.html', logStatus=logStatus)
+		else:
+			error = 'Non funzica' 
+		return render_template('apache-sites.html', error=error)
+	except Exception:
+		return internal_server_error(500)
+\end{lstlisting}
+Sites, modules, configurations utilizzano le 5 funzioni in alto che servono per la gestione di apache server.\\
+E' possibile agire su di sites, modules e configurations, attivandoli e disattivandoli (bottone rosso-bottono verde). Una volta effettuata una mdoifica in pagina, automaticamente tutti i bottoni tranne restart e reload sono disabilitati. Infatti, per verificare gli effetti di queste attivazioni/disattivazioni, è necessario agire prima sul apache.\\Successivamente saranno visibili i cambiamenti in pagina. 
 
 \end{document}

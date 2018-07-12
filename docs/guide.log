@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.6.30)  12 JUL 2018 02:40
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.6.30)  12 JUL 2018 23:58
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -921,7 +921,7 @@ aramtri; tutte le con-fig-u-razioni vanno in-serite nel file \OT1/cmtt/m/n/10.9
 5 /etc/updatedb.conf\OT1/cmr/m/n/10.95 ,
  []
 
-[77] [78] [79] [80] <./images/mongo.png, id=2993, 1380.15625pt x 330.23375pt>
+[77] [78] [79] [80] <./images/mongo.png, id=3064, 1380.15625pt x 330.23375pt>
 File: ./images/mongo.png Graphic file (type png)
 
 <use ./images/mongo.png>
@@ -933,21 +933,21 @@ Underfull \hbox (badness 10000) in paragraph at lines 3678--3679
  []
 
 [81 <./images/mongo.png>]
-<./images/dash1.png, id=3020, 1732.4725pt x 912.40875pt>
+<./images/dash1.png, id=3090, 1732.4725pt x 912.40875pt>
 File: ./images/dash1.png Graphic file (type png)
 
 <use ./images/dash1.png>
 Package pdftex.def Info: ./images/dash1.png used on input line 3705.
 (pdftex.def)             Requested size: 484.20988pt x 255.01328pt.
 
-<./images/dash2.png, id=3021, 1815.78375pt x 908.39375pt>
+<./images/dash2.png, id=3091, 1815.78375pt x 908.39375pt>
 File: ./images/dash2.png Graphic file (type png)
 
 <use ./images/dash2.png>
 Package pdftex.def Info: ./images/dash2.png used on input line 3706.
 (pdftex.def)             Requested size: 484.20988pt x 242.23404pt.
 
-<./images/dash3.png, id=3022, 1807.75375pt x 920.43875pt>
+<./images/dash3.png, id=3092, 1807.75375pt x 920.43875pt>
 File: ./images/dash3.png Graphic file (type png)
 
 <use ./images/dash3.png>
@@ -959,14 +959,14 @@ Underfull \hbox (badness 10000) in paragraph at lines 3705--3708
  []
 
 [82 <./images/dash1.png>]
-<./images/network1.png, id=3035, 1861.95625pt x 929.4725pt>
+<./images/network1.png, id=3105, 1861.95625pt x 929.4725pt>
 File: ./images/network1.png Graphic file (type png)
 
 <use ./images/network1.png>
 Package pdftex.def Info: ./images/network1.png used on input line 3721.
 (pdftex.def)             Requested size: 484.20988pt x 241.71388pt.
 
-<./images/network2.png, id=3036, 1861.95625pt x 929.4725pt>
+<./images/network2.png, id=3106, 1861.95625pt x 929.4725pt>
 File: ./images/network2.png Graphic file (type png)
 
 <use ./images/network2.png>
@@ -984,7 +984,7 @@ Overfull \hbox (4.34319pt too wide) in paragraph at lines 3752--3753
 ^^Re pre-sente la parola loop-back (cio^^Re se ^^Re l'interfaccia
  []
 
-[85] [86] <./images/param.png, id=3134, 1567.8575pt x 920.43875pt>
+[85] [86] <./images/param.png, id=3204, 1567.8575pt x 920.43875pt>
 File: ./images/param.png Graphic file (type png)
 
 <use ./images/param.png>
@@ -1001,7 +1001,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 3871--3873
  []
 
 [88 <./images/param.png>]
-<./images/usergroups.png, id=3184, 1570.86874pt x 921.4425pt>
+<./images/usergroups.png, id=3255, 1570.86874pt x 921.4425pt>
 File: ./images/usergroups.png Graphic file (type png)
 
 <use ./images/usergroups.png>
@@ -1063,14 +1063,14 @@ Underfull \hbox (badness 10000) in paragraph at lines 4064--4065
 
  []
 
-[93] <./images/cron1.png, id=3357, 1569.865pt x 921.4425pt>
+[93] <./images/cron1.png, id=3427, 1569.865pt x 921.4425pt>
 File: ./images/cron1.png Graphic file (type png)
 
 <use ./images/cron1.png>
 Package pdftex.def Info: ./images/cron1.png used on input line 4087.
 (pdftex.def)             Requested size: 484.20988pt x 284.2101pt.
 
-<./images/cron2.png, id=3358, 1567.8575pt x 924.45375pt>
+<./images/cron2.png, id=3428, 1567.8575pt x 924.45375pt>
 File: ./images/cron2.png Graphic file (type png)
 
 <use ./images/cron2.png>
@@ -1082,21 +1082,21 @@ Underfull \hbox (badness 10000) in paragraph at lines 4087--4089
  []
 
 [94 <./images/cron1.png>] [95 <./images/cron2.png>] [96] [97]
-<./images/file1.png, id=3487, 1635.10875pt x 480.79625pt>
+<./images/file1.png, id=3558, 1635.10875pt x 480.79625pt>
 File: ./images/file1.png Graphic file (type png)
 
 <use ./images/file1.png>
 Package pdftex.def Info: ./images/file1.png used on input line 4227.
 (pdftex.def)             Requested size: 484.20988pt x 142.37654pt.
 
-<./images/file2.png, id=3488, 1624.0675pt x 485.815pt>
+<./images/file2.png, id=3559, 1624.0675pt x 485.815pt>
 File: ./images/file2.png Graphic file (type png)
 
 <use ./images/file2.png>
 Package pdftex.def Info: ./images/file2.png used on input line 4228.
 (pdftex.def)             Requested size: 484.20988pt x 144.84125pt.
 
-<./images/file3.png, id=3489, 1629.08624pt x 521.95pt>
+<./images/file3.png, id=3560, 1629.08624pt x 521.95pt>
 File: ./images/file3.png Graphic file (type png)
 
 <use ./images/file3.png>
@@ -1108,26 +1108,73 @@ Underfull \hbox (badness 10000) in paragraph at lines 4227--4230
  []
 
 [98 <./images/file1.png> <./images/file2.png>] [99 <./images/file3.png>]
+[100] [101] [102] <./images/apps.png, id=3730, 1569.865pt x 887.315pt>
+File: ./images/apps.png Graphic file (type png)
 
-! LaTeX Error: There's no line here to end.
+<use ./images/apps.png>
+Package pdftex.def Info: ./images/apps.png used on input line 4425.
+(pdftex.def)             Requested size: 484.20988pt x 273.68379pt.
 
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.4305 \subsubsection
-                     {updateFile}\label{updateFile}
-? 
-[100] [101] [102]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 4421.
- [103]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 4421.
+Underfull \hbox (badness 10000) in paragraph at lines 4425--4426
+
+ []
+
+[103] [104 <./images/apps.png>] [105] [106] [107] [108]
+<./images/apache-sites.png, id=3942, 1574.88374pt x 545.03625pt>
+File: ./images/apache-sites.png Graphic file (type png)
+
+<use ./images/apache-sites.png>
+Package pdftex.def Info: ./images/apache-sites.png used on input line 4628.
+(pdftex.def)             Requested size: 484.20988pt x 167.57062pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 4628--4629
+
+ []
+
+<./images/apache-modules.png, id=3943, 1569.865pt x 872.25874pt>
+File: ./images/apache-modules.png Graphic file (type png)
+
+<use ./images/apache-modules.png>
+Package pdftex.def Info: ./images/apache-modules.png used on input line 4630.
+(pdftex.def)             Requested size: 484.20988pt x 269.03984pt.
+
+Overfull \hbox (17.0pt too wide) in paragraph at lines 4630--4631
+[][] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 4630--4631
+
+ []
+
+<./images/apache-configurations.png, id=3944, 1569.865pt x 816.04875pt>
+File: ./images/apache-configurations.png Graphic file (type png)
+
+<use ./images/apache-configurations.png>
+Package pdftex.def Info: ./images/apache-configurations.png used on input line 
+4632.
+(pdftex.def)             Requested size: 484.20988pt x 251.70241pt.
+
+Overfull \hbox (17.0pt too wide) in paragraph at lines 4632--4633
+[][] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 4632--4633
+
+ []
+
+[109 <./images/apache-sites.png> <./images/apache-modules.png>] [110 <./images/
+apache-configurations.png>] [111]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 4723.
+ [112]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 4723.
  (./guide.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 4421.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 4421.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 4723.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 4723.
 
 Package rerunfilecheck Info: File `guide.out' has not changed.
-(rerunfilecheck)             Checksum: 0DBA49AE450CAA0BBC2443B838332749;7992.
+(rerunfilecheck)             Checksum: 2AF232546B124D7E1740F0F1AC149E11;9068.
 
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
@@ -1135,13 +1182,13 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 LaTeX Warning: There were multiply-defined labels.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 4421.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 4723.
  ) 
 Here is how much of TeX's memory you used:
- 11351 strings out of 494953
- 162957 string characters out of 6180977
- 389873 words of memory out of 5000000
- 11806 multiletter control sequences out of 15000+600000
+ 11690 strings out of 494953
+ 168824 string characters out of 6180977
+ 390658 words of memory out of 5000000
+ 11880 multiletter control sequences out of 15000+600000
  10757 words of font info for 38 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  34i,12n,43p,475b,1926s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -1158,10 +1205,10 @@ fonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm
 0.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb>
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/
 share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.pfb>
-Output written on guide.pdf (106 pages, 1529949 bytes).
+Output written on guide.pdf (115 pages, 1868618 bytes).
 PDF statistics:
- 4302 PDF objects out of 5155 (max. 8388607)
- 4125 compressed objects within 42 object streams
- 2739 named destinations out of 2984 (max. 500000)
- 994 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 4708 PDF objects out of 5155 (max. 8388607)
+ 4514 compressed objects within 46 object streams
+ 3000 named destinations out of 3580 (max. 500000)
+ 1126 words of extra memory for PDF output out of 10000 (max. 10000000)
 
