@@ -34,7 +34,6 @@ def listUserAndGroups():
 		flash("getusers or getgroups failed")
 	else:
 		return render_template('users.html', users = users,groups = groups,shells = shells)
-
 	return redirect(url_for('listUserAndGroups'))
 
 # http://localhost:5000/getInfoUser/<clicca valore uname>
@@ -593,6 +592,7 @@ def renameFile():
 					return redirect(url_for('file'))
 	else:
 		error = 'Non funzica'
+		return render_template("file.html",error=error)
 
 ########## FUNZIONALITÀ system.py ##########
 #http://localhost:5000/dash

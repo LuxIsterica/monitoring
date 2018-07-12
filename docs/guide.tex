@@ -3850,8 +3850,572 @@ Il servizio è mappato come una richiesta di tipo POST e accetta un solo paramet
 
 \subsection{param.html}\label{param.html}
 
-\includegraphics[width=\textwidth]{network1.png}\\
-\includegraphics[width=\textwidth]{network2.png}\\
+\includegraphics[width=\textwidth]{param.png}\\
+
+\subsubsection{param}\label{param}
+\begin{lstlisting}
+@app.route('/param')
+def param():
+	error = None
+	hname = hostname()
+	listFile = list()
+	listDir = list()
+	listFile = ['/etc/hosts','/etc/apache2/apache2.conf','/etc/profile','/etc/motd','/etc/network/interfaces','/etc/crontab']
+	listDir = ['/etc/apache2/sites-available','/etc/apache2/mods-available','etc/apache2/conf-available','/etc/update.motd.d/','/etc/network/interfaces.d/','/var/spool/cron/crontabs']
+	if(hname['returncode'] != 0):
+		flash(hname['stderr'])
+	else:
+		return render_template('param.html', hname=hname, listFile=listFile, listDir=listDir)
+	return render_template('param.html')
+\end{lstlisting}
+Il servizio richiama il metodo hostname e restituisce hostname della macchina che è possibile modificare.
+Inoltre raccoglie in due liste alcuni file e cartelle su cui è possibile visualizzarne il contenuto.\\
+
+\subsubsection{newHostname}\label{newHostname}
+\begin{lstlisting}
+@app.route('/newHostname', methods=['POST'])
+def newHostname():
+	try:
+		error = None
+		hname = request.form['newHname']
+		if not hname:
+			flash('Hostname cannot be empty!')
+		else:
+			log = hostname(hname)
+			if(log['returncode'] != 0):
+				flash(log['stderr'])
+			else:
+				flash('Hostname changed correctly!')
+		return redirect(url_for('param'))
+	except Exception:
+		return internal_server_error(500)
+\end{lstlisting}
+Il servizio che recupera il nuovo hostname scelto dall'utente tramit un form in pagina e lo modifica.
+
+\subsubsection{retriveFileDir}\label{retriveFileDir}
+\begin{lstlisting}
+@app.route('/retriveFileDir', methods=['POST'])
+def retriveFileDir():
+	pathDir = request.form['pathDir']
+	if not pathDir:
+		flash('Path directory is empty')
+	else:
+		listFile = readdir(pathDir)
+		if listFile['returncode'] != 0:
+			flash(log['stderr'])
+		else:
+			return render_template("dir-content.html", listFile=listFile, pathDir=pathDir)
+	return redirect(url_for('param'))
+\end{lstlisting}
+Il servizio recupera il path dalla lista delle cartella e ne legge il contenuto.
+
+\subsection{users.html}\label{users.html}
+
+\includegraphics[width=\textwidth]{usergroups.png}\\
+
+\subsubsection{listUserAndGroups}\label{listUserAndGroups}
+\begin{lstlisting}
+@app.route('/listUserAndGroups')
+def listUserAndGroups():
+	error = None
+	users = getusers()
+	groups = getgroups()
+	shells = getshells()
+	if users['returncode'] != 0 or groups['returncode'] != 0:
+		flash("getusers or getgroups failed")
+	else:
+		return render_template('users.html', users = users,groups = groups,shells = shells)
+	return redirect(url_for('listUserAndGroups'))
+\end{lstlisting}
+Il servizio richiama tre metodi getusers() e  getgroups() per mostrare il risultato in due tabelle e getshells() servito per il form add user, in modo da popolare la dropdown per la selezione della shell.
+
+\subsubsection{getInfoUser}\label{getInfoUser}
+\begin{lstlisting}
+@app.route('/getInfoUser/<string:uname>')
+def getInfoUser(uname):
+	infouser = getuser(uname)
+	shells = getshells()
+	nogroups = getusernotgroups(uname)
+	groupsuser = getusergroups(uname)
+	return render_template('info-user.html', infouser = infouser, shells = shells, nogroups = nogroups, groupsuser=groupsuser)
+\end{lstlisting}
+IL servizio accetta in input un parametro che corrisponde all'uname. Il parametro viene passato in input alla funzione getuser() e restituisce le informazioni del singolo uname. Infatti, in pagina, se si clicca sul singolo uname, si viene riportati in una pagina con le informazioni dell'uname.
+Inoltre, nello stesso servizio vengono richimati altri 4 metodi, getshells() servito per il form per la modifica della shell, in modo da popolare la dropdown per la selezione della shell.
+Gli altri metodi sono getusernotgroups() e getusergroups() che sono serviti in pagina per le form di aggiunta user ai gruppi e rimozione user dai gruppi.
+
+\subsubsection{updateShell}\label{updateShell}
+\begin{lstlisting}
+@app.route('/updateShell', methods=['POST'])
+def updateShell():
+	try:
+		error = None
+		uname = request.form['unameUpdate'];
+		shell = request.form['newShell'];
+		if shell == '-- Seleziona nuova shell --':
+			error = 'Invalid option'
+		else:
+			log = updateusershell(uname, shell)
+			if(log['returncode'] != 0):
+				error = log['stderr']
+			else:
+				flash('Shell changed correctly!')	
+				return redirect(url_for('listUserAndGroups'))
+		return render_template('users.html',error=error)
+	except Exception:
+		return internal_server_error(500)
+\end{lstlisting}
+Il servizio recupera l'uname e la shell da modifica e richiama updateusershell(), a meno che l'user non selezioni un'opzione non valida.
+
+\subsubsection{addUserGroup}\label{addUserGroup}
+\begin{lstlisting}
+@app.route('/addUserGroup', methods=['POST'])
+def addUserGroup():
+	try:
+		error = None
+		uname = request.form['unameAdd'];
+		moreGr = request.form.getlist('moreGroups');
+		if not uname:
+			error = "uname empty"
+			return render_template("users.html",error=error)
+		else:
+			if '-- Seleziona uno o più gruppi --' in moreGr:
+				flash('Invalid option')
+			else:
+				log = addusertogroups(uname, *moreGr)
+				if(log['returncode'] != 0):
+					flash(log['stderr'])
+				else:
+					flash('User added correctly to groups!')
+		return redirect(url_for('listUserAndGroups'))
+	except Exception:
+		return internal_server_error(500)
+\end{lstlisting}
+Il servzio aggiunge l'uname recuperato a una lista di gruppi che l'utente seleziona in pagina. La funzione della request utilizzata è getlist(). I parametri recuperati vengono passati alla funzione addusertogroups(), a meno che uname non sia vuoto o tra i gruppi selezionati non ci sia un'opzione non valida.
+
+\subsubsection{removeUserGroup}\label{removeUserGroup}
+\begin{lstlisting}
+@app.route('/removeUserGroup', methods=['POST'])
+def removeUserGroup():
+	try:
+		error = None
+		uname = request.form['unameRem'];
+		moreGr = request.form.getlist('moreGroups');
+		if not uname:
+			error = "uname empty"
+			return render_template("users.html",error=error)
+		else:
+			if '-- Seleziona uno o più gruppi --' in moreGr:
+				flash('Invalid option')
+			else:
+				log = removeuserfromgroups(uname, *moreGr)
+				if(log['returncode'] != 0):
+					flash(log['stderr'])
+				else:
+					flash('User deleted correctly to groups!')
+		return redirect(url_for('listUserAndGroups'))
+	except Exception:
+		return internal_server_error(500)
+\end{lstlisting}
+Il servzio rimuove l'uname recuperato a una lista di gruppi che l'utente seleziona in pagina. La funzione della request utilizzata è getlist(). I parametri recuperati vengono passati alla funzione removeuserfromgroups(), a meno che uname non sia vuoto o tra i gruppi selezionati non ci sia un'opzione non valida.
+
+\subsubsection{updateUserPwd}\label{updateUserPwd}
+\begin{lstlisting}
+@app.route('/updateUserPwd', methods=['POST'])
+def updateUserPwd():
+	try:
+		error = None
+		uname = request.form['uname']
+		newPwd = request.form['newPassword']
+		if not newPwd:
+			flash('Password empty')
+		else:
+			log = updateuserpass(uname, newPwd)
+			if(log['returncode'] != 0):
+				flash(log['stderr'])
+			else:
+				flash('Password updated correctly')
+		
+		return redirect(url_for('listUserAndGroups'))
+	except Exception:
+		return internal_server_error(500)
+\end{lstlisting}
+Il servizio recupera uname e la nuova password, per l'aggiornamento della password utente e richiama il metodo updateuserpass(), a meno che il campo passord non sia vuoto.
+
+\subsubsection{addUser}\label{addUser}
+\begin{lstlisting}
+@app.route('/addUser', methods=['POST'])
+def addUser():
+	error = None
+	user = request.form['user']
+	pwd = request.form['password']
+	shell = request.form['shell']
+	if not user and not password:
+		error = 'User and password empty'
+		return render_template('listUserAndGroups',error=error)
+	else:
+		log = adduser(user,pwd,shell)
+		if(log['returncode'] != 0):
+			error = log['stderr']
+			return render_template('listUserAndGroups',error=error)
+		else:
+			flash('User added correctly!')
+	return redirect(url_for('listUserAndGroups'))
+\end{lstlisting}
+Il servizio tramite una form, recupera user, password e shell per l'aggiunta di un nuovo utente e richiama il metodo adduser(), a meno che il campo user e passord non siano vuoti.\\
+
+\subsubsection{removeUser}\label{removeUser}
+\begin{lstlisting}
+@app.route('/removeUser', methods=['POST'])
+def removeUser():
+	error = None
+	user = request.form['user']
+	if not user:
+		error = 'User empty'
+		return render_template('listUserAndGroups',error=error)
+	else:
+		log = removeuser(user)
+		if(log['returncode'] != 0):
+			flash(log['stderr'])
+		else:
+			flash('User deleted correctly!')
+	return redirect(url_for('listUserAndGroups'))
+\end{lstlisting}
+Il servizio tramite una form, recupera user che si desidera eliminare, infatti richiama il metodo removeUser(), a meno che il campo user non sia vuoto.
+
+\subsection{jobs.html}\label{jobs.html}
+
+\includegraphics[width=\textwidth]{cron1.png}\\
+\includegraphics[width=\textwidth]{cron2.png}\\
+
+\subsubsection{listCron}\label{listCron}
+\begin{lstlisting}
+@app.route('/listCron')
+def listCron():
+	listCrontabs = listcrontabs()
+	generatedCronName = getcronname()
+	return render_template("jobs.html",listCrontabs=listCrontabs, generatedCronName=generatedCronName)
+\end{lstlisting}
+Il servizio richiama il metodo listcrontabs() che restituisce la lista dei cron la lista dei cron che sono stati organizzati per chiave in pagina.
+
+\subsubsection{getContentCrontab}\label{getContentCrontab}
+\begin{lstlisting}
+@app.route('/getContentCrontab/<string:cronk>/<string:cronv>')
+def getContentCrontab(cronk,cronv):
+	basedir='/etc/'
+	pathCron=basedir+cronk+'/'+cronv
+	content = readfile(pathCron)
+	#return send_file(pathCron,attachment_filename=cronv) fa il download
+	return render_template("jobs-details.html", content=content, pathCron=pathCron)
+\end{lstlisting}
+Il servizio costruisce il path iniziale del cron, concatenando il path restante e il nome del cron che vengono passati in input. Eseguo il metodo readfile() che restituisce il contenuto del cron.
+
+\subsubsection{updateCrontab}\label{updateCrontab}
+\begin{lstlisting}
+@app.route('/updateCrontab', methods=['POST'])
+def updateCrontab():
+	try:
+		error = None
+		updatedCrontab = request.form['contentTextarea']
+		path = request.form['hiddenPath']
+		if not updateCrontab and not path:
+			error = "Errore passaggio parametri: vuoti"
+			return render_template("jobs.html", error=error)
+		else:
+			newPath = writefile(path, updatedCrontab)
+			if(newPath['returncode'] != 0):
+				error = "Edit cron failed"
+				return render_template("jobs.html", error=error)
+			else:
+				flash("Cron updated correctly")
+				return redirect(url_for('listCron'))
+	except Exception:
+		return internal_server_error(500)	
+\end{lstlisting}
+Una volta in pagina, se si esegue una modifica, il bottone di modifica si abilita e viene richiamato il metodo writefile().
+
+\subsubsection{deleteCron}\label{deleteCron}
+\begin{lstlisting}
+@app.route('/deleteCron', methods=['POST'])
+def deleteCron():
+	try:
+		error = None
+		selectedCron = request.form['selectedCron']
+		basedir='/etc/'
+		pathCron=basedir+selectedCron
+		if not selectedCron:
+			error = "No cron selected"
+			return render_template("jobs.html",error=error)
+		else:
+			if selectedCron == '-- Seleziona cron --':
+				flash('Invalid option')
+			else:
+				log = filedel(pathCron)
+				if(log['returncode'] != 0):
+					flash(log['stderr'])
+				else:
+					flash('Cron deleted correctly!')
+
+			return redirect(url_for('listCron'))
+	except Exception:
+		return internal_server_error(500)
+\end{lstlisting}
+Il servizio elimina il cron selezionato dalla dropdown e richiama il metodo filedel().
+
+\subsubsection{addCron}\label{addCron}
+\begin{lstlisting}
+@app.route('/addCron', methods=['POST'])
+def addCron():
+	try:
+		error = None
+		command=request.form["command"] 
+		name=request.form["nameCron"] 
+		user=request.form["user"] 
+		minute=request.form["minute"] 
+		hour=request.form["hour"] 
+		dom=request.form["dayOfMounth"] 
+		month=request.form["mounth"] 
+		dow=request.form["dayOfWeek"]
+		if not command:
+			error = "Command cannot be empty"
+		else:
+			log = addcron(command, name, user, minute, hour, dom, month, dow)
+			if log['returncode'] != 0:
+				error = "Add cron failed"
+			else:
+				flash("Cron added correctly")
+				return redirect(url_for('listCron'))
+		return render_template("jobs.html",error=error)	
+	except Exception:
+		return internal_server_error(500)
+\end{lstlisting}
+Viene compilata una form in pagina, l'unico campo obbligatorio è il campo Comando. Il servizio recupera tutti i parametri selezionati dall'utente e richiama addcron().
+
+\subsubsection{addCustomCron}\label{addCustomCron}
+\begin{lstlisting}
+@app.route('/addCustomCron', methods=['POST'])
+def addCustomCron():
+	try:
+		error = None
+		command=request.form["command"] 
+		name=request.form["nameCron"]
+		typeOption = request.form["typeOption"]
+		if not command:
+			error = "Command cannot be empty"
+		else:
+			if typeOption == 'ogni ora':
+				log = addhourlycron(command, name)
+			elif typeOption == 'ogni giorno':
+				log = adddailycron(command, name)
+			elif typeOption == 'ogni settimana':
+				log = addweeklycron(command, name)
+			elif typeOption == 'ogni mese':
+				log = addmonthlyycron(command, name)
+
+			if log['returncode'] != 0:
+				error = "Add cron failed"
+			else:
+				flash("Cron custom added correctly")
+				return redirect(url_for('listCron'))
+		return render_template("jobs.html",error=error)	
+	except Exception:
+		return internal_server_error(500)
+\end{lstlisting}
+Viene compilata una form in pagina, l'unico campo obbligatorio è il campo Comando, mentre in base al tipo selezionato dall'utente, viene richiamato un metodo diverso: se l'utente sceglie ogni ora, verrà richiamato addhourlycron(), se sceglie ogni giorno, verrà richiamato adddailycron(), ecc..
+
+\subsection{file.html}\label{file.html}
+
+\includegraphics[width=\textwidth]{file1.png}\\
+\includegraphics[width=\textwidth]{file2.png}\\
+\includegraphics[width=\textwidth]{file3.png}\\
+
+\subsubsection{file}\label{file}
+\begin{lstlisting}
+@app.route('/file')
+def file():
+	return render_template('file.html')
+\end{lstlisting}
+Mostra univocaente la pagina senza alcuna logica particolare.
+
+\subsubsection{findFile}\label{findFile}
+\begin{lstlisting}
+@app.route('/findFile', methods=['POST'])
+def findFile():
+	error = None
+	fs = request.form['fileSearch'];
+	if not fs:
+		flash(u'Impossible to search empty string','error')
+	else:
+		pathFileFound = locate(fs);
+		if not pathFileFound:
+			error = "No file found"
+			return render_template('file.html',error=error)
+		else:
+			return render_template('file.html', pathFileFound = pathFileFound)
+		
+	return redirect(url_for('file'))
+\end{lstlisting}
+Il servizio viene richiamato quando l'utente ricerca un file all'interno del filesystem. Richiama il metodo locate() e gli passa in input la stringa ricercata dall'utente.
+
+\subsubsection{updateDbFile}\label{updateDbFile}
+\begin{lstlisting}
+@app.route('/updateDbFile', methods=['POST'])
+def updateDbFile():
+	try:
+		error = None
+		if request.form['updateDbFile'] == 'Aggiorna DB File':
+			log = updatedb()
+			if(log['returncode'] != 0):
+				error = 'File database not updated'
+				return render_template('file.html',error=error)
+			else:
+				flash(u'Db updated!','info')
+				return redirect(url_for('file'))
+		else:
+			error = 'Non funzica' 
+		return render_template('file.html', error=error)
+	except Exception:
+		return internal_server_error(500)
+\end{lstlisting}
+Il servizio richiama updatedb(). In pagina viene passato un valore hidden che permette di identifica il servizio.
+
+\subsubsection{retriveContentFile}\label{retriveContentFile}
+\begin{lstlisting}
+@app.route('/retriveContentFile', methods=['POST'])
+def retriveContentFile():
+	try:
+		error = None
+		if request.form['retriveContentFile'] == 'Modifica':
+			pathFile = request.form['pathFile']
+			if not pathFile:
+				error = "Path empty"
+				return render_template("file.html",error=error)
+			else:
+				fileContent = readfile(pathFile)
+				if(fileContent['returncode'] != 0):
+					error = fileContent['command']
+				else:
+					return render_template("file-content.html", fileContent=fileContent, pathFile=pathFile)
+		else:
+			error = 'Non funzica' 
+		return render_template('file.html', error=error)
+	except Exception:
+		return internal_server_error(500)
+\end{lstlisting}
+
+\subsubsection{updateFile}\label{updateFile}
+\begin{lstlisting}
+@app.route('/updateFile', methods=['POST'])
+def updateFile():
+	try:
+		error = None
+		pathFile = request.form['pathFile']
+		updatedContentFile = request.form['contentTextarea']
+		newContent = writefile(pathFile,updatedContentFile)
+		if(newContent['returncode'] != 0):
+			error = "Error during modification"
+			return render_template("file.html",error=error)
+		else:
+			flash(u'Change successful!!','info')
+			return redirect(url_for('file'))
+	except Exception:
+		return internal_server_error(500)
+\end{lstlisting}
+
+\subsubsection{deleteFile}\label{deleteFile}
+\begin{lstlisting}
+@app.route('/deleteFile', methods=['POST'])
+def deleteFile():
+	try:
+		error = None
+		if request.form['deleteFile'] == 'Elimina':
+			pathFile = request.form['pathFile']
+			if not pathFile:
+				error = "Path empty"
+				return render_template("file.html",error=error)
+			else:
+				log = filedel(pathFile)
+				if(log['returncode'] != 0):
+					error = log['stderr']
+					return render_template('file.html',error=error)
+				else:
+					log = updatedb()
+					if(log['returncode'] != 0):
+						error = 'File database not updated'
+						return render_template('file.html',error=error)
+					else:
+						flash(u'File deleted correctly!','info')
+						return redirect(url_for('file'))
+		else:
+			error = 'Non funzica' 
+		return render_template('file.html', error=error)
+	except Exception:
+		return internal_server_error(500)
+\end{lstlisting}
+
+\subsubsection{copyFile}\label{copyFile}
+\begin{lstlisting}
+@app.route('/copyFile', methods=['POST'])
+def copyFile():
+	error = None
+	if request.form['copyFile'] == 'Copia':
+		pathFile = request.form['pathFile']
+		pathDest = request.form['destPathFile']
+		if not pathFile:
+			error = "Path empty"
+			return render_template("file.html",error=error)
+		elif not pathDest:
+			error = "Destination path cannot be empty"
+			return render_template("file.html",error=error)
+		else:
+			log = filecopy(pathFile,pathDest)
+			if(log['returncode'] != 0):
+				error =	log['stderr']
+				return render_template("file.html",error=error)
+			else:
+				log = updatedb()
+				if(log['returncode'] != 0):
+					error = 'Database dei file non aggiornato'
+					return render_template('file.html',error=error)
+				else:
+					flash(u'File copiato correctly!','info')
+					return redirect(url_for('file'))
+	else:
+		error = 'Non funzica'	
+\end{lstlisting}
+
+\subsubsection{renameFile}\label{renameFile}
+\begin{lstlisting}
+@app.route('/renameFile', methods=['POST'])
+def renameFile():
+	error = None
+	if request.form['renameFile'] == 'Rinomina':
+		pathFile = request.form['pathFile']
+		newName = request.form['newNameFile']
+		if not pathFile:
+			error = "Path empty"
+			return render_template("file.html",error=error)
+		elif not newName:
+			error = "Nessun nuovo nome inserito"
+			return render_template("file.html",error=error)
+		else:
+			log = filerename(pathFile,newName)
+			if(log['returncode'] != 0):
+				error =	log['stderr']
+				return render_template("file.html",error=error)
+			else:
+				log = updatedb()
+				if(log['returncode'] != 0):
+					error = 'Database dei file non aggiornato'
+					return render_template('file.html',error=error)
+				else:
+					flash(u'File rinominato correctly!','info')
+					return redirect(url_for('file'))
+	else:
+		error = 'Non funzica'
+		return render_template("file.html",error=error)
+\end{lstlisting}
+
+
 
 
 \end{document}
